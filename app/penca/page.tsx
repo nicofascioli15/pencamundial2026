@@ -261,7 +261,21 @@ export default function PencaPage() {
 
   if (cargando) return <div style={{display:"flex",justifyContent:"center",alignItems:"center",minHeight:"100vh",flexDirection:"column",gap:16,background:"#f2f7fb"}}><span style={{fontSize:52}}>⚽</span><span style={{color:"#6b7280",fontFamily:"DM Sans,sans-serif"}}>Cargando...</span></div>;
 
-  const partidos = TODOS_PARTIDOS.filter(p=>{
+  const idsDestacados = partidosHoy.map(p => p.id);
+
+const partidos = TODOS_PARTIDOS.filter(p=>{
+  if (idsDestacados.includes(p.id)) return false;
+
+  if (p.fase!==filtroFase) return false;
+
+  if (
+    filtroFase==="Grupos" &&
+    filtroGrupo!=="Todos" &&
+    p.grupo!==filtroGrupo
+  ) return false;
+
+  return true;
+});
     if (p.fase!==filtroFase) return false;
     if (filtroFase==="Grupos"&&filtroGrupo!=="Todos"&&p.grupo!==filtroGrupo) return false;
     return true;
@@ -318,8 +332,30 @@ export default function PencaPage() {
               <div style={{marginBottom:16}}>
                 <div className="hoy-header">
                   <div className="hoy-title">
+  <span>📅</span>
+  {fechaHoy === new Date().toISOString().split("T")[0]
+    ? "Partidos de hoy"
+    : "Próxima jornada"}
+</div>
+  <span>📅</span>
+  {fechaHoy === new Date().toISOString().split("T")[0]
+    ? "Partidos de hoy"
+    : "Próxima jornada"}
+</div>
+  <span>📅</span>
+  {fechaHoy === new Date().toISOString().split("T")[0]
+    ? "Partidos de hoy"
+    : "Próxima jornada"}
+</div>
+  <span>📅</span>
+  {fechaHoy === new Date().toISOString().split("T")[0]
+    ? "Partidos de hoy"
+    : "Próxima jornada"}
+</div>
                     <span>📅</span>
-                    {fechaHoy === partidosHoy[0]?.fecha ? "Partidos de hoy" : `Próximos partidos`}
+                    {fechaHoy === new Date().toISOString().split("T")[0]
+  ? "Partidos de hoy"
+  : "Próxima jornada"}
                   </div>
                   <div className="hoy-fecha">
                     {fmtFechaLarga(partidosHoy[0]?.fecha??"")}
