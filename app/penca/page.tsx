@@ -1,4 +1,4 @@
-"use client";
+["picks","🎯","Pronósticos"]"use client";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { TODOS_PARTIDOS, GRUPOS, getFlag, calcularPuntos, type Partido, type Resultado, type PuntosConfig, PUNTOS_DEFAULT } from "@/lib/mundial";
