@@ -331,6 +331,15 @@ const partidos = TODOS_PARTIDOS.filter(p=>{
             {partidosHoy.length > 0 && (
               <div style={{marginBottom:16}}>
                 <div className="hoy-header">
+  <div className="hoy-title">
+    <span>📅</span>
+    Próxima jornada
+  </div>
+
+  <div className="hoy-fecha">
+    {fmtFechaLarga(partidosHoy[0]?.fecha ?? "")}
+  </div>
+</div>
                   <div className="hoy-title">
   <span>📅</span>
   {fechaHoy === new Date().toISOString().split("T")[0]
