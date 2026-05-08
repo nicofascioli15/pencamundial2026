@@ -1,4 +1,4 @@
-["picks","🎯","Pronósticos"]"use client";
+"use client";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { TODOS_PARTIDOS, GRUPOS, getFlag, calcularPuntos, type Partido, type Resultado, type PuntosConfig, PUNTOS_DEFAULT } from "@/lib/mundial";
@@ -170,7 +170,8 @@ function getEstadoPartido(fecha: string, hora: string, tieneResultado: boolean):
 function esBloqueado(fecha: string, hora: string): boolean {
   const [h, m] = hora.split(":").map(Number);
   const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() + 3*60*60*1000;
-  return Date.now() >= partidoMs;
+  const bloqueoMs = partidoMs - (10 * 60 * 1000);
+  return Date.now() >= bloqueoMs;
 }
 
 export default function PencaPage() {
@@ -353,7 +354,7 @@ export default function PencaPage() {
               <div>
                 <div className="prog-lbl">Tu progreso</div>
                 <div className="prog-bar"><div className="prog-fill" style={{width:`${(totalPicks/TODOS_PARTIDOS.length)*100}%`}}/></div>
-                <div className="prog-sub">{totalPicks} de {TODOS_PARTIDOS.length} picks</div>
+                <div className="prog-sub">{totalPicks} de {TODOS_PARTIDOS.length} pronósticos</div>
               </div>
               <div style={{textAlign:"right"}}>
                 <div className="prog-num">{myPts}</div>
