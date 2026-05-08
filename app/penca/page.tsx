@@ -278,7 +278,6 @@ const partidos = TODOS_PARTIDOS.filter(p=>{
 
   return true;
 });
-  });
   const myPos = tabla.findIndex(r=>r.username===user?.username)+1;
   const myPts = tabla.find(r=>r.username===user?.username)?.pts??0;
   const totalPicks = Object.keys(predicciones).length;
