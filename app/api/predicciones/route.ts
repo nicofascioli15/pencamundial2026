@@ -25,13 +25,13 @@ export async function POST(req: NextRequest) {
   if (!partido)
     return NextResponse.json({ error: "Partido no encontrado" }, { status: 404 });
 
-  // ── Bloqueo 10 minutos antes del partido (hora Montevideo) ────────
+  // ── Bloqueo exacto a la hora del partido (hora Montevideo) ────────
   const [h, m] = partido.hora.split(":").map(Number);
   // Construir fecha/hora del partido como UTC (hora MVD = UTC-3, sumamos 3h)
   const partidoUTC = new Date(`${partido.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00.000+00:00`);
   partidoUTC.setHours(partidoUTC.getHours() + 3); // convertir MVD a UTC
 
-  const bloqueoMs = partidoUTC.getTime() - (10 * 60 * 1000);
+  const bloqueoMs = partidoUTC.getTime(); // bloqueo exacto a la hora del partido
 
   if (Date.now() >= bloqueoMs) {
     return NextResponse.json({

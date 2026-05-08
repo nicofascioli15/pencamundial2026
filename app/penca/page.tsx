@@ -190,6 +190,7 @@ export default function PencaPage() {
   const [cargando, setCargando] = useState(true);
   const [ultimaSync, setUltimaSync] = useState<string|null>(null);
   const [partidosHoy, setPartidosHoy] = useState<Partido[]>([]);
+  const [siguientesDias, setSiguientesDias] = useState<{fecha:string;partidos:Partido[]}[]>([]);
   const [fechaHoy, setFechaHoy] = useState<string>("");
   const [guardadosHoy, setGuardadosHoy] = useState<Record<string,boolean>>({});
 
@@ -210,6 +211,7 @@ export default function PencaPage() {
     setConfig(cRes.config??PUNTOS_DEFAULT);
     setTablaGrupos(gRes.tablaGrupos??{});
     setPartidosHoy(hRes.partidos??[]);
+    setSiguientesDias(hRes.siguientesDias??[]);
     setFechaHoy(hRes.fechaHoy??"");
   }, []);
 
@@ -327,70 +329,78 @@ const partidos = TODOS_PARTIDOS.filter(p=>{
           {/* ── PRONÓSTICOS ── */}
           {tab==="picks"&&<>
 
-            {/* PARTIDOS DEL DÍA */}
+            {/* ── PRÓXIMA JORNADA (destacada) ── */}
             {partidosHoy.length > 0 && (
-              <div style={{marginBottom:16}}>
-                <div className="hoy-header">
-  <div className="hoy-title">
-    <span>📅</span>
-    Próxima jornada
-  </div>
-
-  <div className="hoy-fecha">
-    {fmtFechaLarga(partidosHoy[0]?.fecha ?? "")}
-  </div>
-</div>
-                  <div className="hoy-title">
-  <span>📅</span>
-  {fechaHoy === new Date().toISOString().split("T")[0]
-    ? "Partidos de hoy"
-    : "Próxima jornada"}
-</div>
-  <span>📅</span>
-  {fechaHoy === new Date().toISOString().split("T")[0]
-    ? "Partidos de hoy"
-    : "Próxima jornada"}
-</div>
-  <span>📅</span>
-  {fechaHoy === new Date().toISOString().split("T")[0]
-    ? "Partidos de hoy"
-    : "Próxima jornada"}
-</div>
-  <span>📅</span>
-  {fechaHoy === new Date().toISOString().split("T")[0]
-    ? "Partidos de hoy"
-    : "Próxima jornada"}
-</div>
-                    <span>📅</span>
-                    {fechaHoy === new Date().toISOString().split("T")[0]
-  ? "Partidos de hoy"
-  : "Próxima jornada"}
+              <div style={{marginBottom:20}}>
+                {/* Header destacado */}
+                <div style={{background:"linear-gradient(135deg,#123952,#1d5278)",borderRadius:"14px 14px 0 0",padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div>
+                    <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:3}}>⚡ Próxima jornada</div>
+                    <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:"#e8a020",fontWeight:500}}>{fmtFechaLarga(partidosHoy[0]?.fecha??"")}</div>
                   </div>
-                  <div className="hoy-fecha">
-                    {fmtFechaLarga(partidosHoy[0]?.fecha??"")}
-                  </div>
+                  <div style={{fontSize:28}}>🏆</div>
                 </div>
-                {partidosHoy.map(p => {
-                  const estado = getEstadoPartido(p.fecha, p.hora, !!resultados[p.id]);
-                  const pred = predicciones[p.id];
-                  const res = resultados[p.id];
-                  const bloq = esBloqueado(p.fecha, p.hora) || !!res;
-                  const puntos = res && pred ? calcularPuntos(pred, res, config) : null;
-                  return (
-                    <HoyCard
-                      key={p.id}
-                      partido={p}
-                      estado={estado}
-                      pred={pred}
-                      res={res}
-                      bloqueado={bloq}
-                      puntos={puntos}
-                      config={config}
-                      guardado={guardadosHoy[p.id]}
-                      onGuardar={(l,v)=>guardarPick(p.id,l,v,true)}
-                    />
-                  );
-                })}
+                {/* Partidos destacados */}
+                <div style={{border:"1px solid #123952",borderTop:"none",borderRadius:"0 0 14px 14px",overflow:"hidden"}}>
+                  {partidosHoy.map((p,i) => {
+                    const estado = getEstadoPartido(p.fecha, p.hora, !!resultados[p.id]);
+                    const pred = predicciones[p.id];
+                    const res = resultados[p.id];
+                    const bloq = esBloqueado(p.fecha, p.hora) || !!res;
+                    const puntos = res && pred ? calcularPuntos(pred, res, config) : null;
+                    return (
+                      <div key={p.id} style={{borderTop: i>0 ? "1px solid #dde4ec" : "none"}}>
+                        <HoyCard
+                          partido={p}
+                          estado={estado}
+                          pred={pred}
+                          res={res}
+                          bloqueado={bloq}
+                          puntos={puntos}
+                          config={config}
+                          guardado={guardadosHoy[p.id]}
+                          onGuardar={(l,v)=>guardarPick(p.id,l,v,true)}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ── SIGUIENTES DÍAS (más sutiles) ── */}
+            {siguientesDias.length > 0 && (
+              <div style={{marginBottom:16}}>
+                <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#6b7280",marginBottom:10,display:"flex",alignItems:"center",gap:6}}>
+                  <span>📅</span> Próximos partidos
+                  <span style={{flex:1,height:1,background:"#dde4ec",marginLeft:4}}/>
+                </div>
+                {siguientesDias.map(({fecha, partidos: ps}) => (
+                  <div key={fecha} style={{marginBottom:12}}>
+                    <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>
+                      {fmtFechaLarga(fecha)}
+                    </div>
+                    {ps.map(p => (
+                      <div key={p.id} style={{border:"1px solid #eee",borderRadius:12,padding:"10px 13px",marginBottom:7,background:"#fafafa",display:"flex",alignItems:"center",gap:10}}>
+                        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:6}}>
+                            <span style={{fontSize:18}}>{getFlag(p.local)}</span>
+                            <span style={{fontSize:11,fontWeight:600,color:"#494d4f"}}>{p.local}</span>
+                          </div>
+                          <span style={{fontSize:10,color:"#6b7280",fontFamily:"'DM Mono',monospace",margin:"0 8px"}}>VS</span>
+                          <div style={{display:"flex",alignItems:"center",gap:6}}>
+                            <span style={{fontSize:11,fontWeight:600,color:"#494d4f"}}>{p.visitante}</span>
+                            <span style={{fontSize:18}}>{getFlag(p.visitante)}</span>
+                          </div>
+                        </div>
+                        <div style={{textAlign:"right",flexShrink:0}}>
+                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,fontWeight:600,color:"#123952"}}>{p.hora} hs</div>
+                          {predicciones[p.id] && <div style={{fontSize:10,color:"#2e9e6b",fontWeight:600,marginTop:1}}>✓ {predicciones[p.id].local}-{predicciones[p.id].visitante}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
               </div>
             )}
 
