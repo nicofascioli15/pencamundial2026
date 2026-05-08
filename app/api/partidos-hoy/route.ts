@@ -3,48 +3,43 @@ import { TODOS_PARTIDOS } from "@/lib/mundial";
 
 export async function GET() {
   try {
-    const ahora = new Date();
+    const hoy = new Date();
 
-    // Fecha actual Uruguay
-    const hoyUY = new Intl.DateTimeFormat("sv-SE", {
-      timeZone: "America/Montevideo",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(ahora);
+    // Ordenar todos los partidos por fecha
+    const partidosOrdenados = [...TODOS_PARTIDOS].sort((a, b) => {
+      const da = new Date(`${a.fecha}T${a.hora}:00`).getTime();
+      const db = new Date(`${b.fecha}T${b.hora}:00`).getTime();
+      return da - db;
+    });
 
-    // Buscar partidos de hoy
-    let partidos = TODOS_PARTIDOS.filter(
-      (p) => p.fecha === hoyUY
-    );
+    // Buscar próximos partidos futuros
+    const partidosFuturos = partidosOrdenados.filter((p) => {
+      const fechaPartido = new Date(`${p.fecha}T${p.hora}:00`);
+      return fechaPartido.getTime() >= hoy.getTime();
+    });
 
-    let fechaObjetivo = hoyUY;
-
-    // Si no hay partidos hoy, buscar próxima fecha con partidos
-    if (partidos.length === 0) {
-      const fechasFuturas = TODOS_PARTIDOS
-        .map((p) => p.fecha)
-        .filter((f) => f >= hoyUY)
-        .sort();
-
-      const proximaFecha = fechasFuturas[0];
-
-      if (proximaFecha) {
-        fechaObjetivo = proximaFecha;
-        partidos = TODOS_PARTIDOS.filter(
-          (p) => p.fecha === proximaFecha
-        );
-      }
+    if (partidosFuturos.length === 0) {
+      return NextResponse.json({
+        ok: true,
+        partidos: [],
+        fechaHoy: null,
+      });
     }
 
-    // Ordenar por hora
-    partidos.sort((a, b) => a.hora.localeCompare(b.hora));
+    // Tomar la próxima fecha disponible
+    const proximaFecha = partidosFuturos[0].fecha;
+
+    // Traer todos los partidos de esa fecha
+    const partidos = partidosFuturos.filter(
+      (p) => p.fecha === proximaFecha
+    );
 
     return NextResponse.json({
       ok: true,
-      fechaHoy: fechaObjetivo,
+      fechaHoy: proximaFecha,
       partidos,
     });
+
   } catch (error) {
     console.error(error);
 
