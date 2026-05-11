@@ -5,7 +5,7 @@ import { TODOS_PARTIDOS, CIUDADES, GRUPOS, getFlag, calcularPuntos, type Partido
 import { LOGO_SVG } from "@/lib/logo";
 
 const css = `
-  .app{max-width:430px;margin:0 auto;min-height:100vh;background:#fff;box-shadow:0 0 60px rgba(18,57,82,.1);display:flex;flex-direction:column}
+  .app{max-width:430px;margin:0 auto;min-height:100vh;background:#fff;box-shadow:0 0 60px rgba(18,57,82,.1);display:flex;flex-direction:column;width:100%}
   .header{background:#123952;position:sticky;top:0;z-index:100}
   .header-top{display:flex;justify-content:space-between;align-items:center;padding:13px 16px}
   .logo-wrap{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
@@ -290,7 +290,7 @@ export default function PencaPage() {
   return (
     <>
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet"/>
-      <style>{css}</style>
+      <style>{`*{box-sizing:border-box}html,body{margin:0;padding:0;width:100%;overflow-x:hidden}`}</style><style>{css}</style>
       <div className="app">
         {/* HEADER */}
         <div className="header">
