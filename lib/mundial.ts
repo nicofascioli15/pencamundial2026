@@ -171,3 +171,73 @@ export function calcularPuntos(pred: Resultado, res: Resultado, cfg: PuntosConfi
   if (gR === gP) return cfg.ganador_correcto;
   return 0;
 }
+
+export const CIUDADES: Record<string, string> = {
+  // Grupo A
+  "G001": "Ciudad de México", "G002": "Guadalajara",
+  "G025": "Atlanta",          "G028": "Monterrey",
+  "G053": "Ciudad de México", "G054": "Monterrey",
+  // Grupo B
+  "G003": "Toronto",    "G005": "Seattle",
+  "G026": "Los Ángeles","G027": "Vancouver",
+  "G049": "Vancouver",  "G050": "Seattle",
+  // Grupo C
+  "G006": "Nueva York", "G007": "Miami",
+  "G030": "Miami",      "G031": "Miami",
+  "G051": "Atlanta",    "G052": "Miami",
+  // Grupo D
+  "G004": "Los Ángeles",  "G008": "Seattle",
+  "G029": "Seattle",      "G032": "San Francisco",
+  "G055": "Los Ángeles",  "G056": "San Francisco",
+  // Grupo E
+  "G009": "Philadelphia", "G011": "Kansas City",
+  "G034": "Toronto",      "G035": "Kansas City",
+  "G057": "Nueva York",   "G058": "Philadelphia",
+  // Grupo F
+  "G010": "Dallas",    "G012": "Houston",
+  "G033": "Houston",   "G036": "Monterrey",
+  "G059": "Dallas",    "G060": "Kansas City",
+  // Grupo G
+  "G014": "Los Ángeles","G016": "Seattle",
+  "G038": "Los Ángeles","G040": "Vancouver",
+  "G061": "Vancouver",  "G062": "Seattle",
+  // Grupo H
+  "G013": "Atlanta",    "G015": "Guadalajara",
+  "G037": "Atlanta",    "G039": "Miami",
+  "G063": "Guadalajara","G064": "Houston",
+  // Grupo I
+  "G017": "Nueva York", "G018": "Boston",
+  "G042": "Philadelphia","G043": "Nueva York",
+  "G065": "Boston",     "G066": "Toronto",
+  // Grupo J
+  "G019": "Kansas City","G020": "San Francisco",
+  "G041": "Dallas",     "G044": "Kansas City",
+  "G067": "Kansas City","G068": "Dallas",
+  // Grupo K
+  "G021": "Houston",        "G024": "Ciudad de México",
+  "G045": "Houston",        "G048": "Atlanta",
+  "G069": "Philadelphia",   "G070": "Atlanta",
+  // Grupo L
+  "G022": "Dallas",     "G023": "Toronto",
+  "G046": "Dallas",     "G047": "Miami",
+  "G071": "Philadelphia","G072": "Miami",
+  // Octavos
+  "R32_01": "Nueva York",    "R32_02": "Miami",
+  "R32_03": "Los Ángeles",   "R32_04": "Houston",
+  "R32_05": "Ciudad de México","R32_06": "Dallas",
+  "R32_07": "Atlanta",       "R32_08": "Seattle",
+  "R32_09": "Kansas City",   "R32_10": "Nueva York",
+  "R32_11": "Los Ángeles",   "R32_12": "Boston",
+  "R32_13": "Philadelphia",  "R32_14": "Vancouver",
+  "R32_15": "Dallas",        "R32_16": "Miami",
+  // Cuartos
+  "QF_1": "Los Ángeles", "QF_2": "Dallas",
+  "QF_3": "Houston",     "QF_4": "Atlanta",
+  "QF_5": "Kansas City", "QF_6": "Nueva York",
+  "QF_7": "Philadelphia","QF_8": "Seattle",
+  // Semis
+  "SF_1": "Atlanta",     "SF_2": "Los Ángeles",
+  "SF_3": "Nueva York",  "SF_4": "Dallas",
+  // Final
+  "3RO": "Miami", "FINAL": "Nueva York",
+};

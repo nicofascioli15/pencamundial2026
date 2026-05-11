@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { TODOS_PARTIDOS, GRUPOS, getFlag, calcularPuntos, type Partido, type Resultado, type PuntosConfig, PUNTOS_DEFAULT } from "@/lib/mundial";
+import { TODOS_PARTIDOS, CIUDADES, GRUPOS, getFlag, calcularPuntos, type Partido, type Resultado, type PuntosConfig, PUNTOS_DEFAULT } from "@/lib/mundial";
 import { LOGO_SVG } from "@/lib/logo";
 
 const css = `
@@ -486,6 +486,7 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
       <div className="hoy-estado">
         <span className={`estado-badge estado-${estado}`}>{estadoLabel}</span>
         <span className="hoy-hora">{partido.hora} hs</span>
+        {CIUDADES[partido.id]&&<span style={{fontSize:10,color:"rgba(255,255,255,.6)",fontWeight:500}}>📍{CIUDADES[partido.id]}</span>}
       </div>
       <div className="hoy-equipos">
         <div className="hoy-eq">
@@ -549,6 +550,7 @@ function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloquead
           <div className="fecha-hora">
             <span className="fecha-txt">{fmtFecha(partido.fecha)}</span>
             <span className="hora-txt">{partido.hora} hs</span>
+            {CIUDADES[partido.id]&&<span style={{fontSize:9,color:"#6b7280",fontWeight:500}}>📍{CIUDADES[partido.id]}</span>}
           </div>
         </div>
       </div>
