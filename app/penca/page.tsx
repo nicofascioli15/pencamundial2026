@@ -144,6 +144,18 @@ const css = `
   .pts-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid #dde4ec}
   .pts-row:last-child{border-bottom:none}
   .pts-lbl{font-weight:600;font-size:14px}
+  .countdown{font-size:10px;font-weight:700;color:#e8a020;display:flex;align-items:center;gap:4px}
+  .countdown.urgente{color:#dc2626}
+  .live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;color:#dc2626}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:#dc2626;animation:pulse 1s infinite}
+  .alert-picks{background:rgba(232,160,32,.1);border:1px solid rgba(232,160,32,.3);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+  .modal-box{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:430px;max-height:80vh;overflow-y:auto;padding:20px 16px 40px}
+  .modal-handle{width:40px;height:4px;background:#dde4ec;border-radius:4px;margin:0 auto 16px}
+  .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .modal-close{background:transparent;border:none;font-size:20px;cursor:pointer;color:#6b7280}
+  .modal-pick-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0}
+  .modal-pick-row:last-child{border-bottom:none}
   .pts-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#123952}
 `;
 
@@ -191,6 +203,7 @@ export default function PencaPage() {
   const [partidosHoy, setPartidosHoy] = useState<Partido[]>([]);
   const [siguientesDias, setSiguientesDias] = useState<{fecha:string;partidos:Partido[]}[]>([]);
   const [fechaHoy, setFechaHoy] = useState<string>("");
+  const [perfilUsuario, setPerfilUsuario] = useState<{username:string;nombre:string;predicciones:Record<string,Resultado>}|null>(null);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2700); };
 
@@ -252,6 +265,10 @@ export default function PencaPage() {
     }
   };
 
+  const cargarPerfil = async (username: string, nombre: string) => {
+    const r = await fetch(`/api/predicciones/usuario?username=${encodeURIComponent(username)}`).then(r=>r.json());
+    setPerfilUsuario({username, nombre, predicciones: r.predicciones??{}});
+  };
   const logout = async () => { await fetch("/api/auth/logout",{method:"POST"}); router.push("/login"); };
 
   if (cargando) return <div style={{display:"flex",justifyContent:"center",alignItems:"center",minHeight:"100vh",flexDirection:"column",gap:16,background:"#f2f7fb"}}><span style={{fontSize:52}}>⚽</span><span style={{color:"#6b7280",fontFamily:"DM Sans,sans-serif"}}>Cargando...</span></div>;
@@ -413,7 +430,7 @@ export default function PencaPage() {
             <div className="sec-title">Clasificación penca</div>
             {tabla.length===0&&<div className="empty"><em>👥</em>Aún no hay participantes</div>}
             {tabla.map((u,i)=>(
-              <div key={u.username} className={`tr ${i<3?"top":""} ${u.username===user?.username?"me":""}`}>
+              <div key={u.username} className={`tr ${i<3?"top":""} ${u.username===user?.username?"me":""}`} onClick={()=>cargarPerfil(u.username,u.nombre)} style={{cursor:"pointer"}}>
                 <div className="t-pos">{i+1}</div>
                 <div className="t-user">
                   <div className="t-name">{u.nombre}{u.username===user?.username?" 👤":""}</div>
@@ -444,6 +461,7 @@ export default function PencaPage() {
           </>}
         </div>
         {toast&&<div className="toast">{toast}</div>}
+        {perfilUsuario&&<PerfilModal perfil={perfilUsuario} resultados={resultados} config={config} onClose={()=>setPerfilUsuario(null)}/>}
       </div>
     </>
   );
@@ -551,6 +569,81 @@ function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloquead
             {guardado?"✓ Guardado":"Guardar"}
           </button>
         }
+      </div>
+    </div>
+  );
+}
+
+function CountdownBloqueo({ fecha, hora }: { fecha: string; hora: string }) {
+  const [texto, setTexto] = useState("");
+  const [urgente, setUrgente] = useState(false);
+  useEffect(() => {
+    const calcular = () => {
+      const [h, m] = hora.split(":").map(Number);
+      const bloqueoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()+3*60*60*1000-10*60*1000;
+      const diff = bloqueoMs - Date.now();
+      if (diff <= 0) { setTexto(""); return; }
+      const dias = Math.floor(diff/(1000*60*60*24));
+      const horas = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
+      const mins = Math.floor((diff%(1000*60*60))/(1000*60));
+      const segs = Math.floor((diff%(1000*60))/1000);
+      setUrgente(diff < 60*60*1000);
+      if (dias > 0) setTexto(`Cierra en ${dias}d ${horas}h ${mins}m`);
+      else if (horas > 0) setTexto(`Cierra en ${horas}h ${mins}m`);
+      else setTexto(`Cierra en ${mins}m ${segs}s`);
+    };
+    calcular();
+    const iv = setInterval(calcular, 1000);
+    return () => clearInterval(iv);
+  }, [fecha, hora]);
+  if (!texto) return null;
+  return <span className={`countdown ${urgente?"urgente":""}`}>🔒 {texto}</span>;
+}
+
+function PerfilModal({ perfil, resultados, config, onClose }: {
+  perfil: {username:string;nombre:string;predicciones:Record<string,Resultado>};
+  resultados: Record<string,Resultado>;
+  config: PuntosConfig;
+  onClose: ()=>void;
+}) {
+  const bloqueados = TODOS_PARTIDOS.filter(p => {
+    const [h, m] = p.hora.split(":").map(Number);
+    const bloqueoMs = new Date(`${p.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()+3*60*60*1000-10*60*1000;
+    return Date.now() >= bloqueoMs;
+  });
+  const conPick = bloqueados.filter(p => perfil.predicciones[p.id]);
+  const fmtF = (f:string) => new Date(f+"T12:00:00").toLocaleDateString("es-UY",{day:"numeric",month:"short",weekday:"short"});
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={e=>e.stopPropagation()}>
+        <div className="modal-handle"/>
+        <div className="modal-header">
+          <div>
+            <div style={{fontWeight:700,fontSize:18}}>{perfil.nombre}</div>
+            <div style={{fontSize:12,color:"#6b7280",marginTop:2}}>Pronósticos bloqueados · {conPick.length} registrados</div>
+          </div>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        {conPick.length===0&&<div style={{textAlign:"center",color:"#6b7280",padding:24}}>Sin pronósticos registrados aún</div>}
+        {conPick.map(p=>{
+          const pred=perfil.predicciones[p.id];
+          const res=resultados[p.id];
+          const pts=res&&pred?calcularPuntos(pred,res,config):null;
+          const chipCls=pts===null?"":pts===config.resultado_exacto?"chip-ex":pts>0?"chip-ok":"chip-no";
+          return (
+            <div key={p.id} className="modal-pick-row">
+              <div style={{flex:1}}>
+                <div style={{fontSize:12,fontWeight:600,color:"#1a1f24"}}>{getFlag(p.local)} {p.local} vs {p.visitante} {getFlag(p.visitante)}</div>
+                <div style={{fontSize:10,color:"#6b7280",marginTop:2}}>{fmtF(p.fecha)} · {p.hora} hs</div>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
+                {res&&<div style={{fontSize:13,color:"#6b7280"}}>{res.local}-{res.visitante}</div>}
+                <div style={{fontSize:16,fontWeight:900,color:"#123952",background:"#e8f0f6",padding:"3px 10px",borderRadius:8}}>{pred.local}-{pred.visitante}</div>
+                {pts!==null&&<span className={`chip ${chipCls}`}>{pts>0?`+${pts}`:0}p</span>}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
