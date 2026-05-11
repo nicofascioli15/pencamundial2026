@@ -486,7 +486,7 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
       <div className="hoy-estado">
         <span className={`estado-badge estado-${estado}`}>{estadoLabel}</span>
         <span className="hoy-hora">{partido.hora} hs</span>
-        {ciudad&&<span style={{fontSize:10,color:"rgba(255,255,255,.6)",fontWeight:500}}>📍{ciudad}</span>}
+        {ciudad&&<span style={{fontSize:10,color:"#6b7280",fontWeight:500}}>📍{ciudad}</span>}
       </div>
       <div className="hoy-equipos">
         <div className="hoy-eq">
