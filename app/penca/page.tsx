@@ -278,10 +278,7 @@ const partidos = TODOS_PARTIDOS.filter(p=>{
 
   return true;
 });
-    if (p.fase!==filtroFase) return false;
-    if (filtroFase==="Grupos"&&filtroGrupo!=="Todos"&&p.grupo!==filtroGrupo) return false;
-    return true;
-  });
+
   const myPos = tabla.findIndex(r=>r.username===user?.username)+1;
   const myPts = tabla.find(r=>r.username===user?.username)?.pts??0;
   const totalPicks = Object.keys(predicciones).length;
