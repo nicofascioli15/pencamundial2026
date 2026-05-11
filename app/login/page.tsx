@@ -13,6 +13,9 @@ export default function LoginPage() {
   const [err, setErr] = useState("");
   const [ok, setOk] = useState("");
   const [loading, setLoading] = useState(false);
+  const [recuperar, setRecuperar] = useState(false);
+  const [recUser, setRecUser] = useState("");
+  const [recErr, setRecErr] = useState("");
 
   const css = `
     *{box-sizing:border-box;margin:0;padding:0}
@@ -37,6 +40,15 @@ export default function LoginPage() {
     .ok{background:rgba(46,158,107,.08);border:1px solid rgba(46,158,107,.25);border-radius:10px;padding:10px 14px;color:#2e9e6b;font-size:13px;margin-bottom:14px;text-align:center}
   `;
 
+  const handleRecuperar = async () => {
+    if (!recUser.trim()) { setRecErr("Ingresá tu usuario"); return; }
+    const r = await fetch("/api/auth/existe?username=" + encodeURIComponent(recUser.trim()));
+    const d = await r.json();
+    if (!d.existe) { setRecErr("Ese usuario no existe"); return; }
+    const msg = encodeURIComponent(`Hola Nico, soy usuario "${recUser.trim()}" y olvidé mi contraseña de la penca.`);
+    window.open(`https://wa.me/59899581636?text=${msg}`, "_blank");
+    setRecuperar(false); setRecUser(""); setRecErr("");
+  };
   const handleLogin = async () => {
     setErr(""); setLoading(true);
     const r = await fetch("/api/auth/login", {
@@ -93,12 +105,15 @@ export default function LoginPage() {
             <input placeholder="Pedíselo a Fascioli" value={invite} onChange={e => setInvite(e.target.value)} />
           </>}
           {modo==="login"&&<div style={{textAlign:"right",marginBottom:8}}>
-            
-              href={`https://wa.me/59899581636?text=${encodeURIComponent("Hola Nico, soy [TU NOMBRE] y olvidé mi contraseña de la penca. Mi usuario es: ")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{fontSize:12,color:"#e8a020",fontWeight:600,textDecoration:"none"}}
-            >¿Olvidaste tu contraseña? →</a>
+            <span onClick={()=>{setRecuperar(!recuperar);setRecErr("");}} style={{fontSize:12,color:"#e8a020",fontWeight:600,cursor:"pointer"}}>¿Olvidaste tu contraseña? →</span>
+          </div>}
+          {modo==="login"&&recuperar&&<div style={{background:"#f2f7fb",border:"1px solid #dde4ec",borderRadius:10,padding:"12px 14px",marginBottom:12}}>
+            <div style={{fontSize:12,fontWeight:700,color:"#123952",marginBottom:8}}>Ingresá tu usuario</div>
+            <div style={{display:"flex",gap:8}}>
+              <input value={recUser} onChange={e=>{setRecUser(e.target.value);setRecErr("");}} placeholder="tu_usuario" autoCapitalize="none" style={{flex:1,padding:"9px 12px",borderRadius:8,border:"1.5px solid #dde4ec",fontSize:14,outline:"none"}}/>
+              <button onClick={handleRecuperar} style={{padding:"9px 14px",border:"none",borderRadius:8,background:"#25D366",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer"}}>WhatsApp</button>
+            </div>
+            {recErr&&<div style={{fontSize:12,color:"#dc2626",marginTop:6,fontWeight:600}}>⚠️ {recErr}</div>}
           </div>}
           <button className="btn" disabled={loading} onClick={modo==="login" ? handleLogin : handleRegistro}>
             {loading ? "Cargando..." : modo==="login" ? "Ingresar →" : "Crear cuenta"}
