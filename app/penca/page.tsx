@@ -373,7 +373,7 @@ export default function PencaPage() {
                           const puntos=res&&pred?calcularPuntos(pred,res,config):null;
                           return (
                             <div key={p.id} style={{borderTop:i>0?"1px solid #dde4ec":"none"}}>
-                              <HoyCard partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)}/>
+                              <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)}/>
                             </div>
                           );
                         })}
