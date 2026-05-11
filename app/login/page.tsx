@@ -92,6 +92,14 @@ export default function LoginPage() {
             <label>🔑 Código de invitación</label>
             <input placeholder="Pedíselo a Fascioli" value={invite} onChange={e => setInvite(e.target.value)} />
           </>}
+          {modo==="login"&&<div style={{textAlign:"right",marginBottom:8}}>
+            
+              href={`https://wa.me/59899581636?text=${encodeURIComponent("Hola Nico, soy [TU NOMBRE] y olvidé mi contraseña de la penca. Mi usuario es: ")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{fontSize:12,color:"#e8a020",fontWeight:600,textDecoration:"none"}}
+            >¿Olvidaste tu contraseña? →</a>
+          </div>}
           <button className="btn" disabled={loading} onClick={modo==="login" ? handleLogin : handleRegistro}>
             {loading ? "Cargando..." : modo==="login" ? "Ingresar →" : "Crear cuenta"}
           </button>
