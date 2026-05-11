@@ -192,7 +192,7 @@ export default function PencaPage() {
   const [partidosHoy, setPartidosHoy] = useState<Partido[]>([]);
   const [siguientesDias, setSiguientesDias] = useState<{fecha:string;partidos:Partido[]}[]>([]);
   const [fechaHoy, setFechaHoy] = useState<string>("");
-
+  const [guardadosHoy, setGuardadosHoy] = useState<Record<string,boolean>>({});
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2700); };
 
@@ -242,12 +242,17 @@ export default function PencaPage() {
     return () => clearInterval(iv);
   }, [sincronizar]);
 
-  const guardarPick = async (partidoId: string, local: number, visitante: number) => {
+  const guardarPick = async (partidoId: string, local: number, visitante: number, esHoy = false) => {
     const r = await fetch("/api/predicciones",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({partidoId,local,visitante})});
     if (r.ok) {
       setPredicciones(p=>({...p,[partidoId]:{local,visitante}}));
-      setGuardados(g=>({...g,[partidoId]:true}));
-      setTimeout(()=>setGuardados(g=>({...g,[partidoId]:false})),2000);
+      if (esHoy) {
+        setGuardadosHoy(g=>({...g,[partidoId]:true}));
+        setTimeout(()=>setGuardadosHoy(g=>({...g,[partidoId]:false})),2000);
+      } else {
+        setGuardados(g=>({...g,[partidoId]:true}));
+        setTimeout(()=>setGuardados(g=>({...g,[partidoId]:false})),2000);
+      }
     } else {
       const d = await r.json();
       showToast(d.error??"Error al guardar");
@@ -258,6 +263,25 @@ export default function PencaPage() {
 
   if (cargando) return <div style={{display:"flex",justifyContent:"center",alignItems:"center",minHeight:"100vh",flexDirection:"column",gap:16,background:"#f2f7fb"}}><span style={{fontSize:52}}>⚽</span><span style={{color:"#6b7280",fontFamily:"DM Sans,sans-serif"}}>Cargando...</span></div>;
 
+  const idsDestacados = partidosHoy.map(p => p.id);
+
+const partidos = TODOS_PARTIDOS.filter(p=>{
+  if (idsDestacados.includes(p.id)) return false;
+
+  if (p.fase!==filtroFase) return false;
+
+  if (
+    filtroFase==="Grupos" &&
+    filtroGrupo!=="Todos" &&
+    p.grupo!==filtroGrupo
+  ) return false;
+
+  return true;
+});
+    if (p.fase!==filtroFase) return false;
+    if (filtroFase==="Grupos"&&filtroGrupo!=="Todos"&&p.grupo!==filtroGrupo) return false;
+    return true;
+  });
   const myPos = tabla.findIndex(r=>r.username===user?.username)+1;
   const myPts = tabla.find(r=>r.username===user?.username)?.pts??0;
   const totalPicks = Object.keys(predicciones).length;
@@ -305,7 +329,82 @@ export default function PencaPage() {
           {/* ── PRONÓSTICOS ── */}
           {tab==="picks"&&<>
 
-            {/* PROGRESO - arriba del todo */}
+            {/* ── PRÓXIMA JORNADA (destacada) ── */}
+            {partidosHoy.length > 0 && (
+              <div style={{marginBottom:20}}>
+                {/* Header destacado */}
+                <div style={{background:"linear-gradient(135deg,#123952,#1d5278)",borderRadius:"14px 14px 0 0",padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <div>
+                    <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:3}}>⚡ Próxima jornada</div>
+                    <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:"#e8a020",fontWeight:500}}>{fmtFechaLarga(partidosHoy[0]?.fecha??"")}</div>
+                  </div>
+                  <div style={{fontSize:28}}>🏆</div>
+                </div>
+                {/* Partidos destacados */}
+                <div style={{border:"1px solid #123952",borderTop:"none",borderRadius:"0 0 14px 14px",overflow:"hidden"}}>
+                  {partidosHoy.map((p,i) => {
+                    const estado = getEstadoPartido(p.fecha, p.hora, !!resultados[p.id]);
+                    const pred = predicciones[p.id];
+                    const res = resultados[p.id];
+                    const bloq = esBloqueado(p.fecha, p.hora) || !!res;
+                    const puntos = res && pred ? calcularPuntos(pred, res, config) : null;
+                    return (
+                      <div key={p.id} style={{borderTop: i>0 ? "1px solid #dde4ec" : "none"}}>
+                        <HoyCard
+                          partido={p}
+                          estado={estado}
+                          pred={pred}
+                          res={res}
+                          bloqueado={bloq}
+                          puntos={puntos}
+                          config={config}
+                          guardado={guardadosHoy[p.id]}
+                          onGuardar={(l,v)=>guardarPick(p.id,l,v,true)}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ── SIGUIENTES DÍAS (más sutiles) ── */}
+            {siguientesDias.length > 0 && (
+              <div style={{marginBottom:16}}>
+                <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#6b7280",marginBottom:10,display:"flex",alignItems:"center",gap:6}}>
+                  <span>📅</span> Próximos partidos
+                  <span style={{flex:1,height:1,background:"#dde4ec",marginLeft:4}}/>
+                </div>
+                {siguientesDias.map(({fecha, partidos: ps}) => (
+                  <div key={fecha} style={{marginBottom:12}}>
+                    <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>
+                      {fmtFechaLarga(fecha)}
+                    </div>
+                    {ps.map(p => (
+                      <div key={p.id} style={{border:"1px solid #eee",borderRadius:12,padding:"10px 13px",marginBottom:7,background:"#fafafa",display:"flex",alignItems:"center",gap:10}}>
+                        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:6}}>
+                            <span style={{fontSize:18}}>{getFlag(p.local)}</span>
+                            <span style={{fontSize:11,fontWeight:600,color:"#494d4f"}}>{p.local}</span>
+                          </div>
+                          <span style={{fontSize:10,color:"#6b7280",fontFamily:"'DM Mono',monospace",margin:"0 8px"}}>VS</span>
+                          <div style={{display:"flex",alignItems:"center",gap:6}}>
+                            <span style={{fontSize:11,fontWeight:600,color:"#494d4f"}}>{p.visitante}</span>
+                            <span style={{fontSize:18}}>{getFlag(p.visitante)}</span>
+                          </div>
+                        </div>
+                        <div style={{textAlign:"right",flexShrink:0}}>
+                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:11,fontWeight:600,color:"#123952"}}>{p.hora} hs</div>
+                          {predicciones[p.id] && <div style={{fontSize:10,color:"#2e9e6b",fontWeight:600,marginTop:1}}>✓ {predicciones[p.id].local}-{predicciones[p.id].visitante}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* PROGRESO */}
             <div className="prog-card">
               <div>
                 <div className="prog-lbl">Tu progreso</div>
@@ -320,7 +419,7 @@ export default function PencaPage() {
 
             {ultimaSync&&<div className="sync"><div className="sync-dot"/>Resultados actualizados a las {ultimaSync}</div>}
 
-            {/* FILTROS */}
+            {/* TODOS LOS PARTIDOS */}
             <div className="filtros">
               {FASES.map(f=><button key={f} className={`fb ${filtroFase===f?"on":""}`} onClick={()=>setFiltroFase(f)}>{f}</button>)}
             </div>
@@ -329,83 +428,13 @@ export default function PencaPage() {
                 <button key={g} className={`fb ${filtroGrupo===g?"on":""}`} onClick={()=>setFiltroGrupo(g)}>{g==="Todos"?"Todos":`Gr. ${g}`}</button>
               ))}
             </div>}
-
-            {/* LISTA UNIFICADA POR FECHA */}
-            {(()=>{
-              const filtrados = TODOS_PARTIDOS
-                .filter(p=>{
-                  if (p.fase!==filtroFase) return false;
-                  if (filtroFase==="Grupos"&&filtroGrupo!=="Todos"&&p.grupo!==filtroGrupo) return false;
-                  return true;
+            {filtroFase==="Grupos"&&filtroGrupo==="Todos"
+              ?GRUPOS_KEYS.map(g=>{
+                  const ps=partidos.filter(p=>p.grupo===g);
+                  return ps.length?(<div key={g}><div className="grupo-lbl">Grupo {g}</div>{ps.map(p=><PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)}/>)}</div>):null;
                 })
-                .sort((a,b)=>new Date(`${a.fecha}T${a.hora}:00`).getTime()-new Date(`${b.fecha}T${b.hora}:00`).getTime());
-
-              const fechasUnicas = Array.from(new Set(filtrados.map(p=>p.fecha)));
-              const proximaFechaDestacada = partidosHoy[0]?.fecha;
-
-              return fechasUnicas.map((fecha,idx)=>{
-                const ps = filtrados.filter(p=>p.fecha===fecha);
-                const esProxima = fecha===proximaFechaDestacada && partidosHoy.length>0;
-
-                if (esProxima) {
-                  return (
-                    <div key={fecha} style={{marginBottom:20}}>
-                      <div style={{background:"linear-gradient(135deg,#123952,#1d5278)",borderRadius:"14px 14px 0 0",padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                        <div>
-                          <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:3}}>⚡ Próxima jornada</div>
-                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:"#e8a020",fontWeight:500}}>{fmtFechaLarga(fecha)}</div>
-                        </div>
-                        <div style={{fontSize:28}}>🏆</div>
-                      </div>
-                      <div style={{border:"1px solid #123952",borderTop:"none",borderRadius:"0 0 14px 14px",overflow:"hidden"}}>
-                        {ps.map((p,i)=>{
-                          const estado = getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
-                          const pred = predicciones[p.id];
-                          const res = resultados[p.id];
-                          const bloq = esBloqueado(p.fecha,p.hora)||!!res;
-                          const puntos = res&&pred?calcularPuntos(pred,res,config):null;
-                          return (
-                            <div key={p.id} style={{borderTop:i>0?"1px solid #dde4ec":"none"}}>
-                              <HoyCard
-                                partido={p}
-                                estado={estado}
-                                pred={pred}
-                                res={res}
-                                bloqueado={bloq}
-                                puntos={puntos}
-                                config={config}
-                                guardado={guardados[p.id]}
-                                onGuardar={(l,v)=>guardarPick(p.id,l,v)}
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                }
-
-                return (
-                  <div key={fecha} style={{marginBottom:16}}>
-                    <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>
-                      {fmtFechaLarga(fecha)}
-                    </div>
-                    {ps.map(p=>(
-                      <PartidoCard
-                        key={p.id}
-                        partido={p}
-                        pred={predicciones[p.id]}
-                        res={resultados[p.id]}
-                        config={config}
-                        guardado={guardados[p.id]}
-                        onGuardar={guardarPick}
-                        bloqueado={esBloqueado(p.fecha,p.hora)}
-                      />
-                    ))}
-                  </div>
-                );
-              });
-            })()}
+              :partidos.map(p=><PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)}/>)
+            }
           </>}
 
           {/* ── GRUPOS ── */}
