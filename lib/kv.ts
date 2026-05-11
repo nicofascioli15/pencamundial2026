@@ -46,6 +46,14 @@ export async function setUsuario(u: Usuario): Promise<void> {
 export async function getAllUsernames(): Promise<string[]> {
   return smembers("users:all");
 }
+export async function deleteUsuario(username: string): Promise<void> {
+  const kv = getClient();
+  const ids = await smembers(`pred:user:${username}`);
+  await Promise.all(ids.map(id => kv.del(`pred:${username}:${id}`)));
+  if (ids.length) await kv.del(`pred:user:${username}`);
+  await kv.del(`user:${username}`);
+  await kv.srem("users:all", username);
+}
 
 export async function getPrediccion(username: string, partidoId: string): Promise<Resultado | null> {
   return get<Resultado>(`pred:${username}:${partidoId}`);
