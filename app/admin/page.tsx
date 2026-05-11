@@ -88,6 +88,10 @@ export default function AdminPage() {
   const [resultados,setResultados]=useState<Record<string,Resultado>>({});
   const [tabla,setTabla]=useState<TablaRow[]>([]);
   const [usuarios,setUsuarios]=useState<UserRow[]>([]);
+  const [editando,setEditando]=useState<string|null>(null);
+  const [editNombre,setEditNombre]=useState("");
+  const [editPass,setEditPass]=useState("");
+  const [editando2,setEditando2]=useState(false);
   const [config,setConfig]=useState<PuntosConfig>(PUNTOS_DEFAULT);
   const [filtroFase,setFiltroFase]=useState("Grupos");
   const [filtroGrupo,setFiltroGrupo]=useState("Todos");
@@ -215,9 +219,34 @@ export default function AdminPage() {
             <div style={{background:"#fff",border:"1px solid #dde4ec",borderRadius:14,padding:"0 14px",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
               {usuarios.length===0&&<p style={{color:"#6b7280",fontSize:14,padding:"16px 0"}}>Sin participantes aún.</p>}
               {usuarios.map(u=>(
-                <div key={u.username} className="urow">
-                  <div><div className="uname">{u.nombre}</div><div className="uinfo">@{u.username} · {u.creadoEn?new Date(u.creadoEn).toLocaleDateString("es-UY"):"—"}</div></div>
-                  <span style={{color:"#123952",fontWeight:700,fontSize:13}}>{u.picks} picks</span>
+                <div key={u.username}>
+                  <div className="urow" style={{cursor:"pointer"}} onClick={()=>{setEditando(editando===u.username?null:u.username);setEditNombre(u.nombre);setEditPass("");}}>
+                    <div><div className="uname">{u.nombre}</div><div className="uinfo">@{u.username} · {u.creadoEn?new Date(u.creadoEn).toLocaleDateString("es-UY"):"—"}</div></div>
+                    <div style={{display:"flex",alignItems:"center",gap:10}}>
+                      <span style={{color:"#123952",fontWeight:700,fontSize:13}}>{u.picks} picks</span>
+                      <span style={{fontSize:14,color:"#6b7280"}}>{editando===u.username?"▲":"▼"}</span>
+                    </div>
+                  </div>
+                  {editando===u.username&&(
+                    <div style={{padding:"12px 0 16px",borderTop:"1px dashed #dde4ec",display:"flex",flexDirection:"column",gap:8}}>
+                      <div>
+                        <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:4,textTransform:"uppercase",letterSpacing:1}}>Nombre</div>
+                        <input value={editNombre} onChange={e=>setEditNombre(e.target.value)} style={{width:"100%",padding:"9px 12px",borderRadius:9,border:"1.5px solid #dde4ec",fontSize:14,outline:"none",boxSizing:"border-box"}}/>
+                      </div>
+                      <div>
+                        <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:4,textTransform:"uppercase",letterSpacing:1}}>Nueva contraseña (opcional)</div>
+                        <input type="password" value={editPass} onChange={e=>setEditPass(e.target.value)} placeholder="Dejar vacío para no cambiar" style={{width:"100%",padding:"9px 12px",borderRadius:9,border:"1.5px solid #dde4ec",fontSize:14,outline:"none",boxSizing:"border-box"}}/>
+                      </div>
+                      <div style={{display:"flex",gap:8,marginTop:4}}>
+                        <button onClick={()=>editarUsuario(u.username)} disabled={editando2} style={{flex:1,padding:"10px",border:"none",borderRadius:9,background:"#123952",color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer"}}>
+                          {editando2?"Guardando...":"Guardar cambios"}
+                        </button>
+                        <button onClick={()=>borrarUsuario(u.username,u.nombre)} style={{padding:"10px 14px",border:"1.5px solid #dc2626",borderRadius:9,background:"transparent",color:"#dc2626",fontWeight:700,fontSize:13,cursor:"pointer"}}>
+                          🗑 Borrar
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
