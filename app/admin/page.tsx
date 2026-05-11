@@ -101,6 +101,17 @@ export default function AdminPage() {
 
   const showToast=(msg:string)=>{setToast(msg);setTimeout(()=>setToast(null),2700);};
 
+  const editarUsuario = async (username: string) => {
+    setEditando2(true);
+    await fetch("/api/usuarios",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,nombre:editNombre||undefined,password:editPass||undefined})});
+    setEditando(null); setEditNombre(""); setEditPass(""); setEditando2(false);
+    refrescarTodo();
+  };
+  const borrarUsuario = async (username: string, nombre: string) => {
+    if (!confirm(`¿Borrar a ${nombre} y todos sus pronósticos?`)) return;
+    await fetch("/api/usuarios",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({username})});
+    refrescarTodo();
+  };
   const refrescarTodo=useCallback(async()=>{
     const [rRes,tRes,uRes,cRes]=await Promise.all([
       fetch("/api/resultados").then(r=>r.json()),
