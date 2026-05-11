@@ -171,7 +171,7 @@ function getEstadoPartido(fecha: string, hora: string, tieneResultado: boolean):
   if (tieneResultado) return "finalizado";
   const [h, m] = hora.split(":").map(Number);
   const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() + 3*60*60*1000;
-  const finMs = partidoMs + 110*60*1000; // +110min aprox duración
+  const finMs = partidoMs + 13*60*1000; // +110min aprox duración
   const ahora = Date.now();
   if (ahora < partidoMs) return "proximo";
   if (ahora < finMs) return "jugando";
@@ -434,7 +434,7 @@ export default function PencaPage() {
                 <div className="t-pos">{i+1}</div>
                 <div className="t-user">
                   <div className="t-name">{u.nombre}{u.username===user?.username?" 👤":""}</div>
-                  <div className="t-stats">✅ {u.exactos} exactos · 👍 {u.ganadores} ganador · {u.jugados} jugados</div>
+                  <div className="t-stats">✅ {u.exactos} exactos · 👍 {u.ganadores} ganadores · {u.jugados} jugados</div>
                 </div>
                 <div className="t-pts">{u.pts}</div>
                 <div className="t-medal">{["🥇","🥈","🥉"][i]??""}</div>
@@ -446,9 +446,10 @@ export default function PencaPage() {
           {tab==="info"&&<>
             <div className="info-card">
               <div className="sec-title">Sistema de puntos</div>
-              <div className="pts-row"><div><div className="pts-lbl">🎯 Resultado exacto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás los goles exactos</div></div><div className="pts-val">{config.resultado_exacto} pts</div></div>
+              <div className="pts-row"><div><div className="pts-lbl">🎯 Resultado exacto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás los goles exactos de cada equipo</div></div><div className="pts-val">{config.resultado_exacto} pts</div></div>
               <div className="pts-row"><div><div className="pts-lbl">👍 Ganador correcto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás quién gana</div></div><div className="pts-val">{config.ganador_correcto} pts</div></div>
               <div className="pts-row"><div><div className="pts-lbl">🤝 Empate correcto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás que hay empate</div></div><div className="pts-val">{config.empate_correcto} pts</div></div>
+              <div className="pts-row"><div><div className="pts-lbl">❌ Sin puntos</div><div style={{fontSize:11,color:"#6b7280"}}>No acertás ni ganador ni empate</div></div><div className="pts-val" style={{color:"#dc2626"}}>0 pts</div></div>
             </div>
             <div className="info-card">
               <div className="sec-title">Reglas</div>
@@ -583,7 +584,7 @@ function CountdownBloqueo({ fecha, hora }: { fecha: string; hora: string }) {
   useEffect(() => {
     const calcular = () => {
       const [h, m] = hora.split(":").map(Number);
-      const bloqueoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()+3*60*60*1000-10*60*1000;
+      const bloqueoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()+3*60*60*1000-3*60*1000;
       const diff = bloqueoMs - Date.now();
       if (diff <= 0) { setTexto(""); return; }
       const dias = Math.floor(diff/(1000*60*60*24));
@@ -611,7 +612,7 @@ function PerfilModal({ perfil, resultados, config, onClose }: {
 }) {
   const bloqueados = TODOS_PARTIDOS.filter(p => {
     const [h, m] = p.hora.split(":").map(Number);
-    const bloqueoMs = new Date(`${p.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()+3*60*60*1000-10*60*1000;
+    const bloqueoMs = new Date(`${p.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()+3*60*60*1000-3*60*1000;
     return Date.now() >= bloqueoMs;
   });
   const conPick = bloqueados.filter(p => perfil.predicciones[p.id]);
