@@ -468,11 +468,11 @@ export default function PencaPage() {
 }
 
 /* ── HoyCard ── */
-function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guardado, onGuardar }: {
+function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guardado, ciudad, onGuardar }: {
   partido: Partido; estado: "proximo"|"jugando"|"finalizado";
   pred?: Resultado; res?: Resultado; bloqueado: boolean;
   puntos: number|null; config: PuntosConfig;
-  guardado?: boolean; onGuardar: (l: number, v: number) => void;
+  guardado?: boolean; ciudad?: string; onGuardar: (l: number, v: number) => void;
 }) {
   const [lv, setLv] = useState<string|number>(pred?.local??"");
   const [vv, setVv] = useState<string|number>(pred?.visitante??"");
@@ -486,7 +486,7 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
       <div className="hoy-estado">
         <span className={`estado-badge estado-${estado}`}>{estadoLabel}</span>
         <span className="hoy-hora">{partido.hora} hs</span>
-        {CIUDADES[partido.id]&&<span style={{fontSize:10,color:"rgba(255,255,255,.6)",fontWeight:500}}>📍{CIUDADES[partido.id]}</span>}
+        {ciudad&&<span style={{fontSize:10,color:"rgba(255,255,255,.6)",fontWeight:500}}>📍{ciudad}</span>}
       </div>
       <div className="hoy-equipos">
         <div className="hoy-eq">
