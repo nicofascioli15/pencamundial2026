@@ -501,6 +501,7 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
           <span className="hoy-name">{partido.visitante}</span>
         </div>
       </div>
+      {!bloqueado&&<div style={{padding:"6px 0"}}><CountdownBloqueo fecha={partido.fecha} hora={partido.hora}/></div>}
       <div className="hoy-pick">
         <span className="hoy-pick-lbl">Tu pronóstico:</span>
         {puntos !== null && (
