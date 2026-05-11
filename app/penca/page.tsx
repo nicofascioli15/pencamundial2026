@@ -9,8 +9,7 @@ const css = `
   .header{background:#123952;position:sticky;top:0;z-index:100}
   .header-top{display:flex;justify-content:space-between;align-items:center;padding:13px 16px}
   .logo-wrap{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
-  .logo-svg{height:20px;color:#fff;flex-shrink:0;max-width:90px;overflow:hidden}
-  .logo-svg svg{height:20px;width:auto;display:block}
+  .logo-svg{flex-shrink:0}
   .logo-div{width:1px;height:20px;background:rgba(255,255,255,.2);flex-shrink:0}
   .logo-txt{font-size:11px;font-weight:600;color:rgba(255,255,255,.9);line-height:1.2;white-space:nowrap}
   .logo-txt span{display:block;font-size:9px;font-weight:400;color:#e8a020;letter-spacing:2px;text-transform:uppercase}
@@ -280,7 +279,7 @@ export default function PencaPage() {
         <div className="header">
           <div className="header-top">
             <div className="logo-wrap">
-              <div className="logo-svg" dangerouslySetInnerHTML={{__html:LOGO_SVG}}/>
+              <img src="/logo.svg" alt="Fascioli" style={{height:32,display:"block"}} />
               <div className="logo-div"/>
               <div className="logo-txt">Penca<br/><span>Mundial 2026</span></div>
             </div>

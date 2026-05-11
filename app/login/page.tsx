@@ -19,7 +19,7 @@ export default function LoginPage() {
     body{background:#123952;font-family:'DM Sans',sans-serif}
     .wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;background:linear-gradient(160deg,#123952 0%,#1d5278 100%)}
     .logo-wrap{margin-bottom:28px;text-align:center}
-    .logo-svg{height:44px;color:#fff;display:block;margin:0 auto}
+    .logo-svg{display:block;margin:0 auto}
     .divider{width:40px;height:2px;background:#e8a020;margin:14px auto 12px;border-radius:2px}
     .subtitle{font-family:'DM Sans',sans-serif;font-size:14px;color:rgba(255,255,255,.7);text-align:center;letter-spacing:.5px}
     .subtitle strong{color:#e8a020}
@@ -69,7 +69,7 @@ export default function LoginPage() {
       <style>{css}</style>
       <div className="wrap">
         <div className="logo-wrap">
-          <div className="logo-svg" dangerouslySetInnerHTML={{ __html: LOGO_SVG }} />
+          <img src="/logo.svg" alt="Fascioli" style={{height:80,display:"block",margin:"0 auto"}} />
           <div className="divider" />
           <div className="subtitle">Penca <strong>Mundial 2026</strong></div>
         </div>
