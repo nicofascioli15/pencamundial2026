@@ -245,10 +245,11 @@ export default function PencaPage() {
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2700); };
 
   const cargarDatos = useCallback(async () => {
+    const gId = new URLSearchParams(window.location.search).get("grupo") ?? "fascioli";
     const [pRes,rRes,tRes,cRes,gRes,hRes] = await Promise.all([
-      fetch(`/api/grupos/predicciones?grupoId=${grupoActivo}`).then(r=>r.json()),
+      fetch(`/api/grupos/predicciones?grupoId=${gId}`).then(r=>r.json()),
       fetch("/api/resultados").then(r=>r.json()),
-      fetch(`/api/grupos/tabla?grupoId=${grupoActivo}`).then(r=>r.json()),
+      fetch(`/api/grupos/tabla?grupoId=${gId}`).then(r=>r.json()),
       fetch("/api/config").then(r=>r.json()),
       fetch("/api/grupos").then(r=>r.json()),
       fetch("/api/partidos-hoy").then(r=>r.json()),
@@ -261,7 +262,7 @@ export default function PencaPage() {
     setPartidosHoy(hRes.partidos??[]);
     setSiguientesDias(hRes.siguientesDias??[]);
     setFechaHoy(hRes.fechaHoy??"");
-  }, [grupoActivo]);
+  }, []);
 
   const sincronizar = useCallback(async () => {
     try {
