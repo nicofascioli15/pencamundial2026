@@ -1,0 +1,1 @@
+{"version":1,"functions":{"/api/admin/migrar-grupos":{},"/api/config":{},"/api/grupos/tabla":{},"/api/grupos/unirse":{},"/api/partidos-hoy":{},"/api/predicciones/usuario":{},"/api/push/debug":{},"/api/push":{},"/api/predicciones":{},"/api/push/send":{},"/api/auth/existe":{},"/api/grupos":{},"/api/resultados/borrar":{},"/api/tabla":{},"/api/grupos/predicciones":{}}}

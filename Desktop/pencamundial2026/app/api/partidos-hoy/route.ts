@@ -36,11 +36,11 @@ export async function GET() {
     const partidosProximos = partidosFuturos.filter(p => p.fecha === proximaFecha);
 
     // Siguientes fechas (hasta 3 días más, excluyendo la próxima)
-    const fechasSiguientes = [...new Set(
+    const fechasSiguientes = Array.from(new Set(
       partidosFuturos
         .filter(p => p.fecha !== proximaFecha)
         .map(p => p.fecha)
-    )].slice(0, 3);
+    )).slice(0, 3);
 
     const siguientesDias = fechasSiguientes.map(fecha => ({
       fecha,
