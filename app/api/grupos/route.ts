@@ -1,68 +1,103 @@
-// app/api/grupos/route.ts
-// Calcula la tabla de posiciones de cada grupo basada en resultados cargados
-import { NextResponse } from "next/server";
-import { getAllResultados } from "@/lib/kv";
-import { GRUPOS, TODOS_PARTIDOS } from "@/lib/mundial";
+import { NextRequest, NextResponse } from "next/server";
+import { getSession } from "@/lib/auth";
+import { getGrupo, setGrupo, getGruposUsuario, getMiembrosGrupo, getUsuario, getGruposByCodigo, setGrupoCodigoIndex, agregarUsuarioAGrupo, GRUPO_GLOBAL, countPrediccionesGrupoUsuario, getAllPrediccionesGrupoUsuario } from "@/lib/kv";
+import { TODOS_PARTIDOS, calcularPuntos, PUNTOS_DEFAULT } from "@/lib/mundial";
+import { getPuntosConfig, getResultado } from "@/lib/kv";
 
-export interface FilaGrupo {
-  equipo: string;
-  pj: number;
-  g: number;
-  e: number;
-  p: number;
-  gf: number;
-  ga: number;
-  dg: number;
-  pts: number;
+export const dynamic = "force-dynamic";
+
+function generarCodigo(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 5; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
 }
 
-export async function GET() {
-  const resultados = await getAllResultados();
-  const tablaGrupos: Record<string, FilaGrupo[]> = {};
+export async function GET(req: NextRequest) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-  Object.entries(GRUPOS).forEach(([grupo, equipos]) => {
-    // Inicializar tabla del grupo
-    const tabla: Record<string, FilaGrupo> = {};
-    equipos.forEach(eq => {
-      tabla[eq] = { equipo: eq, pj: 0, g: 0, e: 0, p: 0, gf: 0, ga: 0, dg: 0, pts: 0 };
-    });
+  const grupoIds = await getGruposUsuario(session.username);
+  if (!grupoIds.includes(GRUPO_GLOBAL)) grupoIds.unshift(GRUPO_GLOBAL);
 
-    // Procesar partidos del grupo
-    const partidos = TODOS_PARTIDOS.filter(p => p.fase === "Grupos" && p.grupo === grupo);
-    partidos.forEach(partido => {
-      const res = resultados[partido.id];
-      if (!res) return;
+  const config = await getPuntosConfig();
 
-      const local = tabla[partido.local];
-      const visitante = tabla[partido.visitante];
-      if (!local || !visitante) return;
+  const grupos = await Promise.all(grupoIds.map(async (gId) => {
+    const grupo = gId === GRUPO_GLOBAL
+      ? { id: GRUPO_GLOBAL, nombre: "PencaFascioli", codigo: "GLOBAL", ownerUsername: "admin", creadoEn: "" }
+      : await getGrupo(gId);
+    if (!grupo) return null;
 
-      local.pj++;
-      visitante.pj++;
-      local.gf += res.local;
-      local.ga += res.visitante;
-      visitante.gf += res.visitante;
-      visitante.ga += res.local;
-      local.dg = local.gf - local.ga;
-      visitante.dg = visitante.gf - visitante.ga;
+    const miembros = await getMiembrosGrupo(gId);
+    const resultados: Record<string, { local: number; visitante: number }> = {};
+    await Promise.all(TODOS_PARTIDOS.map(async p => {
+      const r = await getResultado(p.id);
+      if (r) resultados[p.id] = r;
+    }));
 
-      if (res.local > res.visitante) {
-        local.g++; local.pts += 3;
-        visitante.p++;
-      } else if (res.local < res.visitante) {
-        visitante.g++; visitante.pts += 3;
-        local.p++;
-      } else {
-        local.e++; local.pts++;
-        visitante.e++; visitante.pts++;
-      }
-    });
+    const tabla = await Promise.all(miembros.map(async (u) => {
+      const user = await getUsuario(u);
+      const preds = await getAllPrediccionesGrupoUsuario(gId, u);
+      let pts = 0, exactos = 0, ganadores = 0;
+      TODOS_PARTIDOS.forEach(p => {
+        const res = resultados[p.id];
+        const pred = preds[p.id];
+        if (res && pred) {
+          const puntos = calcularPuntos(pred, res, config);
+          pts += puntos;
+          if (puntos === config.resultado_exacto) exactos++;
+          else if (puntos > 0) ganadores++;
+        }
+      });
+      return { username: u, nombre: user?.nombre ?? u, pts, exactos, ganadores };
+    }));
 
-    // Ordenar: pts → dg → gf
-    tablaGrupos[grupo] = Object.values(tabla).sort(
-      (a, b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf
-    );
-  });
+    tabla.sort((a, b) => b.pts - a.pts);
+    const miPos = tabla.findIndex(r => r.username === session.username) + 1;
+    const miInfo = tabla.find(r => r.username === session.username);
 
-  return NextResponse.json({ tablaGrupos });
+    return {
+      id: grupo.id,
+      nombre: grupo.nombre,
+      codigo: grupo.codigo,
+      miembros: miembros.length,
+      miPos,
+      miPts: miInfo?.pts ?? 0,
+      miExactos: miInfo?.exactos ?? 0,
+      miGanadores: miInfo?.ganadores ?? 0,
+      tabla: tabla.slice(0, 5),
+    };
+  }));
+
+  return NextResponse.json({ grupos: grupos.filter(Boolean) });
+}
+
+export async function POST(req: NextRequest) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+
+  const { nombre } = await req.json();
+  if (!nombre?.trim()) return NextResponse.json({ error: "Falta el nombre" }, { status: 400 });
+
+  let codigo = generarCodigo();
+  let intentos = 0;
+  while (await getGruposByCodigo(codigo) && intentos < 10) {
+    codigo = generarCodigo();
+    intentos++;
+  }
+
+  const grupoId = `g_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
+  const grupo = {
+    id: grupoId,
+    nombre: nombre.trim(),
+    codigo,
+    ownerUsername: session.username,
+    creadoEn: new Date().toISOString(),
+  };
+
+  await setGrupo(grupo);
+  await setGrupoCodigoIndex(codigo, grupoId);
+  await agregarUsuarioAGrupo(session.username, grupoId);
+
+  return NextResponse.json({ ok: true, grupo });
 }
