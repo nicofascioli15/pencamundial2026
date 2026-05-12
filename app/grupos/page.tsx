@@ -103,6 +103,9 @@ export default function GruposPage() {
     </div>
   );
 
+  const globalGrupo = grupos.find(g => g.id === "fascioli");
+  const otrosGrupos = grupos.filter(g => g.id !== "fascioli");
+
   return (
     <div>
       <style>{css}</style>
@@ -122,9 +125,39 @@ export default function GruposPage() {
           <button className="btn-secondary" onClick={()=>{setModalUnirse(true);setErr("");}}>🔑 Unirme</button>
         </div>
 
-        <div className="sec-title">Mis grupos ({grupos.length})</div>
+        {/* PencaFascioli fijo arriba */}
+        {globalGrupo && (
+          <div style={{marginBottom:8}}>
+            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#e8a020",marginBottom:6}}>⭐ GRUPO OFICIAL</div>
+            <div className="group-card" onClick={()=>router.push(`/penca?grupo=${globalGrupo.id}`)} style={{border:"2px solid #123952"}}>
+              <div className="group-card-bar" style={{background:"#123952",width:5}}/>
+              <div style={{paddingLeft:8}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                  <div>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <div className="group-name">{globalGrupo.nombre}</div>
+                      <span className="global-badge">GLOBAL</span>
+                    </div>
+                    <div className="group-meta">👥 {globalGrupo.miembros} participante{globalGrupo.miembros!==1?"s":""}</div>
+                  </div>
+                </div>
+                <div className="group-footer">
+                  <div>
+                    <div style={{fontSize:12,fontWeight:600,color:"#1a1f24"}}>Tu posición</div>
+                    <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>✅ {globalGrupo.miExactos} · 👍 {globalGrupo.miGanadores}</div>
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",gap:10}}>
+                    <div className="group-pts">{globalGrupo.miPts} pts</div>
+                    {globalGrupo.miPos > 0 && <div className="group-pos">#{globalGrupo.miPos}</div>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-        {grupos.map((g, idx) => (
+        {otrosGrupos.length > 0 && <div className="sec-title">Mis grupos privados ({otrosGrupos.length})</div>}
+        {otrosGrupos.map((g, idx) => (
           <div key={g.id} className="group-card" onClick={()=>router.push(`/penca?grupo=${g.id}`)}>
             <div className="group-card-bar" style={{background: g.id==="fascioli" ? "#123952" : colores[idx % colores.length]}}/>
             <div style={{paddingLeft:8}}>
