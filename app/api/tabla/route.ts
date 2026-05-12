@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { getAllUsernames, getAllPrediccionesUsuario, getResultado, getPuntosConfig, getUsuario, countPrediccionesUsuario } from "@/lib/kv";
 import { TODOS_PARTIDOS, calcularPuntos } from "@/lib/mundial";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const [usernames, resultadosCargados, config] = await Promise.all([
     getAllUsernames(),
