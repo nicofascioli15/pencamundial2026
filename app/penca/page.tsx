@@ -200,6 +200,15 @@ export default function PencaPage() {
       if (g) setNombreGrupo(g.nombre);
     });
   }, []);
+
+  useEffect(() => {
+    if (grupoActivo) cargarDatos();
+  }, [grupoActivo]);
+
+  // Recargar datos cuando cambia el grupo
+  useEffect(() => {
+    if (grupoActivo) cargarDatos();
+  }, [grupoActivo]);
   const [user, setUser] = useState<User|null>(null);
   const [tab, setTab] = useState<"picks"|"grupos"|"tabla"|"info"|"misgrupos">("picks");
   const [predicciones, setPredicciones] = useState<Record<string,Resultado>>({});
