@@ -204,6 +204,7 @@ export default function PencaPage() {
   const [siguientesDias, setSiguientesDias] = useState<{fecha:string;partidos:Partido[]}[]>([]);
   const [fechaHoy, setFechaHoy] = useState<string>("");
   const [perfilUsuario, setPerfilUsuario] = useState<{username:string;nombre:string;predicciones:Record<string,Resultado>}|null>(null);
+  const [notifActiva, setNotifActiva] = useState(false);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2700); };
 
@@ -265,6 +266,29 @@ export default function PencaPage() {
     }
   };
 
+  const toggleNotif = async () => {
+    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+      alert("Tu navegador no soporta notificaciones push. Instalá la app en tu pantalla de inicio.");
+      return;
+    }
+    if (notifActiva) {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if (sub) await sub.unsubscribe();
+      await fetch("/api/push", { method: "DELETE" });
+      setNotifActiva(false);
+      return;
+    }
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") { alert("Permiso de notificaciones denegado."); return; }
+    const reg = await navigator.serviceWorker.register("/sw.js");
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: "BHdDXVbt5sF9xeVGCmLbnKW0fQPaQKFZNiOWn6MkV3RsUJ6sWqRZwoPvLflel8dLFjWtWFnreujWcMbNcK2hCTo"
+    });
+    await fetch("/api/push", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(sub) });
+    setNotifActiva(true);
+  };
   const cargarPerfil = async (username: string, nombre: string) => {
     const r = await fetch(`/api/predicciones/usuario?username=${encodeURIComponent(username)}`).then(r=>r.json());
     setPerfilUsuario({username, nombre, predicciones: r.predicciones??{}});
@@ -462,6 +486,7 @@ export default function PencaPage() {
           </>}
         </div>
         {toast&&<div className="toast">{toast}</div>}
+        <button onClick={toggleNotif} style={{position:"fixed",bottom:24,right:16,background:notifActiva?"#2e9e6b":"#123952",color:"#fff",border:"none",borderRadius:50,width:48,height:48,fontSize:20,cursor:"pointer",boxShadow:"0 4px 16px rgba(0,0,0,.25)",zIndex:100}}>{notifActiva?"🔔":"🔕"}</button>
         {perfilUsuario&&<PerfilModal perfil={perfilUsuario} resultados={resultados} config={config} onClose={()=>setPerfilUsuario(null)}/>}
       </div>
     </>

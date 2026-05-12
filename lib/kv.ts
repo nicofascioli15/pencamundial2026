@@ -5,7 +5,7 @@ import { PUNTOS_DEFAULT } from "./mundial";
 
 let _client: Redis | null = null;
 
-function getClient(): Redis {
+export function getClient(): Redis {
   if (!_client) {
     const url = process.env.REDIS_URL ?? process.env.KV_URL;
     if (!url) throw new Error("Falta variable REDIS_URL o KV_URL");
