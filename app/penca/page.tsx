@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { TODOS_PARTIDOS, CIUDADES, GRUPOS, getFlag, calcularPuntos, type Partido, type Resultado, type PuntosConfig, PUNTOS_DEFAULT } from "@/lib/mundial";
 import { LOGO_SVG } from "@/lib/logo";
@@ -137,6 +137,7 @@ const css = `
   .eq-cell{display:flex;align-items:center;gap:6px;font-weight:600}
   .pts-td{font-family:'Playfair Display',serif;font-size:15px;font-weight:900;color:#123952}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#123952;color:#fff;padding:10px 20px;border-radius:24px;font-weight:700;font-size:13px;z-index:999;animation:fadeUp 2.6s forwards;box-shadow:0 4px 18px rgba(18,57,82,.4);white-space:nowrap}
+  @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
   @keyframes fadeUp{0%{opacity:0;transform:translateX(-50%) translateY(8px)}15%{opacity:1;transform:translateX(-50%) translateY(0)}80%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-8px)}}
   .empty{text-align:center;padding:36px 16px;color:#6b7280}
   .empty em{display:block;font-size:44px;font-style:normal;margin-bottom:10px}
@@ -205,6 +206,9 @@ export default function PencaPage() {
   const [fechaHoy, setFechaHoy] = useState<string>("");
   const [perfilUsuario, setPerfilUsuario] = useState<{username:string;nombre:string;predicciones:Record<string,Resultado>}|null>(null);
   const [notifActiva, setNotifActiva] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [pullY, setPullY] = useState(0);
+  const touchStartY = useRef(0);
 
   useEffect(() => {
     if ("serviceWorker" in navigator && "PushManager" in window) {
@@ -337,7 +341,21 @@ export default function PencaPage() {
     <>
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet"/>
       <style>{`*{box-sizing:border-box}html,body{margin:0;padding:0;width:100%;overflow-x:hidden}`}</style><style>{css}</style>
-      <div className="app">
+      <div className="app"
+    onTouchStart={e=>{ touchStartY.current = e.touches[0].clientY; }}
+    onTouchMove={e=>{
+      const diff = e.touches[0].clientY - touchStartY.current;
+      if (diff > 0 && window.scrollY === 0) setPullY(Math.min(diff, 80));
+    }}
+    onTouchEnd={async ()=>{
+      if (pullY > 60) {
+        setRefreshing(true);
+        await cargarDatos();
+        setRefreshing(false);
+      }
+      setPullY(0);
+    }}
+  >
         {/* HEADER */}
         <div className="header">
           <div className="header-top">
@@ -507,6 +525,13 @@ export default function PencaPage() {
             </div>
           </>}
         </div>
+        {(pullY > 0 || refreshing) && (
+          <div style={{position:"fixed",top:pullY > 0 ? Math.min(pullY-40,20) : 8,left:"50%",transform:"translateX(-50%)",background:"#123952",color:"#fff",borderRadius:20,padding:"6px 16px",fontSize:12,fontWeight:700,zIndex:200,transition:"top .2s",display:"flex",alignItems:"center",gap:6}}>
+            <span style={{display:"inline-block",animation:refreshing?"spin 1s linear infinite":"none"}}>
+              {refreshing ? "↻" : pullY > 60 ? "↑ Soltar" : "↓ Actualizar"}
+            </span>
+          </div>
+        )}
         {toast&&<div className="toast">{toast}</div>}
         {showInstallModal&&(
           <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={()=>setShowInstallModal(false)}>
