@@ -116,6 +116,13 @@ export default function AdminPage() {
     await fetch("/api/usuarios",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({username})});
     refrescarTodo();
   };
+  const enviarNotif = async () => {
+    if (!notifCuerpo.trim()) return;
+    setNotifEnviando(true); setNotifOk(null);
+    const r = await fetch("/api/push/send",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({titulo:notifTitulo,cuerpo:notifCuerpo})}).then(r=>r.json());
+    setNotifEnviando(false);
+    setNotifOk(`✅ Enviado a ${r.enviados} usuario${r.enviados!==1?"s":""}`);
+  };
   const refrescarTodo=useCallback(async()=>{
     const [rRes,tRes,uRes,cRes]=await Promise.all([
       fetch("/api/resultados").then(r=>r.json()),
