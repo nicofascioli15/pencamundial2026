@@ -292,7 +292,7 @@ export default function PencaPage() {
   }, [sincronizar]);
 
   const guardarPick = async (partidoId: string, local: number, visitante: number) => {
-    const r = await fetch("/api/predicciones",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({grupoId:grupoActivo,partidoId,local,visitante})});
+    const r = await fetch("/api/predicciones",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({grupoId:new URLSearchParams(window.location.search).get("grupo")??"fascioli",partidoId,local,visitante})});
     if (r.ok) {
       setPredicciones(p=>({...p,[partidoId]:{local,visitante}}));
       setGuardados(g=>({...g,[partidoId]:true}));
