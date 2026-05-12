@@ -265,7 +265,7 @@ export default function PencaPage() {
   }, [router,cargarDatos,sincronizar]);
 
   useEffect(() => {
-    const iv = setInterval(sincronizar, 5*60*1000);
+    const iv = setInterval(sincronizar, 2*60*1000);
     return () => clearInterval(iv);
   }, [sincronizar]);
 
