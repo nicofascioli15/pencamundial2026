@@ -205,6 +205,7 @@ export default function PencaPage() {
   const [fechaHoy, setFechaHoy] = useState<string>("");
   const [perfilUsuario, setPerfilUsuario] = useState<{username:string;nombre:string;predicciones:Record<string,Resultado>}|null>(null);
   const [notifActiva, setNotifActiva] = useState(false);
+  const [showInstallModal, setShowInstallModal] = useState(false);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2700); };
 
@@ -266,9 +267,20 @@ export default function PencaPage() {
     }
   };
 
+  const esIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const esPWA = () => window.matchMedia("(display-mode: standalone)").matches;
+
+  useEffect(() => {
+    const visto = localStorage.getItem("install_modal_visto");
+    if (!visto && !esPWA()) {
+      setTimeout(() => setShowInstallModal(true), 1500);
+      localStorage.setItem("install_modal_visto", "1");
+    }
+  }, []);
+
   const toggleNotif = async () => {
-    if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-      alert("Tu navegador no soporta notificaciones push. Instalá la app en tu pantalla de inicio.");
+    if (!("serviceWorker" in navigator) || !("PushManager" in window) || (esIOS() && !esPWA())) {
+      setShowInstallModal(true);
       return;
     }
     if (notifActiva) {
@@ -486,6 +498,30 @@ export default function PencaPage() {
           </>}
         </div>
         {toast&&<div className="toast">{toast}</div>}
+        {showInstallModal&&(
+          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={()=>setShowInstallModal(false)}>
+            <div style={{background:"#fff",borderRadius:"20px 20px 0 0",width:"100%",maxWidth:430,padding:"24px 20px 40px"}} onClick={e=>e.stopPropagation()}>
+              <div style={{width:40,height:4,background:"#dde4ec",borderRadius:4,margin:"0 auto 20px"}}/>
+              <div style={{fontSize:20,marginBottom:8}}>🔔 Activar notificaciones</div>
+              <div style={{fontSize:14,color:"#6b7280",marginBottom:20,lineHeight:1.6}}>Para recibir alertas cuando están por cerrarse los pronósticos, instalá la app en tu pantalla de inicio.</div>
+              {esIOS()
+                ? <div style={{background:"#f2f7fb",borderRadius:12,padding:16,fontSize:13,color:"#123952",lineHeight:1.8}}>
+                    <strong>En iPhone:</strong><br/>
+                    1. Tocá el botón compartir <strong>⬆️</strong> en Safari<br/>
+                    2. Elegí <strong>"Agregar a pantalla de inicio"</strong><br/>
+                    3. Abrí la app desde el ícono y activá las notificaciones
+                  </div>
+                : <div style={{background:"#f2f7fb",borderRadius:12,padding:16,fontSize:13,color:"#123952",lineHeight:1.8}}>
+                    <strong>En Android:</strong><br/>
+                    1. Tocá el menú <strong>⋮</strong> en Chrome<br/>
+                    2. Elegí <strong>"Agregar a pantalla de inicio"</strong><br/>
+                    3. Abrí la app desde el ícono y activá las notificaciones
+                  </div>
+              }
+              <button onClick={()=>setShowInstallModal(false)} style={{width:"100%",marginTop:16,padding:14,border:"none",borderRadius:12,background:"#123952",color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer"}}>Entendido</button>
+            </div>
+          </div>
+        )}
         <button onClick={toggleNotif} style={{position:"fixed",bottom:24,right:16,background:notifActiva?"#2e9e6b":"#123952",color:"#fff",border:"none",borderRadius:50,width:48,height:48,fontSize:20,cursor:"pointer",boxShadow:"0 4px 16px rgba(0,0,0,.25)",zIndex:100}}>{notifActiva?"🔔":"🔕"}</button>
         {perfilUsuario&&<PerfilModal perfil={perfilUsuario} resultados={resultados} config={config} onClose={()=>setPerfilUsuario(null)}/>}
       </div>
