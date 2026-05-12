@@ -297,7 +297,18 @@ export default function AdminPage() {
             </div>
           </>}
           {/* ── CONFIG ── */}
-          {tab==="config"&&<>
+                    {tab==="config"&&<>
+            {/* Migración grupos */}
+            <div style={{background:"#fff8ed",border:"1px solid #e8a020",borderRadius:14,padding:16,marginBottom:14}}>
+              <div style={{fontSize:12,fontWeight:700,color:"#b07800",marginBottom:8}}>⚙️ Migrar usuarios al grupo global</div>
+              <div style={{fontSize:12,color:"#6b7280",marginBottom:10}}>Agrega todos los usuarios existentes a PencaFascioli. Ejecutar una sola vez.</div>
+              <button onClick={async()=>{
+                const r = await fetch("/api/admin/migrar-grupos",{method:"POST"}).then(r=>r.json());
+                alert(`✅ Migrados: ${r.migrados} usuarios`);
+              }} style={{padding:"10px 16px",border:"none",borderRadius:9,background:"#e8a020",color:"#123952",fontWeight:700,fontSize:13,cursor:"pointer"}}>
+                Ejecutar migración
+              </button>
+            </div>
             <div className="sec-title">Sistema de puntos</div>
             <div style={{background:"#fff",border:"1px solid #dde4ec",borderRadius:14,padding:"0 16px",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
               {[
