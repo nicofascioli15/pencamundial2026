@@ -261,7 +261,7 @@ export default function PencaPage() {
     setPartidosHoy(hRes.partidos??[]);
     setSiguientesDias(hRes.siguientesDias??[]);
     setFechaHoy(hRes.fechaHoy??"");
-  }, []);
+  }, [grupoActivo]);
 
   const sincronizar = useCallback(async () => {
     try {
