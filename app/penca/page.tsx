@@ -307,7 +307,7 @@ export default function PencaPage() {
   };
   const logout = async () => { await fetch("/api/auth/logout",{method:"POST"}); router.push("/login"); };
 
-  if (cargando) return <div style={{display:"flex",justifyContent:"center",alignItems:"center",minHeight:"100vh",flexDirection:"column",gap:16,background:"#f2f7fb"}}><span style={{fontSize:52}}>⚽</span><span style={{color:"#6b7280",fontFamily:"DM Sans,sans-serif"}}>Cargando...</span></div>;
+  if (cargando) return <div style={{display:"flex",justifyContent:"center",alignItems:"center",minHeight:"100vh",flexDirection:"column",gap:16,background:"#f2f7fb"}}><img src="/pelota.png" style={{width:80,height:80,objectFit:"contain"}} /><span style={{color:"#6b7280",fontFamily:"DM Sans,sans-serif"}}>Cargando...</span></div>;
 
 
 
@@ -344,7 +344,7 @@ export default function PencaPage() {
           <div className="hero">
             <span className="hero-flag">🏆</span>
             <div><div className="hero-title">Copa del Mundo FIFA</div><div className="hero-date">11 JUN — 19 JUL 2026 · Hora UY</div></div>
-            <span className="hero-flag">⚽</span>
+            <img src="/pelota.png" style={{height:28,objectFit:"contain"}} />
           </div>
           <nav className="nav">
             {([["picks","🎯","Pronósticos"],["grupos","📊","Grupos"],["tabla","🏆","Tabla"],["info","ℹ️","Info"]] as [string,string,string][]).map(([id,ic,lb])=>(
