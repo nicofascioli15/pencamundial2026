@@ -84,7 +84,11 @@ const GRUPOS_KEYS=Object.keys(GRUPOS);
 
 export default function AdminPage() {
   const router=useRouter();
-  const [tab,setTab]=useState<"resultados"|"tabla"|"usuarios"|"config">("resultados");
+  const [tab,setTab]=useState<"resultados"|"tabla"|"usuarios"|"config"|"notif">("resultados");
+  const [notifTitulo,setNotifTitulo]=useState("⚽ Penca Mundial 2026");
+  const [notifCuerpo,setNotifCuerpo]=useState("");
+  const [notifEnviando,setNotifEnviando]=useState(false);
+  const [notifOk,setNotifOk]=useState<string|null>(null);
   const [resultados,setResultados]=useState<Record<string,Resultado>>({});
   const [tabla,setTabla]=useState<TablaRow[]>([]);
   const [usuarios,setUsuarios]=useState<UserRow[]>([]);
@@ -178,7 +182,7 @@ export default function AdminPage() {
           </div>
           <div className="hero"><div className="hero-txt">Panel de administración · Penca Mundial 2026</div></div>
           <nav className="nav">
-            {([["resultados","⚽","Resultados"],["tabla","🏆","Tabla"],["usuarios","👥","Usuarios"],["config","⚙️","Config"]] as [string,string,string][]).map(([id,ic,lb])=>(
+            {([["resultados","⚽","Resultados"],["tabla","🏆","Tabla"],["usuarios","👥","Usuarios"],["config","⚙️","Config"],["notif","🔔","Notif"]] as [string,string,string][]).map(([id,ic,lb])=>(
               <button key={id} className={`nb ${tab===id?"on":""}`} onClick={()=>setTab(id as any)}><em>{ic}</em>{lb}</button>
             ))}
           </nav>
@@ -263,6 +267,28 @@ export default function AdminPage() {
             </div>
           </>}
 
+                    {tab==="notif"&&<>
+            <div className="sec-title">Enviar notificación</div>
+            <div style={{background:"#fff",border:"1px solid #dde4ec",borderRadius:14,padding:16,boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
+              <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:6,textTransform:"uppercase",letterSpacing:1}}>Título</div>
+              <input value={notifTitulo} onChange={e=>setNotifTitulo(e.target.value)} style={{width:"100%",padding:"10px 12px",borderRadius:9,border:"1.5px solid #dde4ec",fontSize:14,outline:"none",marginBottom:14,boxSizing:"border-box"}}/>
+              <div style={{fontSize:11,fontWeight:700,color:"#6b7280",marginBottom:6,textTransform:"uppercase",letterSpacing:1}}>Mensaje</div>
+              <textarea value={notifCuerpo} onChange={e=>setNotifCuerpo(e.target.value)} placeholder="Ej: ¡Faltan 30 minutos para Argentina vs Argelia! No te olvides de pronosticar." rows={4} style={{width:"100%",padding:"10px 12px",borderRadius:9,border:"1.5px solid #dde4ec",fontSize:14,outline:"none",resize:"none",boxSizing:"border-box",fontFamily:"inherit"}}/>
+              {notifOk&&<div style={{fontSize:13,color:"#2e9e6b",fontWeight:600,margin:"10px 0"}}>{notifOk}</div>}
+              <button onClick={enviarNotif} disabled={notifEnviando||!notifCuerpo.trim()} style={{width:"100%",marginTop:12,padding:13,border:"none",borderRadius:10,background:"#123952",color:"#fff",fontWeight:700,fontSize:14,cursor:"pointer"}}>
+                {notifEnviando?"Enviando...":"🔔 Enviar a todos"}
+              </button>
+            </div>
+            <div style={{background:"#f2f7fb",border:"1px solid #dde4ec",borderRadius:14,padding:16,marginTop:12}}>
+              <div style={{fontSize:12,fontWeight:700,color:"#123952",marginBottom:8}}>💡 Cuándo usarlo</div>
+              <div style={{fontSize:12,color:"#6b7280",lineHeight:1.7}}>
+                · Recordar picks antes de un partido importante<br/>
+                · Avisar un resultado polémico<br/>
+                · Anunciar cambios en la penca<br/>
+                · Solo llega a usuarios que activaron las notificaciones
+              </div>
+            </div>
+          </>}
           {/* ── CONFIG ── */}
           {tab==="config"&&<>
             <div className="sec-title">Sistema de puntos</div>
