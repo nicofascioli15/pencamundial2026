@@ -680,7 +680,7 @@ function CountdownBloqueo({ fecha, hora }: { fecha: string; hora: string }) {
   useEffect(() => {
     const calcular = () => {
       const [h, m] = hora.split(":").map(Number);
-      const bloqueoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()+3*60*60*1000-3*60*1000;
+      const bloqueoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()-3*60*1000;
       const diff = bloqueoMs - Date.now();
       if (diff <= 0) { setTexto(""); return; }
       const dias = Math.floor(diff/(1000*60*60*24));
@@ -708,7 +708,7 @@ function PerfilModal({ perfil, resultados, config, onClose }: {
 }) {
   const bloqueados = TODOS_PARTIDOS.filter(p => {
     const [h, m] = p.hora.split(":").map(Number);
-    const bloqueoMs = new Date(`${p.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()+3*60*60*1000-3*60*1000;
+    const bloqueoMs = new Date(`${p.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()-3*60*1000;
     return Date.now() >= bloqueoMs;
   });
   const conPick = bloqueados.filter(p => perfil.predicciones[p.id]);
