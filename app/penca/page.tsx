@@ -189,7 +189,7 @@ function esBloqueado(fecha: string, hora: string): boolean {
 export default function PencaPage() {
   const router = useRouter();
   const [user, setUser] = useState<User|null>(null);
-  const [tab, setTab] = useState<"picks"|"grupos"|"tabla"|"info"|"misgrupos">("picks");
+  const [tab, setTab] = useState<"picks"|"grupos"|"tabla"|"info">("picks");
   const [predicciones, setPredicciones] = useState<Record<string,Resultado>>({});
   const [resultados, setResultados] = useState<Record<string,Resultado>>({});
   const [tabla, setTabla] = useState<TablaRow[]>([]);
@@ -375,8 +375,8 @@ export default function PencaPage() {
             <img src="/pelota.png" style={{height:28,objectFit:"contain"}} />
           </div>
           <nav className="nav">
-            {([["picks","🎯","Pronósticos"],["grupos","📊","Grupos"],["tabla","🏆","Tabla"],["info","ℹ️","Info"],["misgrupos","🏘️","Mis grupos"]] as [string,string,string][]).map(([id,ic,lb])=>(
-              <button key={id} className={`nb ${tab===id?"on":""}`} onClick={()=>{ if(id==="misgrupos"){ router.push("/grupos"); return; } setTab(id as any); }}><em>{ic}</em>{lb}</button>
+            {([["picks","🎯","Pronósticos"],["grupos","📊","Grupos"],["tabla","🏆","Tabla"],["info","ℹ️","Info"]] as [string,string,string][]).map(([id,ic,lb])=>(
+              <button key={id} className={`nb ${tab===id?"on":""}`} onClick={()=>setTab(id as any)}><em>{ic}</em>{lb}</button>
             ))}
           </nav>
         </div>
@@ -680,7 +680,7 @@ function CountdownBloqueo({ fecha, hora }: { fecha: string; hora: string }) {
   useEffect(() => {
     const calcular = () => {
       const [h, m] = hora.split(":").map(Number);
-      const bloqueoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()+3*60*60*1000-3*60*1000;
+      const bloqueoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()-3*60*1000;
       const diff = bloqueoMs - Date.now();
       if (diff <= 0) { setTexto(""); return; }
       const dias = Math.floor(diff/(1000*60*60*24));
@@ -708,7 +708,7 @@ function PerfilModal({ perfil, resultados, config, onClose }: {
 }) {
   const bloqueados = TODOS_PARTIDOS.filter(p => {
     const [h, m] = p.hora.split(":").map(Number);
-    const bloqueoMs = new Date(`${p.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()+3*60*60*1000-3*60*1000;
+    const bloqueoMs = new Date(`${p.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()-3*60*1000;
     return Date.now() >= bloqueoMs;
   });
   const conPick = bloqueados.filter(p => perfil.predicciones[p.id]);

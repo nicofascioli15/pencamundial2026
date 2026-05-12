@@ -5,15 +5,16 @@ import webpush from "web-push";
 
 export const dynamic = "force-dynamic";
 
+webpush.setVapidDetails(
+  process.env.VAPID_EMAIL!,
+  process.env.VAPID_PUBLIC_KEY!,
+  process.env.VAPID_PRIVATE_KEY!
+);
+
 export async function POST(req: NextRequest) {
   const session = await getSession();
   if (!session?.isAdmin) return NextResponse.json({ error: "No autorizado" }, { status: 403 });
 
-  webpush.setVapidDetails(
-    process.env.VAPID_EMAIL!,
-    process.env.VAPID_PUBLIC_KEY!,
-    process.env.VAPID_PRIVATE_KEY!
-  );
   const { titulo, cuerpo } = await req.json();
   if (!cuerpo) return NextResponse.json({ error: "Falta el mensaje" }, { status: 400 });
 
