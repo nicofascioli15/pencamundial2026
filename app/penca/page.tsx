@@ -189,9 +189,16 @@ function esBloqueado(fecha: string, hora: string): boolean {
 export default function PencaPage() {
   const router = useRouter();
   const [grupoActivo, setGrupoActivo] = useState<string>("fascioli");
+  const [nombreGrupo, setNombreGrupo] = useState<string>("PencaFascioli");
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    setGrupoActivo(params.get("grupo") ?? "fascioli");
+    const gId = params.get("grupo") ?? "fascioli";
+    setGrupoActivo(gId);
+    if (gId === "fascioli") { setNombreGrupo("PencaFascioli"); return; }
+    fetch("/api/grupos").then(r=>r.json()).then(d => {
+      const g = d.grupos?.find((g: any) => g.id === gId);
+      if (g) setNombreGrupo(g.nombre);
+    });
   }, []);
   const [user, setUser] = useState<User|null>(null);
   const [tab, setTab] = useState<"picks"|"grupos"|"tabla"|"info"|"misgrupos">("picks");
@@ -376,7 +383,7 @@ export default function PencaPage() {
           </div>
           <div className="hero">
             <span className="hero-flag">🏆</span>
-            <div><div className="hero-title">Copa del Mundo FIFA</div><div className="hero-date">11 JUN — 19 JUL 2026 · Hora UY</div><div style={{fontSize:10,color:"#e8a020",fontWeight:700,letterSpacing:1,marginTop:3}}>🏘️ {grupoActivo==="fascioli"?"PencaFascioli":grupoActivo.toUpperCase()}</div></div>
+            <div><div className="hero-title">Copa del Mundo FIFA</div><div className="hero-date">11 JUN — 19 JUL 2026 · Hora UY</div><div style={{fontSize:11,color:"#e8a020",fontWeight:700,marginTop:4}}>Pronósticos para: <span style={{textDecoration:"underline"}}>{nombreGrupo}</span></div></div>
             <img src="/pelota.png" style={{height:28,objectFit:"contain"}} />
           </div>
           <nav className="nav">
