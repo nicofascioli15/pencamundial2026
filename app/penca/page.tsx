@@ -376,7 +376,7 @@ export default function PencaPage() {
           </div>
           <div className="hero">
             <span className="hero-flag">🏆</span>
-            <div><div className="hero-title">Copa del Mundo FIFA</div><div className="hero-date">11 JUN — 19 JUL 2026 · Hora UY</div></div>
+            <div><div className="hero-title">Copa del Mundo FIFA</div><div className="hero-date">11 JUN — 19 JUL 2026 · Hora UY</div><div style={{fontSize:10,color:"#e8a020",fontWeight:700,letterSpacing:1,marginTop:3}}>🏘️ {grupoActivo==="fascioli"?"PencaFascioli":grupoActivo.toUpperCase()}</div></div>
             <img src="/pelota.png" style={{height:28,objectFit:"contain"}} />
           </div>
           <nav className="nav">
