@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { TODOS_PARTIDOS, CIUDADES, GRUPOS, getFlag, calcularPuntos, type Partido, type Resultado, type PuntosConfig, PUNTOS_DEFAULT } from "@/lib/mundial";
 import { LOGO_SVG } from "@/lib/logo";
 
@@ -188,8 +188,11 @@ function esBloqueado(fecha: string, hora: string): boolean {
 
 export default function PencaPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const grupoActivo = searchParams.get("grupo") ?? "fascioli";
+  const [grupoActivo, setGrupoActivo] = useState<string>("fascioli");
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setGrupoActivo(params.get("grupo") ?? "fascioli");
+  }, []);
   const [user, setUser] = useState<User|null>(null);
   const [tab, setTab] = useState<"picks"|"grupos"|"tabla"|"info"|"misgrupos">("picks");
   const [predicciones, setPredicciones] = useState<Record<string,Resultado>>({});
