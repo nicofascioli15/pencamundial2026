@@ -213,9 +213,9 @@ export default function AdminPage() {
             {filtroFase==="Grupos"&&filtroGrupo==="Todos"
               ?GRUPOS_KEYS.map(g=>{
                   const ps=partidos.filter(p=>p.grupo===g);
-                  return ps.length?(<div key={g}><div className="grupo-lbl">Grupo {g}</div>{ps.map(p=><AdminPartidoCard key={p.id} partido={p} resActual={resultados[p.id]} confirmado={confirmados[p.id]} onGuardar={guardarResultado}/>)}</div>):null;
+                  return ps.length?(<div key={g}><div className="grupo-lbl">Grupo {g}</div>{ps.map(p=><AdminPartidoCard key={p.id} partido={p} resActual={resultados[p.id]} confirmado={confirmados[p.id]} onGuardar={guardarResultado} onBorrar={async(id)=>{ if(!confirm("¿Borrar este resultado?")) return; await fetch("/api/resultados/borrar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({partidoId:id})}); refrescarTodo(); }}/>)}</div>):null;
                 })
-              :partidos.map(p=><AdminPartidoCard key={p.id} partido={p} resActual={resultados[p.id]} confirmado={confirmados[p.id]} onGuardar={guardarResultado}/>)
+              :partidos.map(p=><AdminPartidoCard key={p.id} partido={p} resActual={resultados[p.id]} confirmado={confirmados[p.id]} onGuardar={guardarResultado} onBorrar={async(id)=>{ if(!confirm("¿Borrar este resultado?")) return; await fetch("/api/resultados/borrar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({partidoId:id})}); refrescarTodo(); }}/>)
             }
           </>}
 
@@ -330,7 +330,7 @@ export default function AdminPage() {
 
 function AdminPartidoCard({partido,resActual,confirmado,onGuardar}:{
   partido:Partido;resActual?:Resultado;confirmado?:boolean;
-  onGuardar:(id:string,l:number,v:number)=>void;
+  onGuardar:(id:string,l:number,v:number)=>void; onBorrar:(id:string)=>void;
 }) {
   const [lv,setLv]=useState<string|number>(resActual?.local??"");
   const [vv,setVv]=useState<string|number>(resActual?.visitante??"");
@@ -361,6 +361,7 @@ function AdminPartidoCard({partido,resActual,confirmado,onGuardar}:{
         <button className={`conf-btn ${confirmado?"done":""}`} disabled={lv===""||vv===""} onClick={()=>onGuardar(partido.id,Number(lv),Number(vv))}>
           {confirmado?"✓ Guardado":resActual?"Actualizar":"Confirmar"}
         </button>
+        {resActual&&<button onClick={()=>onBorrar(partido.id)} style={{padding:"9px 12px",border:"1.5px solid #dc2626",borderRadius:9,background:"transparent",color:"#dc2626",fontWeight:700,fontSize:13,cursor:"pointer"}}>🗑</button>}
       </div>
     </div>
   );
