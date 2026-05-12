@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { TODOS_PARTIDOS, CIUDADES, GRUPOS, getFlag, calcularPuntos, type Partido, type Resultado, type PuntosConfig, PUNTOS_DEFAULT } from "@/lib/mundial";
 import { LOGO_SVG } from "@/lib/logo";
 
@@ -188,6 +188,8 @@ function esBloqueado(fecha: string, hora: string): boolean {
 
 export default function PencaPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const grupoActivo = searchParams.get("grupo") ?? "fascioli";
   const [user, setUser] = useState<User|null>(null);
   const [tab, setTab] = useState<"picks"|"grupos"|"tabla"|"info"|"misgrupos">("picks");
   const [predicciones, setPredicciones] = useState<Record<string,Resultado>>({});
@@ -225,9 +227,9 @@ export default function PencaPage() {
 
   const cargarDatos = useCallback(async () => {
     const [pRes,rRes,tRes,cRes,gRes,hRes] = await Promise.all([
-      fetch("/api/predicciones").then(r=>r.json()),
+      fetch(`/api/grupos/predicciones?grupoId=${grupoActivo}`).then(r=>r.json()),
       fetch("/api/resultados").then(r=>r.json()),
-      fetch("/api/tabla").then(r=>r.json()),
+      fetch(`/api/grupos/tabla?grupoId=${grupoActivo}`).then(r=>r.json()),
       fetch("/api/config").then(r=>r.json()),
       fetch("/api/grupos").then(r=>r.json()),
       fetch("/api/partidos-hoy").then(r=>r.json()),
@@ -270,7 +272,7 @@ export default function PencaPage() {
   }, [sincronizar]);
 
   const guardarPick = async (partidoId: string, local: number, visitante: number) => {
-    const r = await fetch("/api/predicciones",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({partidoId,local,visitante})});
+    const r = await fetch("/api/predicciones",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({grupoId:grupoActivo,partidoId,local,visitante})});
     if (r.ok) {
       setPredicciones(p=>({...p,[partidoId]:{local,visitante}}));
       setGuardados(g=>({...g,[partidoId]:true}));
