@@ -1,15 +1,10 @@
 // app/api/auth/registro/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { getUsuario, setUsuario } from "@/lib/kv";
+import { getUsuario, setUsuario, agregarUsuarioAGrupo, GRUPO_GLOBAL } from "@/lib/kv";
 
 export async function POST(req: NextRequest) {
-  const { username, password, nombre, inviteCode } = await req.json();
-
-  // Validar código de invitación
-  const codeOk = inviteCode?.toUpperCase() === (process.env.INVITE_CODE ?? "MUNDIAL2026").toUpperCase();
-  if (!codeOk)
-    return NextResponse.json({ error: "Código de invitación incorrecto" }, { status: 403 });
+  const { username, password, nombre } = await req.json();
 
   // Validaciones básicas
   if (!username || !password || !nombre)
@@ -34,6 +29,9 @@ export async function POST(req: NextRequest) {
     nombre: nombre.trim(),
     creadoEn: new Date().toISOString(),
   });
+
+  // Agregar al grupo global automáticamente
+  await agregarUsuarioAGrupo(user, GRUPO_GLOBAL);
 
   return NextResponse.json({ ok: true });
 }
