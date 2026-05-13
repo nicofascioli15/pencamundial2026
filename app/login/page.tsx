@@ -9,7 +9,6 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [nombre, setNombre] = useState("");
-  const [invite, setInvite] = useState("");
   const [err, setErr] = useState("");
   const [ok, setOk] = useState("");
   const [loading, setLoading] = useState(false);
@@ -65,7 +64,7 @@ export default function LoginPage() {
     setErr(""); setLoading(true);
     const r = await fetch("/api/auth/registro", {
       method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ username, password, nombre, inviteCode: invite }),
+      body: JSON.stringify({ username, password, nombre }),
     });
     const d = await r.json();
     setLoading(false);
@@ -100,10 +99,6 @@ export default function LoginPage() {
           <input placeholder="Ej: jgarcia" value={username} onChange={e => setUsername(e.target.value)} autoCapitalize="none" />
           <label>Contraseña</label>
           <input type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key==="Enter" && modo==="login" && handleLogin()} />
-          {modo === "registro" && <>
-            <label>🔑 Código de invitación</label>
-            <input placeholder="Pedíselo a Fascioli" value={invite} onChange={e => setInvite(e.target.value)} />
-          </>}
           {modo==="login"&&<div style={{textAlign:"right",marginBottom:8}}>
             <span onClick={()=>{setRecuperar(!recuperar);setRecErr("");}} style={{fontSize:12,color:"#e8a020",fontWeight:600,cursor:"pointer"}}>¿Olvidaste tu contraseña? →</span>
           </div>}

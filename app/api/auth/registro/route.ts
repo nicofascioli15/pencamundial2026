@@ -4,12 +4,7 @@ import bcrypt from "bcryptjs";
 import { getUsuario, setUsuario, agregarUsuarioAGrupo, GRUPO_GLOBAL } from "@/lib/kv";
 
 export async function POST(req: NextRequest) {
-  const { username, password, nombre, inviteCode } = await req.json();
-
-  // Validar código de invitación
-  const codeOk = inviteCode?.toUpperCase() === (process.env.INVITE_CODE ?? "MUNDIAL2026").toUpperCase();
-  if (!codeOk)
-    return NextResponse.json({ error: "Código de invitación incorrecto" }, { status: 403 });
+  const { username, password, nombre } = await req.json();
 
   // Validaciones básicas
   if (!username || !password || !nombre)
