@@ -67,6 +67,12 @@ export default function GruposPage() {
     });
   }, []);
 
+  const compartirGrupo = (nombre: string, codigo: string) => {
+    const url = `${window.location.origin}/unirse?codigo=${codigo}`;
+    const mensaje = `¡Únete a la Penca de Fascioli!\n\nIngresá al link y jugá en el grupo *${nombre}* con tus amigos!\n\nTambién podés unirte usando el código: *${codigo}*\n\n${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, "_blank");
+  };
+
   const crearGrupo = async () => {
     if (!nombreNuevo.trim()) { setErr("Ingresá un nombre"); return; }
     setLoading(true); setErr("");
@@ -169,7 +175,12 @@ export default function GruposPage() {
                   </div>
                   <div className="group-meta">👥 {g.miembros} participante{g.miembros!==1?"s":""}</div>
                 </div>
-                {g.codigo !== "GLOBAL" && <div className="group-code">{g.codigo}</div>}
+                {g.codigo !== "GLOBAL" && (
+                <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                  <div className="group-code">{g.codigo}</div>
+                  <button onClick={e=>{e.stopPropagation();compartirGrupo(g.nombre,g.codigo);}} style={{background:"#25D366",border:"none",borderRadius:8,padding:"4px 8px",color:"#fff",fontSize:12,cursor:"pointer",fontWeight:700}}>📤</button>
+                </div>
+              )}
               </div>
               <div className="group-footer">
                 <div>
