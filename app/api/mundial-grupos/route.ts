@@ -11,27 +11,31 @@ export async function GET() {
 
   const tablaGrupos: Record<string, Record<string, any>> = {};
 
+  // Inicializar todos los equipos con 0 en todos los grupos
   for (const p of TODOS_PARTIDOS.filter(p => p.fase === "Grupos")) {
-    const grupo = p.grupo!;
-    if (!tablaGrupos[grupo]) tablaGrupos[grupo] = {} as Record<string, any>;
+    const g = p.grupo!;
+    if (!tablaGrupos[g]) tablaGrupos[g] = {};
+    if (!tablaGrupos[g][p.local]) tablaGrupos[g][p.local] = {equipo:p.local, pj:0, g:0, e:0, p:0, gf:0, gc:0, pts:0};
+    if (!tablaGrupos[g][p.visitante]) tablaGrupos[g][p.visitante] = {equipo:p.visitante, pj:0, g:0, e:0, p:0, gf:0, gc:0, pts:0};
+  }
 
+  // Cargar resultados y actualizar stats
+  for (const p of TODOS_PARTIDOS.filter(p => p.fase === "Grupos")) {
     const res = await getResultado(p.id);
     if (!res) continue;
-
-    const equipos = tablaGrupos[grupo] as any;
-    for (const [equipo, gf, gc] of [[p.local, res.local, res.visitante],[p.visitante, res.visitante, res.local]]) {
-      if (!equipos[equipo as string]) equipos[equipo as string] = {equipo, pj:0, g:0, e:0, p:0, gf:0, gc:0, pts:0};
-      const e = equipos[equipo as string];
-      e.pj++; e.gf += gf as number; e.gc += gc as number;
-      if ((gf as number) > (gc as number)) { e.g++; e.pts += 3; }
-      else if ((gf as number) === (gc as number)) { e.e++; e.pts += 1; }
-      else e.p++;
-    }
+    const g = p.grupo!;
+    const local = tablaGrupos[g][p.local];
+    const visit = tablaGrupos[g][p.visitante];
+    local.pj++; local.gf += res.local; local.gc += res.visitante;
+    visit.pj++; visit.gf += res.visitante; visit.gc += res.local;
+    if (res.local > res.visitante) { local.g++; local.pts += 3; visit.p++; }
+    else if (res.local < res.visitante) { visit.g++; visit.pts += 3; local.p++; }
+    else { local.e++; local.pts++; visit.e++; visit.pts++; }
   }
 
   const resultado: Record<string, any[]> = {};
   for (const [g, equipos] of Object.entries(tablaGrupos)) {
-    resultado[g] = Object.values(equipos as any)
+    resultado[g] = Object.values(equipos)
       .sort((a: any, b: any) => b.pts - a.pts || (b.gf-b.gc) - (a.gf-a.gc));
   }
 
