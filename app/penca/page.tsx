@@ -540,7 +540,7 @@ export default function PencaPage() {
             <div className="info-card">
               <div className="sec-title">Reglas</div>
               <p style={{fontSize:13,color:"#6b7280",lineHeight:1.7}}>
-                🔒 Los pronósticos se bloquean automáticamente <strong style={{color:"#123952"}}>3 minutos antes</strong> del inicio de cada partido.<br/><br/>
+                🔒 Los pronósticos se bloquean automáticamente <strong style={{color:"#123952"}}>3 minutos antes</strong> del inicio de cada partido.<br/><br/>⏱️ Se contabilizan solo los <strong style={{color:"#123952"}}>90 minutos reglamentarios</strong>, sin incluir prórroga ni penales.<br/><br/>
                 🔄 Los resultados se actualizan solos cada 5 minutos desde football-data.org.<br/><br/>
                 🕐 Todos los horarios están en <strong style={{color:"#123952"}}>hora Uruguay (UTC-3)</strong>.
               </p>

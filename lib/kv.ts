@@ -97,7 +97,8 @@ export async function getAllResultados(): Promise<Record<string, Resultado>> {
 
 export async function getPuntosConfig(): Promise<PuntosConfig> {
   const cfg = await get<PuntosConfig>("config:puntos");
-  return cfg ?? PUNTOS_DEFAULT;
+  if (!cfg) return PUNTOS_DEFAULT;
+  return { ...PUNTOS_DEFAULT, ...cfg };
 }
 export async function setPuntosConfig(cfg: PuntosConfig): Promise<void> {
   await set("config:puntos", cfg);

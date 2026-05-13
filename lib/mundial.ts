@@ -44,8 +44,8 @@ export interface Partido {
 }
 
 export interface Resultado { local: number; visitante: number; }
-export interface PuntosConfig { resultado_exacto: number; ganador_correcto: number; empate_correcto: number; }
-export const PUNTOS_DEFAULT: PuntosConfig = { resultado_exacto: 3, ganador_correcto: 1, empate_correcto: 1 };
+export interface PuntosConfig { resultado_exacto: number; ganador_diferencia: number; ganador_correcto: number; empate_correcto: number; }
+export const PUNTOS_DEFAULT: PuntosConfig = { resultado_exacto: 8, ganador_diferencia: 5, ganador_correcto: 3, empate_correcto: 3 };
 
 // ── FIXTURE OFICIAL ── Horarios en hora Montevideo = hora Argentina (UTC-3)
 const PARTIDOS_GRUPOS: Partido[] = [
@@ -164,11 +164,20 @@ const ELIMINATORIAS: Partido[] = [
 export const TODOS_PARTIDOS: Partido[] = [...PARTIDOS_GRUPOS, ...ELIMINATORIAS];
 
 export function calcularPuntos(pred: Resultado, res: Resultado, cfg: PuntosConfig = PUNTOS_DEFAULT): number {
+  // Resultado exacto
   if (pred.local === res.local && pred.visitante === res.visitante) return cfg.resultado_exacto;
   const gR = res.local > res.visitante ? "L" : res.local < res.visitante ? "V" : "E";
   const gP = pred.local > pred.visitante ? "L" : pred.local < pred.visitante ? "V" : "E";
+  // Empate correcto (no exacto)
   if (gR === "E" && gP === "E") return cfg.empate_correcto;
-  if (gR === gP) return cfg.ganador_correcto;
+  // Ganador correcto
+  if (gR === gP) {
+    // Diferencia de goles exacta
+    const difR = Math.abs(res.local - res.visitante);
+    const difP = Math.abs(pred.local - pred.visitante);
+    if (difR === difP) return cfg.ganador_diferencia;
+    return cfg.ganador_correcto;
+  }
   return 0;
 }
 

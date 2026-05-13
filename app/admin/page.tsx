@@ -312,8 +312,9 @@ export default function AdminPage() {
             <div className="sec-title">Sistema de puntos</div>
             <div style={{background:"#fff",border:"1px solid #dde4ec",borderRadius:14,padding:"0 16px",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
               {[
-                ["🎯 Resultado exacto","Acertás goles exactos","resultado_exacto"],
-                ["👍 Ganador correcto","Acertás quién gana","ganador_correcto"],
+                ["🎯 Resultado exacto","Acertás goles exactos de ambos","resultado_exacto"],
+                ["🎯 Ganador + diferencia","Acertás ganador y diferencia","ganador_diferencia"],
+                ["👍 Ganador correcto","Acertás el ganador","ganador_correcto"],
                 ["🤝 Empate correcto","Acertás que hay empate","empate_correcto"],
               ].map(([lbl,sub,key],idx)=>(
                 <div key={key} className="cfg-row" style={idx===2?{border:"none"}:{}}>
