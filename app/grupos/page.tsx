@@ -67,6 +67,17 @@ export default function GruposPage() {
     });
   }, []);
 
+  const borrarGrupo = async (grupoId: string, nombre: string) => {
+    if (!confirm(`¿Borrar el grupo "${nombre}" y todos sus pronósticos? Esta acción no se puede deshacer.`)) return;
+    const r = await fetch("/api/grupos/borrar", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ grupoId })
+    }).then(r => r.json());
+    if (r.error) { alert(r.error); return; }
+    fetch("/api/grupos").then(r => r.json()).then(d => setGrupos(d.grupos ?? []));
+  };
+
   const compartirGrupo = (nombre: string, codigo: string) => {
     const url = `${window.location.origin}/unirse?codigo=${codigo}`;
     const mensaje = `¡Únete a la Penca de Fascioli!\n\nIngresá al link y jugá en el grupo *${nombre}* con tus amigos!\n\nTambién podés unirte usando el código: *${codigo}*\n\n${url}`;
@@ -179,6 +190,7 @@ export default function GruposPage() {
                 <div style={{display:"flex",gap:6,alignItems:"center"}}>
                   <div className="group-code">{g.codigo}</div>
                   <button onClick={e=>{e.stopPropagation();compartirGrupo(g.nombre,g.codigo);}} style={{background:"#25D366",border:"none",borderRadius:8,padding:"4px 8px",color:"#fff",fontSize:12,cursor:"pointer",fontWeight:700}}>📤</button>
+                  <button onClick={e=>{e.stopPropagation();borrarGrupo(g.id,g.nombre);}} style={{background:"transparent",border:"1.5px solid #dc2626",borderRadius:8,padding:"4px 8px",color:"#dc2626",fontSize:12,cursor:"pointer",fontWeight:700}}>🗑</button>
                 </div>
               )}
               </div>

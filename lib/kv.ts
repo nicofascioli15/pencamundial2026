@@ -164,6 +164,24 @@ export async function getAllPrediccionesGrupoUsuario(grupoId: string, username: 
   return result;
 }
 
+export async function borrarGrupo(grupoId: string): Promise<void> {
+  const kv = getClient();
+  const miembros = await getMiembrosGrupo(grupoId);
+  // Borrar picks de todos los miembros en este grupo
+  for (const u of miembros) {
+    const ids = await smembers(`pred:grupo:${grupoId}:${u}`);
+    for (const id of ids) await kv.del(`pred:${grupoId}:${u}:${id}`);
+    await kv.del(`pred:grupo:${grupoId}:${u}`);
+    await kv.srem(`usuario:grupos:${u}`, grupoId);
+  }
+  await kv.del(`grupo:usuarios:${grupoId}`);
+  // Borrar índice de código
+  const grupo = await getGrupo(grupoId);
+  if (grupo) await kv.del(`grupo:codigo:${grupo.codigo.toUpperCase()}`);
+  await kv.del(`grupo:${grupoId}`);
+  await kv.srem("grupos:all", grupoId);
+}
+
 export async function countPrediccionesGrupoUsuario(grupoId: string, username: string): Promise<number> {
   const ids = await smembers(`pred:grupo:${grupoId}:${username}`);
   return ids?.length ?? 0;
