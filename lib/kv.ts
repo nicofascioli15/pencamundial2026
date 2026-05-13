@@ -48,9 +48,20 @@ export async function getAllUsernames(): Promise<string[]> {
 }
 export async function deleteUsuario(username: string): Promise<void> {
   const kv = getClient();
+  // Borrar picks viejos
   const ids = await smembers(`pred:user:${username}`);
   await Promise.all(ids.map(id => kv.del(`pred:${username}:${id}`)));
   if (ids.length) await kv.del(`pred:user:${username}`);
+  // Sacar de todos los grupos
+  const misGrupos = await smembers(`usuario:grupos:${username}`);
+  for (const gId of misGrupos) {
+    await kv.srem(`grupo:usuarios:${gId}`, username);
+    // Borrar picks del grupo
+    const predIds = await smembers(`pred:grupo:${gId}:${username}`);
+    for (const id of predIds) await kv.del(`pred:${gId}:${username}:${id}`);
+    if (predIds.length) await kv.del(`pred:grupo:${gId}:${username}`);
+  }
+  await kv.del(`usuario:grupos:${username}`);
   await kv.del(`user:${username}`);
   await kv.srem("users:all", username);
 }
