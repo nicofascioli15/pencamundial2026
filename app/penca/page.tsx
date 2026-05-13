@@ -251,7 +251,7 @@ export default function PencaPage() {
       fetch("/api/resultados").then(r=>r.json()),
       fetch(`/api/grupos/tabla?grupoId=${gId}`).then(r=>r.json()),
       fetch("/api/config").then(r=>r.json()),
-      fetch("/api/grupos").then(r=>r.json()),
+      fetch("/api/mundial-grupos").then(r=>r.json()),
       fetch("/api/partidos-hoy").then(r=>r.json()),
     ]);
     setPredicciones(pRes.predicciones??{});
