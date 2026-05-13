@@ -9,11 +9,11 @@ export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
 
-  const tablaGrupos: Record<string, any[]> = {};
+  const tablaGrupos: Record<string, Record<string, any>> = {};
 
   for (const p of TODOS_PARTIDOS.filter(p => p.fase === "Grupos")) {
     const grupo = p.grupo!;
-    if (!tablaGrupos[grupo]) tablaGrupos[grupo] = {};
+    if (!tablaGrupos[grupo]) tablaGrupos[grupo] = {} as Record<string, any>;
 
     const res = await getResultado(p.id);
     if (!res) continue;
