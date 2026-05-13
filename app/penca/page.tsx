@@ -532,10 +532,10 @@ export default function PencaPage() {
           {tab==="info"&&<>
             <div className="info-card">
               <div className="sec-title">Sistema de puntos</div>
-              <div className="pts-row"><div><div className="pts-lbl">🎯 Resultado exacto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás los goles exactos de cada equipo</div></div><div className="pts-val">{config.resultado_exacto} pts</div></div>
-              <div className="pts-row"><div><div className="pts-lbl">👍 Ganador correcto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás quién gana</div></div><div className="pts-val">{config.ganador_correcto} pts</div></div>
-              <div className="pts-row"><div><div className="pts-lbl">🤝 Empate correcto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás que hay empate</div></div><div className="pts-val">{config.empate_correcto} pts</div></div>
-              <div className="pts-row"><div><div className="pts-lbl">❌ Sin puntos</div><div style={{fontSize:11,color:"#6b7280"}}>No acertás ni ganador ni empate</div></div><div className="pts-val" style={{color:"#dc2626"}}>0 pts</div></div>
+              <div className="pts-row"><div><div className="pts-lbl">🎯 Resultado exacto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás los goles exactos de ambos equipos</div></div><div className="pts-val">{config.resultado_exacto} pts</div></div>
+              <div className="pts-row"><div><div className="pts-lbl">🎯 Ganador + diferencia</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás el ganador y la diferencia de goles</div></div><div className="pts-val">{config.ganador_diferencia} pts</div></div>
+              <div className="pts-row"><div><div className="pts-lbl">👍 Ganador correcto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás el ganador o que hay empate</div></div><div className="pts-val">{config.ganador_correcto} pts</div></div>
+              <div className="pts-row"><div><div className="pts-lbl">❌ Sin puntos</div><div style={{fontSize:11,color:"#6b7280"}}>No acertás ni el ganador ni el empate</div></div><div className="pts-val" style={{color:"#dc2626"}}>0 pts</div></div>
             </div>
             <div className="info-card">
               <div className="sec-title">Reglas</div>
