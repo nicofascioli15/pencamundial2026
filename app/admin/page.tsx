@@ -129,7 +129,7 @@ export default function AdminPage() {
       fetch("/api/resultados").then(r=>r.json()),
       fetch("/api/tabla").then(r=>r.json()),
       fetch("/api/usuarios").then(r=>r.json()),
-      fetch("/api/grupos").then(r=>r.json()),
+      fetch("/api/admin/grupos").then(r=>r.json()),
       fetch("/api/config").then(r=>r.json()),
     ]);
     setResultados(rRes.resultados??{});
