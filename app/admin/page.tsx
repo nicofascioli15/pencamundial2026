@@ -92,6 +92,7 @@ export default function AdminPage() {
   const [resultados,setResultados]=useState<Record<string,Resultado>>({});
   const [tabla,setTabla]=useState<TablaRow[]>([]);
   const [usuarios,setUsuarios]=useState<UserRow[]>([]);
+  const [grupos,setGrupos]=useState<{id:string;nombre:string;codigo:string;miembros:number}[]>([]);
   const [editando,setEditando]=useState<string|null>(null);
   const [editNombre,setEditNombre]=useState("");
   const [editPass,setEditPass]=useState("");
@@ -128,11 +129,13 @@ export default function AdminPage() {
       fetch("/api/resultados").then(r=>r.json()),
       fetch("/api/tabla").then(r=>r.json()),
       fetch("/api/usuarios").then(r=>r.json()),
+      fetch("/api/grupos").then(r=>r.json()),
       fetch("/api/config").then(r=>r.json()),
     ]);
     setResultados(rRes.resultados??{});
     setTabla(tRes.tabla??[]);
     setUsuarios(uRes.usuarios??[]);
+    setGrupos(gRes.grupos??[]);
     setConfig(cRes.config??PUNTOS_DEFAULT);
   },[]);
 
@@ -238,12 +241,16 @@ export default function AdminPage() {
           {/* ── USUARIOS ── */}
           {tab==="usuarios"&&<>
             <div className="sec-title">Participantes ({usuarios.length})</div>
+            <div style={{display:"flex",gap:10,marginBottom:12}}>
+              <div style={{background:"#f2f7fb",border:"1px solid #dde4ec",borderRadius:10,padding:"10px 14px",flex:1,textAlign:"center"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:900,color:"#e8a020"}}>{usuarios.length}</div><div style={{fontSize:11,color:"#6b7280"}}>Usuarios</div></div>
+              <div style={{background:"#f2f7fb",border:"1px solid #dde4ec",borderRadius:10,padding:"10px 14px",flex:1,textAlign:"center"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:900,color:"#e8a020"}}>{grupos.filter(g=>g.id!=="fascioli").length}</div><div style={{fontSize:11,color:"#6b7280"}}>Grupos privados</div></div>
+            </div>
             <div style={{background:"#fff",border:"1px solid #dde4ec",borderRadius:14,padding:"0 14px",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
               {usuarios.length===0&&<p style={{color:"#6b7280",fontSize:14,padding:"16px 0"}}>Sin participantes aún.</p>}
               {usuarios.map(u=>(
                 <div key={u.username}>
                   <div className="urow" style={{cursor:"pointer"}} onClick={()=>{setEditando(editando===u.username?null:u.username);setEditNombre(u.nombre);setEditPass("");}}>
-                    <div><div className="uname">{u.nombre}</div><div className="uinfo">@{u.username} · {u.creadoEn?new Date(u.creadoEn).toLocaleDateString("es-UY"):"—"}</div></div>
+                    <div><div className="uname">{u.nombre}</div><div className="uinfo">@{u.username} · {u.creadoEn?new Date(u.creadoEn).toLocaleDateString("es-UY"):"—"}</div><div style={{fontSize:10,color:"#2e9e6b",marginTop:2}}>{grupos.filter(g=>g.id!=="fascioli").map(g=>g.nombre).join(", ")||"Solo PencaFascioli"}</div></div>
                     <div style={{display:"flex",alignItems:"center",gap:10}}>
                       <span style={{color:"#123952",fontWeight:700,fontSize:13}}>{u.picks} picks</span>
                       <span style={{fontSize:14,color:"#6b7280"}}>{editando===u.username?"▲":"▼"}</span>
