@@ -62,6 +62,7 @@ export async function GET(req: NextRequest) {
       id: grupo.id,
       nombre: grupo.nombre,
       codigo: grupo.codigo,
+      ownerUsername: grupo.ownerUsername,
       miembros: miembrosValidos.length,
       miPos,
       miPts: miInfo?.pts ?? 0,

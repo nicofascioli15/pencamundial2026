@@ -6,6 +6,7 @@ interface GrupoResumen {
   id: string;
   nombre: string;
   codigo: string;
+  ownerUsername: string;
   miembros: number;
   miPos: number;
   miPts: number;
@@ -71,6 +72,17 @@ export default function GruposPage() {
       setCargando(false);
     });
   }, []);
+
+  const salirGrupo = async (grupoId: string, nombre: string) => {
+    if (!confirm(`¿Salir del grupo "${nombre}"? Tus pronósticos en este grupo se eliminarán.`)) return;
+    const r = await fetch("/api/grupos/salir", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ grupoId })
+    }).then(r => r.json());
+    if (r.error) { alert(r.error); return; }
+    fetch("/api/grupos").then(r => r.json()).then(d => setGrupos(d.grupos ?? []));
+  };
 
   const borrarGrupo = async (grupoId: string, nombre: string) => {
     if (!confirm(`¿Borrar el grupo "${nombre}" y todos sus pronósticos? Esta acción no se puede deshacer.`)) return;
@@ -219,7 +231,10 @@ export default function GruposPage() {
                 <div style={{display:"flex",gap:6,alignItems:"center"}}>
                   <div className="group-code">{g.codigo}</div>
                   <button onClick={e=>{e.stopPropagation();compartirGrupo(g.nombre,g.codigo);}} style={{background:"#25D366",border:"none",borderRadius:8,padding:"4px 8px",color:"#fff",fontSize:12,cursor:"pointer",fontWeight:700}}>📤</button>
-                  <button onClick={e=>{e.stopPropagation();borrarGrupo(g.id,g.nombre);}} style={{background:"transparent",border:"1.5px solid #dc2626",borderRadius:8,padding:"4px 8px",color:"#dc2626",fontSize:12,cursor:"pointer",fontWeight:700}}>🗑</button>
+                  {g.ownerUsername === user?.username
+                    ? <button onClick={e=>{e.stopPropagation();borrarGrupo(g.id,g.nombre);}} style={{background:"transparent",border:"1.5px solid #dc2626",borderRadius:8,padding:"4px 8px",color:"#dc2626",fontSize:12,cursor:"pointer",fontWeight:700}}>🗑</button>
+                    : <button onClick={e=>{e.stopPropagation();salirGrupo(g.id,g.nombre);}} style={{background:"transparent",border:"1.5px solid #6b7280",borderRadius:8,padding:"4px 8px",color:"#6b7280",fontSize:12,cursor:"pointer",fontWeight:700}}>Salir</button>
+                  }
                 </div>
               )}
               </div>
