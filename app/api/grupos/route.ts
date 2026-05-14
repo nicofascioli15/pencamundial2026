@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { getGrupo, setGrupo, getGruposUsuario, getMiembrosGrupo, getUsuario, getGruposByCodigo, setGrupoCodigoIndex, agregarUsuarioAGrupo, GRUPO_GLOBAL, countPrediccionesGrupoUsuario, getAllPrediccionesGrupoUsuario } from "@/lib/kv";
+import { getGrupo, setGrupo, getGruposUsuario, getMiembrosGrupo, getUsuario, getGruposByCodigo, setGrupoCodigoIndex, agregarUsuarioAGrupo, GRUPO_GLOBAL, countPrediccionesGrupoUsuario, getAllPrediccionesGrupoUsuario, setPrediccionGrupo, getPrediccionGrupo } from "@/lib/kv";
 import { TODOS_PARTIDOS, calcularPuntos, PUNTOS_DEFAULT } from "@/lib/mundial";
 import { getPuntosConfig, getResultado } from "@/lib/kv";
 
@@ -98,6 +98,20 @@ export async function POST(req: NextRequest) {
   await setGrupo(grupo);
   await setGrupoCodigoIndex(codigo, grupoId);
   await agregarUsuarioAGrupo(session.username, grupoId);
+
+  // Replicar picks de PencaFascioli al nuevo grupo (solo no bloqueados)
+  const predsGlobal = await getAllPrediccionesGrupoUsuario(GRUPO_GLOBAL, session.username);
+  const { TODOS_PARTIDOS } = await import("@/lib/mundial");
+  const ahora = Date.now();
+  await Promise.all(
+    TODOS_PARTIDOS
+      .filter(p => {
+        const [h, m] = p.hora.split(":").map(Number);
+        const bloqueoMs = new Date(`${p.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() - 3*60*1000;
+        return bloqueoMs > ahora && predsGlobal[p.id];
+      })
+      .map(p => setPrediccionGrupo(grupoId, session.username, p.id, predsGlobal[p.id]))
+  );
 
   return NextResponse.json({ ok: true, grupo });
 }
