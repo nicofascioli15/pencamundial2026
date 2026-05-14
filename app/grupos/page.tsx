@@ -230,7 +230,7 @@ export default function GruposPage() {
                 {g.codigo !== "GLOBAL" && (
                 <div style={{display:"flex",gap:6,alignItems:"center"}}>
                   <div className="group-code">{g.codigo}</div>
-                  <button onClick={e=>{e.stopPropagation();compartirGrupo(g.nombre,g.codigo);}} style={{background:"#25D366",border:"none",borderRadius:8,padding:"4px 8px",color:"#fff",fontSize:12,cursor:"pointer",fontWeight:700}}>📤</button>
+                  <button onClick={e=>{e.stopPropagation();compartirGrupo(g.nombre,g.codigo);}} style={{background:"#25D366",border:"none",borderRadius:8,padding:"4px 8px",color:"#fff",fontSize:12,cursor:"pointer",fontWeight:700}}>🔗</button>
                   {g.ownerUsername === user?.username
                     ? <button onClick={e=>{e.stopPropagation();borrarGrupo(g.id,g.nombre);}} style={{background:"transparent",border:"1.5px solid #dc2626",borderRadius:8,padding:"4px 8px",color:"#dc2626",fontSize:12,cursor:"pointer",fontWeight:700}}>🗑</button>
                     : <button onClick={e=>{e.stopPropagation();salirGrupo(g.id,g.nombre);}} style={{background:"transparent",border:"1.5px solid #6b7280",borderRadius:8,padding:"4px 8px",color:"#6b7280",fontSize:12,cursor:"pointer",fontWeight:700}}>Salir</button>
