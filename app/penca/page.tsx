@@ -228,6 +228,8 @@ export default function PencaPage() {
   const [siguientesDias, setSiguientesDias] = useState<{fecha:string;partidos:Partido[]}[]>([]);
   const [fechaHoy, setFechaHoy] = useState<string>("");
   const [perfilUsuario, setPerfilUsuario] = useState<{username:string;nombre:string;predicciones:Record<string,Resultado>}|null>(null);
+  const [odds, setOdds] = useState<Record<string,{home:number;draw:number;away:number}>>({});
+  const [odds, setOdds] = useState<Record<string,{home:number;draw:number;away:number}>>({});
   const [notifActiva, setNotifActiva] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [pullY, setPullY] = useState(0);
@@ -248,12 +250,14 @@ export default function PencaPage() {
 
   const cargarDatos = useCallback(async () => {
     const gId = new URLSearchParams(window.location.search).get("grupo") ?? "fascioli";
-    const [pRes,rRes,tRes,cRes,gRes,hRes] = await Promise.all([
+    const [pRes,rRes,tRes,cRes,gRes,oRes,hRes] = await Promise.all([
       fetch(`/api/grupos/predicciones?grupoId=${gId}`).then(r=>r.json()),
       fetch("/api/resultados").then(r=>r.json()),
       fetch(`/api/grupos/tabla?grupoId=${gId}`).then(r=>r.json()),
       fetch("/api/config").then(r=>r.json()),
       fetch("/api/mundial-grupos").then(r=>r.json()),
+      fetch("/api/odds").then(r=>r.json()),
+      fetch("/api/odds").then(r=>r.json()),
       fetch("/api/partidos-hoy").then(r=>r.json()),
     ]);
     setPredicciones(pRes.predicciones??{});
@@ -264,6 +268,8 @@ export default function PencaPage() {
     setPartidosHoy(hRes.partidos??[]);
     setSiguientesDias(hRes.siguientesDias??[]);
     setFechaHoy(hRes.fechaHoy??"");
+    setOdds(oRes.odds??{});
+    const [,,,,,,oddsRes] = await Promise.resolve([null,null,null,null,null,null,null]);
   }, []);
 
   const sincronizar = useCallback(async () => {
@@ -461,7 +467,7 @@ export default function PencaPage() {
                           const puntos=res&&pred?calcularPuntos(pred,res,config):null;
                           return (
                             <div key={p.id} style={{borderTop:i>0?"1px solid #dde4ec":"none"}}>
-                              <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)}/>
+                              <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={odds[`${p.local}|${p.visitante}`]}/>
                             </div>
                           );
                         })}
@@ -473,7 +479,7 @@ export default function PencaPage() {
                   <div key={fecha} style={{marginBottom:16}}>
                     <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>{fmtFechaLarga(fecha)}</div>
                     {ps.map(p=>(
-                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)}/>
+                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={odds[`${p.local}|${p.visitante}`]}/>
                     ))}
                   </div>
                 );
@@ -589,11 +595,12 @@ export default function PencaPage() {
 }
 
 /* ── HoyCard ── */
-function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guardado, ciudad, onGuardar }: {
+function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guardado, ciudad, onGuardar, oddData }: {
   partido: Partido; estado: "proximo"|"jugando"|"finalizado";
   pred?: Resultado; res?: Resultado; bloqueado: boolean;
   puntos: number|null; config: PuntosConfig;
   guardado?: boolean; ciudad?: string; onGuardar: (l: number, v: number) => void;
+  oddData?: {home:number;draw:number;away:number};
 }) {
   const [lv, setLv] = useState<string|number>(pred?.local??"");
   const [vv, setVv] = useState<string|number>(pred?.visitante??"");
