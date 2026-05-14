@@ -125,7 +125,7 @@ export default function AdminPage() {
     setNotifOk(`✅ Enviado a ${r.enviados} usuario${r.enviados!==1?"s":""}`);
   };
   const refrescarTodo=useCallback(async()=>{
-    const [rRes,tRes,uRes,cRes,gRes]=await Promise.all([
+    const [rRes,tRes,uRes,gRes,cRes]=await Promise.all([
       fetch("/api/resultados").then(r=>r.json()),
       fetch("/api/tabla").then(r=>r.json()),
       fetch("/api/usuarios").then(r=>r.json()),
