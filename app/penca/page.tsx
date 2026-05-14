@@ -702,7 +702,20 @@ function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloquead
           </button>
         }
       </div>
-      {oddData&&!estaBlq&&<div style={{display:"flex",justifyContent:"center",gap:12,padding:"4px 0",fontSize:10,color:"#6b7280"}}><span style={{color:"#123952",fontWeight:700}}>{oddData.home}%</span><span>Empate {oddData.draw}%</span><span style={{color:"#123952",fontWeight:700}}>{oddData.away}%</span></div>}
+      {oddData&&!estaBlq&&(
+        <div style={{margin:"8px 0 4px"}}>
+          <div style={{display:"flex",borderRadius:6,overflow:"hidden",height:8}}>
+            <div style={{width:`${oddData.home}%`,background:"#123952"}}/>
+            <div style={{width:`${oddData.draw}%`,background:"#e8a020"}}/>
+            <div style={{width:`${oddData.away}%`,background:"#2e9e6b"}}/>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",marginTop:4,fontSize:10,fontWeight:700}}>
+            <span style={{color:"#123952"}}>{oddData.home}%</span>
+            <span style={{color:"#e8a020"}}>Empate {oddData.draw}%</span>
+            <span style={{color:"#2e9e6b"}}>{oddData.away}%</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
