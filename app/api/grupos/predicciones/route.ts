@@ -26,16 +26,16 @@ export async function POST(req: NextRequest) {
   // Guardar en el grupo especificado
   await setPrediccionGrupo(targetGrupoId, session.username, partidoId, { local, visitante });
 
-  // Si es el grupo global, replicar en todos los grupos privados donde NO hay pick aún
-  if (targetGrupoId === GRUPO_GLOBAL) {
-    const misGrupos = await getGruposUsuario(session.username);
-    await Promise.all(misGrupos.map(async (gId) => {
-      const existing = await getPrediccionGrupo(gId, session.username, partidoId);
-      if (!existing) {
-        await setPrediccionGrupo(gId, session.username, partidoId, { local, visitante });
-      }
-    }));
-  }
+  // Replicar a todos los grupos donde NO hay pick aún (bidireccional)
+  const misGrupos = await getGruposUsuario(session.username);
+  const todosGrupos = [GRUPO_GLOBAL, ...misGrupos];
+  await Promise.all(todosGrupos.map(async (gId) => {
+    if (gId === targetGrupoId) return;
+    const existing = await getPrediccionGrupo(gId, session.username, partidoId);
+    if (!existing) {
+      await setPrediccionGrupo(gId, session.username, partidoId, { local, visitante });
+    }
+  }));
 
   return NextResponse.json({ ok: true });
 }
