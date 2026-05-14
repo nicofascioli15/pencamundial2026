@@ -229,8 +229,7 @@ export default function PencaPage() {
   const [fechaHoy, setFechaHoy] = useState<string>("");
   const [perfilUsuario, setPerfilUsuario] = useState<{username:string;nombre:string;predicciones:Record<string,Resultado>}|null>(null);
   const [odds, setOdds] = useState<Record<string,{home:number;draw:number;away:number}>>({});
-  const [odds, setOdds] = useState<Record<string,{home:number;draw:number;away:number}>>({});
-  const [notifActiva, setNotifActiva] = useState(false);
+    const [notifActiva, setNotifActiva] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [pullY, setPullY] = useState(0);
   const touchStartY = useRef(0);
