@@ -231,7 +231,12 @@ export default function GruposPage() {
                 {g.codigo !== "GLOBAL" && (
                 <div style={{display:"flex",gap:6,alignItems:"center"}}>
                   <div className="group-code">{g.codigo}</div>
-                  <button onClick={e=>{e.stopPropagation();compartirGrupo(g.nombre,g.codigo);}} style={{background:"#25D366",border:"none",borderRadius:8,padding:"4px 8px",color:"#fff",fontSize:12,cursor:"pointer",fontWeight:700}}>🔗</button>
+                  <button onClick={e=>{e.stopPropagation();compartirGrupo(g.nombre,g.codigo);}} style={{background:"#25D366",border:"none",borderRadius:8,padding:"4px 8px",color:"#fff",fontSize:12,cursor:"pointer",fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                    </svg>
+                  </button>
                   {g.ownerUsername === user?.username
                     ? <button onClick={e=>{e.stopPropagation();borrarGrupo(g.id,g.nombre);}} style={{background:"transparent",border:"1.5px solid #dc2626",borderRadius:8,padding:"4px 8px",color:"#dc2626",fontSize:12,cursor:"pointer",fontWeight:700}}>🗑</button>
                     : <button onClick={e=>{e.stopPropagation();salirGrupo(g.id,g.nombre);}} style={{background:"transparent",border:"1.5px solid #6b7280",borderRadius:8,padding:"4px 8px",color:"#6b7280",fontSize:12,cursor:"pointer",fontWeight:700}}>Salir</button>
