@@ -141,7 +141,8 @@ export default function GruposPage() {
   const otrosGrupos = grupos.filter(g => g.id !== "fascioli");
 
   return (
-    <div>
+    <div style={{fontFamily:"'DM Sans',system-ui,sans-serif",background:"#f2f7fb",minHeight:"100vh",display:"flex",justifyContent:"center"}}>
+    <div style={{width:"100%",maxWidth:430,background:"#fff",minHeight:"100vh",boxShadow:"0 0 60px rgba(18,57,82,.1)",display:"flex",flexDirection:"column"}}>
       <style>{css}</style>
 
       <div style={{background:"#123952",position:"sticky",top:0,zIndex:10}}>
@@ -282,6 +283,7 @@ export default function GruposPage() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }
