@@ -135,6 +135,13 @@ export default function GruposPage() {
         </div>
         <img src="/logo.svg" className="logo-img" alt="Fascioli"/>
       </div>
+      <nav style={{display:"flex",background:"#fff",borderBottom:"2px solid #dde4ec",position:"sticky",top:0,zIndex:9}}>
+        {([["picks","🎯","Pronósticos"],["grupos","📊","Grupos"],["tabla","🏆","Tabla"],["misgrupos","🏘️","Mis grupos"],["info","ℹ️","Info"]] as [string,string,string][]).map(([id,ic,lb])=>(
+          <button key={id} onClick={()=>{ if(id==="misgrupos") return; router.push(`/penca#${id}`); }} style={{flex:1,padding:"10px 2px 8px",border:"none",background:"transparent",cursor:"pointer",fontSize:9,fontWeight:600,color:id==="misgrupos"?"#123952":"#6b7280",display:"flex",flexDirection:"column",alignItems:"center",gap:2,borderBottom:id==="misgrupos"?"2px solid #123952":"2px solid transparent",marginBottom:-2}}>
+            <span style={{fontSize:15}}>{ic}</span>{lb}
+          </button>
+        ))}
+      </nav>
 
       <div className="content">
         <div className="action-row" style={{marginTop:16}}>
