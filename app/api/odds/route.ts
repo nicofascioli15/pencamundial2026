@@ -17,6 +17,24 @@ export async function GET() {
   const apiKey = process.env.ODDS_API_KEY;
   if (!apiKey) return NextResponse.json({ odds: {} });
 
+
+const NOMBRE_MAP: Record<string,string> = {
+  "Mexico":"México","South Africa":"Sudáfrica","South Korea":"Corea del Sur",
+  "Czech Republic":"República Checa","Canada":"Canadá","Bosnia & Herzegovina":"Bosnia y Herzegovina",
+  "USA":"Estados Unidos","Qatar":"Qatar","Switzerland":"Suiza","Germany":"Alemania",
+  "Netherlands":"Países Bajos","Japan":"Japón","Ivory Coast":"Costa de Marfil",
+  "Ecuador":"Ecuador","Sweden":"Suecia","Tunisia":"Túnez","Spain":"España",
+  "Cape Verde":"Cabo Verde","Saudi Arabia":"Arabia Saudita","Uruguay":"Uruguay",
+  "Iraq":"Irak","Norway":"Noruega","France":"Francia","Senegal":"Senegal",
+  "Argentina":"Argentina","Algeria":"Argelia","Austria":"Austria","Jordan":"Jordania",
+  "Portugal":"Portugal","DR Congo":"RD Congo","Uzbekistan":"Uzbekistán","Colombia":"Colombia",
+  "England":"Inglaterra","Croatia":"Croacia","Ghana":"Ghana","Panama":"Panamá",
+  "Belgium":"Bélgica","Egypt":"Egipto","Iran":"Irán","New Zealand":"Nueva Zelanda",
+  "Australia":"Australia","Turkey":"Turquía","Paraguay":"Paraguay","Haiti":"Haití",
+  "Scotland":"Escocia","Morocco":"Marruecos","Brazil":"Brasil","Serbia":"Serbia",
+  "Poland":"Polonia","Denmark":"Dinamarca","Kenya":"Kenia","Cameroon":"Camerún",
+};
+
   try {
     const res = await fetch(
       `https://api.the-odds-api.com/v4/sports/soccer_fifa_world_cup/odds/?apiKey=${apiKey}&regions=eu&markets=h2h&oddsFormat=decimal`
@@ -45,7 +63,9 @@ export async function GET() {
       const pAway = 1 / away.price;
       const total = pHome + pDraw + pAway;
 
-      odds[`${game.home_team}|${game.away_team}`] = {
+      const homeEs = NOMBRE_MAP[game.home_team] ?? game.home_team;
+      const awayEs = NOMBRE_MAP[game.away_team] ?? game.away_team;
+      odds[`${homeEs}|${awayEs}`] = {
         home: Math.round((pHome / total) * 100),
         draw: Math.round((pDraw / total) * 100),
         away: Math.round((pAway / total) * 100),
