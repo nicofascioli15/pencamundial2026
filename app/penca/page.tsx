@@ -193,6 +193,8 @@ export default function PencaPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const gId = params.get("grupo") ?? "fascioli";
+    const tabParam = params.get("tab");
+    if (tabParam) setTab(tabParam as any);
     setGrupoActivo(gId);
     if (gId === "fascioli") { setNombreGrupo("PencaFascioli"); return; }
     fetch("/api/grupos").then(r=>r.json()).then(d => {
