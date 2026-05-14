@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { getGrupo, setGrupo, getGruposUsuario, getMiembrosGrupo, getUsuario, getGruposByCodigo, setGrupoCodigoIndex, agregarUsuarioAGrupo, GRUPO_GLOBAL, countPrediccionesGrupoUsuario, getAllPrediccionesGrupoUsuario, setPrediccionGrupo, getPrediccionGrupo } from "@/lib/kv";
+import { getGrupo, setGrupo, getGruposUsuario, getMiembrosGrupo, getUsuario, getGruposByCodigo, setGrupoCodigoIndex, agregarUsuarioAGrupo, GRUPO_GLOBAL, countPrediccionesGrupoUsuario, getAllPrediccionesGrupoUsuario, setPrediccionGrupo, getPrediccionGrupo, getAllUsernames } from "@/lib/kv";
 import { TODOS_PARTIDOS, calcularPuntos, PUNTOS_DEFAULT } from "@/lib/mundial";
 import { getPuntosConfig, getResultado } from "@/lib/kv";
 
@@ -29,13 +29,15 @@ export async function GET(req: NextRequest) {
     if (!grupo) return null;
 
     const miembros = await getMiembrosGrupo(gId);
+    const usuariosValidos = await getAllUsernames();
+    const miembrosValidos = miembros.filter(u => usuariosValidos.includes(u));
     const resultados: Record<string, { local: number; visitante: number }> = {};
     await Promise.all(TODOS_PARTIDOS.map(async p => {
       const r = await getResultado(p.id);
       if (r) resultados[p.id] = r;
     }));
 
-    const tabla = await Promise.all(miembros.map(async (u) => {
+    const tabla = await Promise.all(miembrosValidos.map(async (u) => {
       const user = await getUsuario(u);
       const preds = await getAllPrediccionesGrupoUsuario(gId, u);
       let pts = 0, exactos = 0, ganadores = 0;
@@ -60,7 +62,7 @@ export async function GET(req: NextRequest) {
       id: grupo.id,
       nombre: grupo.nombre,
       codigo: grupo.codigo,
-      miembros: miembros.length,
+      miembros: miembrosValidos.length,
       miPos,
       miPts: miInfo?.pts ?? 0,
       miExactos: miInfo?.exactos ?? 0,
