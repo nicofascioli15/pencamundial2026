@@ -655,10 +655,11 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
 }
 
 /* ── PartidoCard ── */
-function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloqueado }: {
+function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloqueado, oddData }: {
   partido: Partido; pred?: Resultado; res?: Resultado;
   config: PuntosConfig; guardado?: boolean; bloqueado: boolean;
   onGuardar: (id: string, l: number, v: number) => void;
+  oddData?: {home:number;draw:number;away:number};
 }) {
   const [lv,setLv]=useState<string|number>(pred?.local??"");
   const [vv,setVv]=useState<string|number>(pred?.visitante??"");
