@@ -268,6 +268,7 @@ export default function PencaPage() {
     setSiguientesDias(hRes.siguientesDias??[]);
     setFechaHoy(hRes.fechaHoy??"");
     setOdds(oRes.odds??{});
+    setOdds(oRes.odds??{});
     const [,,,,,,oddsRes] = await Promise.resolve([null,null,null,null,null,null,null]);
   }, []);
 
