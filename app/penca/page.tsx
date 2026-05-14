@@ -370,7 +370,7 @@ export default function PencaPage() {
   return (
     <>
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet"/>
-      <style>{`*{box-sizing:border-box}html,body{margin:0;padding:0;width:100%;overflow-x:hidden}`}</style><style>{css}</style>
+      <style>{`*{box-sizing:border-box}html,body{margin:0;padding:0;width:100%;overflow-x:hidden;background:#123952}`}</style><style>{css}</style>
       <div className="app"
     onTouchStart={e=>{ touchStartY.current = e.touches[0].clientY; }}
     onTouchMove={e=>{
