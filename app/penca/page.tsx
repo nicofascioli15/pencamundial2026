@@ -47,8 +47,8 @@ const css = `
   .hoy-hora{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:#123952}
   .hoy-equipos{display:flex;align-items:center;gap:8px;margin-bottom:12px}
   .hoy-eq{flex:1;text-align:center}
-  .hoy-flag{font-size:30px;display:block;margin-bottom:3px}
-  .hoy-name{font-size:11px;font-weight:700;color:#1a1f24;line-height:1.2}
+  .hoy-flag{font-size:38px;display:block;margin-bottom:4px}
+  .hoy-name{font-size:13px;font-weight:700;color:#1a1f24;line-height:1.2}
   .hoy-vs{font-family:'DM Mono',monospace;font-size:12px;color:#6b7280}
   .hoy-res{text-align:center;background:#e8f0f6;border-radius:10px;padding:5px 12px}
   .hoy-score{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#123952;line-height:1}
@@ -92,8 +92,8 @@ const css = `
   .hora-txt{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:#123952}
   .equipos{display:flex;align-items:center;gap:8px;margin-bottom:11px}
   .eq{flex:1;text-align:center}
-  .eq-flag{font-size:26px;display:block;margin-bottom:3px}
-  .eq-name{font-size:10px;font-weight:600;color:#494d4f;line-height:1.2}
+  .eq-flag{font-size:34px;display:block;margin-bottom:4px}
+  .eq-name{font-size:12px;font-weight:600;color:#494d4f;line-height:1.2}
   .vs{font-family:'DM Mono',monospace;font-size:11px;color:#6b7280}
   .res-box{text-align:center;background:#e8f0f6;border-radius:10px;padding:4px 10px}
   .res-score{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:#123952;line-height:1.1}
