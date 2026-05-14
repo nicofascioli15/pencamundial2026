@@ -250,7 +250,7 @@ export default function AdminPage() {
               {usuarios.map(u=>(
                 <div key={u.username}>
                   <div className="urow" style={{cursor:"pointer"}} onClick={()=>{setEditando(editando===u.username?null:u.username);setEditNombre(u.nombre);setEditPass("");}}>
-                    <div><div className="uname">{u.nombre}</div><div className="uinfo">@{u.username} · {u.creadoEn?new Date(u.creadoEn).toLocaleDateString("es-UY"):"—"}</div><div style={{fontSize:10,color:"#2e9e6b",marginTop:2}}>{grupos.filter(g=>g.id!=="fascioli").map(g=>g.nombre).join(", ")||"Solo PencaFascioli"}</div></div>
+                    <div><div className="uname">{u.nombre}</div><div className="uinfo">@{u.username} · {u.creadoEn?new Date(u.creadoEn).toLocaleDateString("es-UY"):"—"}</div><div style={{fontSize:10,color:"#2e9e6b",marginTop:2}}>{(u as any).grupos?.length ? (u as any).grupos.join(", ") : "Solo PencaFascioli"}</div></div>
                     <div style={{display:"flex",alignItems:"center",gap:10}}>
                       <span style={{color:"#123952",fontWeight:700,fontSize:13}}>{u.picks} picks</span>
                       <span style={{fontSize:14,color:"#6b7280"}}>{editando===u.username?"▲":"▼"}</span>

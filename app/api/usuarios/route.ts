@@ -1,7 +1,7 @@
 // app/api/usuarios/route.ts
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { getAllUsernames, getUsuario, countPrediccionesUsuario } from "@/lib/kv";
+import { getAllUsernames, getUsuario, countPrediccionesUsuario, getGruposUsuario, getGrupo } from "@/lib/kv";
 
 export async function GET() {
   const session = await getSession();
@@ -13,7 +13,12 @@ export async function GET() {
     usernames.map(async (u) => {
       const user = await getUsuario(u);
       const picks = await countPrediccionesUsuario(u);
-      return { username: u, nombre: user?.nombre ?? u, picks, creadoEn: user?.creadoEn };
+      const grupoIds = await getGruposUsuario(u);
+      const gruposNombres = await Promise.all(grupoIds.map(async gId => {
+        const g = await getGrupo(gId);
+        return g ? g.nombre : null;
+      }));
+      return { username: u, nombre: user?.nombre ?? u, picks, creadoEn: user?.creadoEn, grupos: gruposNombres.filter(Boolean) };
     })
   );
 
