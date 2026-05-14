@@ -23,6 +23,11 @@ export default function GruposPage() {
   const [codigoUnirse, setCodigoUnirse] = useState("");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<{nombre:string;username:string}|null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/me").then(r=>r.json()).then(d => setUser(d.user));
+  }, []);
 
   const css = `
     *{box-sizing:border-box;margin:0;padding:0}
@@ -127,21 +132,34 @@ export default function GruposPage() {
     <div>
       <style>{css}</style>
 
-      <div className="header">
-        <button className="back-btn" onClick={()=>router.push("/penca")}>←</button>
-        <div style={{textAlign:"center"}}>
-          <div className="header-title">Mis Grupos</div>
-          <div className="header-sub">Penca Mundial 2026</div>
+      <div style={{background:"#123952",position:"sticky",top:0,zIndex:10}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"13px 16px"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <img src="/logo.svg" alt="Fascioli" style={{height:32,display:"block"}}/>
+            <div style={{width:1,height:20,background:"rgba(255,255,255,.2)"}}/>
+            <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,.9)",lineHeight:1.2}}>Penca<br/><span style={{fontSize:9,fontWeight:400,color:"#e8a020",letterSpacing:2,textTransform:"uppercase"}}>Mundial 2026</span></div>
+          </div>
+          {user&&<div style={{display:"flex",alignItems:"center",gap:6,background:"rgba(255,255,255,.12)",border:"1px solid rgba(255,255,255,.2)",borderRadius:24,padding:"5px 11px 5px 7px",cursor:"pointer"}} onClick={()=>router.push("/penca")}>
+            <div style={{width:22,height:22,background:"#e8a020",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:"#123952"}}>{user.nombre.charAt(0).toUpperCase()}</div>
+            <div style={{fontSize:12,fontWeight:600,color:"#fff"}}>{user.nombre}</div>
+          </div>}
         </div>
-        <img src="/logo.svg" className="logo-img" alt="Fascioli"/>
+        <div style={{background:"linear-gradient(90deg,#1d5278,#123952)",borderTop:"1px solid rgba(255,255,255,.06)",padding:"8px 16px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <span style={{fontSize:18}}>🏆</span>
+          <div style={{textAlign:"center"}}>
+            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(255,255,255,.6)"}}>Copa del Mundo FIFA</div>
+            <div style={{fontFamily:"monospace",fontSize:12,color:"#e8a020"}}>11 JUN — 19 JUL 2026 · Hora UY</div>
+          </div>
+          <img src="/pelota.png" style={{height:28,objectFit:"contain"}}/>
+        </div>
+        <nav style={{display:"flex",background:"#fff",borderBottom:"2px solid #dde4ec"}}>
+          {([["picks","🎯","Pronósticos"],["grupos","📊","Grupos"],["tabla","🏆","Tabla"],["misgrupos","🏘️","Mis grupos"],["info","ℹ️","Info"]] as [string,string,string][]).map(([id,ic,lb])=>(
+            <button key={id} onClick={()=>{ if(id==="misgrupos") return; router.push("/penca"); }} style={{flex:1,padding:"10px 2px 8px",border:"none",background:"transparent",cursor:"pointer",fontSize:9,fontWeight:600,color:id==="misgrupos"?"#123952":"#6b7280",display:"flex",flexDirection:"column",alignItems:"center",gap:2,borderBottom:id==="misgrupos"?"2px solid #123952":"2px solid transparent",marginBottom:-2}}>
+              <span style={{fontSize:15}}>{ic}</span>{lb}
+            </button>
+          ))}
+        </nav>
       </div>
-      <nav style={{display:"flex",background:"#fff",borderBottom:"2px solid #dde4ec",position:"sticky",top:0,zIndex:9}}>
-        {([["picks","🎯","Pronósticos"],["grupos","📊","Grupos"],["tabla","🏆","Tabla"],["misgrupos","🏘️","Mis grupos"],["info","ℹ️","Info"]] as [string,string,string][]).map(([id,ic,lb])=>(
-          <button key={id} onClick={()=>{ if(id==="misgrupos") return; router.push(`/penca#${id}`); }} style={{flex:1,padding:"10px 2px 8px",border:"none",background:"transparent",cursor:"pointer",fontSize:9,fontWeight:600,color:id==="misgrupos"?"#123952":"#6b7280",display:"flex",flexDirection:"column",alignItems:"center",gap:2,borderBottom:id==="misgrupos"?"2px solid #123952":"2px solid transparent",marginBottom:-2}}>
-            <span style={{fontSize:15}}>{ic}</span>{lb}
-          </button>
-        ))}
-      </nav>
 
       <div className="content">
         <div className="action-row" style={{marginTop:16}}>
