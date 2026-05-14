@@ -153,8 +153,12 @@ export default function GruposPage() {
           <img src="/pelota.png" style={{height:28,objectFit:"contain"}}/>
         </div>
         <nav style={{display:"flex",background:"#fff",borderBottom:"2px solid #dde4ec"}}>
-          {([["picks","🎯","Pronósticos"],["grupos","📊","Grupos"],["tabla","🏆","Tabla"],["misgrupos","🏘️","Mis grupos"],["info","ℹ️","Info"]] as [string,string,string][]).map(([id,ic,lb])=>(
-            <button key={id} onClick={()=>{ if(id==="misgrupos") return; router.push("/penca"); }} style={{flex:1,padding:"10px 2px 8px",border:"none",background:"transparent",cursor:"pointer",fontSize:9,fontWeight:600,color:id==="misgrupos"?"#123952":"#6b7280",display:"flex",flexDirection:"column",alignItems:"center",gap:2,borderBottom:id==="misgrupos"?"2px solid #123952":"2px solid transparent",marginBottom:-2}}>
+          {([["picks","🎯","Pronósticos"],["grupos","📊","Grupos"],["tabla","🏆","Tabla"],["info","ℹ️","Info"],["misgrupos","🏘️","Mis grupos"]] as [string,string,string][]).map(([id,ic,lb])=>(
+            <button key={id} onClick={()=>{ if(id==="misgrupos") return;
+              if(id==="picks") router.push("/penca");
+              else if(id==="grupos") router.push("/penca?tab=grupos");
+              else if(id==="tabla") router.push("/penca?tab=tabla");
+              else if(id==="info") router.push("/penca?tab=info"); }} style={{flex:1,padding:"10px 2px 8px",border:"none",background:"transparent",cursor:"pointer",fontSize:9,fontWeight:600,color:id==="misgrupos"?"#123952":"#6b7280",display:"flex",flexDirection:"column",alignItems:"center",gap:2,borderBottom:id==="misgrupos"?"2px solid #123952":"2px solid transparent",marginBottom:-2}}>
               <span style={{fontSize:15}}>{ic}</span>{lb}
             </button>
           ))}
