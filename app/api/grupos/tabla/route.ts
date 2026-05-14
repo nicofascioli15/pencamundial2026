@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { getMiembrosGrupo, getUsuario, getAllPrediccionesGrupoUsuario, getResultado, getPuntosConfig, GRUPO_GLOBAL } from "@/lib/kv";
+import { getMiembrosGrupo, getUsuario, getAllPrediccionesGrupoUsuario, getResultado, getPuntosConfig, GRUPO_GLOBAL, getAllUsernames } from "@/lib/kv";
 import { TODOS_PARTIDOS, calcularPuntos } from "@/lib/mundial";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +21,11 @@ export async function GET(req: NextRequest) {
     if (r) resultados[p.id] = r;
   }));
 
-  const tabla = await Promise.all(miembros.map(async (username) => {
+  // Filtrar solo usuarios que existen
+  const usuariosValidos = await getAllUsernames();
+  const miembrosValidos = miembros.filter(u => usuariosValidos.includes(u));
+
+  const tabla = await Promise.all(miembrosValidos.map(async (username) => {
     const [user, predicciones] = await Promise.all([
       getUsuario(username),
       getAllPrediccionesGrupoUsuario(grupoId, username),
