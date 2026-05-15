@@ -5,7 +5,7 @@ import { TODOS_PARTIDOS, CIUDADES, GRUPOS, getFlag, calcularPuntos, type Partido
 import { LOGO_SVG } from "@/lib/logo";
 
 const css = `
-  .app{max-width:430px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#ffffff 0%,#f6f9fc 100%);box-shadow:0 0 60px rgba(18,57,82,.1);display:flex;flex-direction:column;width:100%}
+  .app{max-width:430px;margin:0 auto;min-height:100vh;background:#fff;box-shadow:0 0 60px rgba(18,57,82,.1);display:flex;flex-direction:column;width:100%}
   .header{background:#123952;position:sticky;top:0;z-index:100}
   .header-top{display:flex;justify-content:space-between;align-items:center;padding:13px 16px}
   .logo-wrap{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
@@ -17,31 +17,27 @@ const css = `
   .user-av{width:22px;height:22px;background:#e8a020;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#123952;flex-shrink:0}
   .user-name{font-size:12px;font-weight:600;color:#fff}
   .user-pts{font-size:10px;color:rgba(255,255,255,.55)}
-  .hero{background:radial-gradient(circle at top right,rgba(232,160,32,.20),transparent 35%),linear-gradient(135deg,#071f31,#123952 60%,#1d5278);border-top:1px solid rgba(255,255,255,.08);padding:13px 16px 14px;display:flex;align-items:center;justify-content:center;text-align:center}
+  .hero{background:linear-gradient(90deg,#1d5278,#123952);border-top:1px solid rgba(255,255,255,.06);padding:8px 16px;display:flex;align-items:center;justify-content:space-between}
   .hero-flag{font-size:18px}
-  .hero-title{font-size:13px;font-weight:900;letter-spacing:2.4px;text-transform:uppercase;color:#fff;text-align:center}
-  .hero-date{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.72);text-align:center;margin-top:4px}
+  .hero-title{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);text-align:center}
+  .hero-date{font-family:'DM Mono',monospace;font-size:12px;color:#e8a020;text-align:center;margin-top:1px}
   .nav{display:flex;background:#fff;border-bottom:2px solid #dde4ec}
   .nb{flex:1;padding:11px 2px 9px;border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;color:#6b7280;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;transition:color .2s}
   .nb em{font-style:normal;font-size:17px}
   .nb.on{color:#123952}
   .nb.on::after{content:'';position:absolute;bottom:-2px;left:15%;right:15%;height:2px;background:#123952;border-radius:2px 2px 0 0}
-  .content{padding:14px 14px 80px;flex:1;animation:softIn .22s ease-out}@keyframes softIn{from{opacity:.0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .content{padding:14px 14px 80px;flex:1}
 
   /* ── HOY SECTION ── */
   .hoy-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
   .hoy-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#123952;display:flex;align-items:center;gap:6px}
   .hoy-fecha{font-family:'DM Mono',monospace;font-size:11px;color:#6b7280}
   .hoy-card{border-radius:16px;overflow:hidden;margin-bottom:14px;box-shadow:0 4px 20px rgba(18,57,82,.1)}
-  .hoy-partido{background:rgba(255,255,255,.98);border:1px solid rgba(221,228,236,.95);border-radius:16px;padding:15px;margin-bottom:9px;position:relative;overflow:hidden;box-shadow:0 6px 20px rgba(18,57,82,.08);transition:transform .18s ease, box-shadow .18s ease}.hoy-partido:active{transform:scale(.992)}
+  .hoy-partido{background:#fff;border:1px solid #dde4ec;border-radius:14px;padding:14px;margin-bottom:8px;position:relative;overflow:hidden}
   .hoy-partido.proximo::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#123952,#1d5278)}
   .hoy-partido.jugando::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#e8a020,#f0c040);animation:shimmer 1.5s infinite}
   .hoy-partido.finalizado::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#2e9e6b}
-  .hoy-partido.entretiempo{box-shadow:0 0 0 1px rgba(232,160,32,.25),0 8px 24px rgba(232,160,32,.16)}
-  .hoy-partido.entretiempo::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#e8a020,#f0c040,#e8a020);background-size:200% 100%;animation:liveBar 2s linear infinite}
-  .estado-entretiempo{background:rgba(232,160,32,.15);color:#e8a020}
   @keyframes shimmer{0%,100%{opacity:1}50%{opacity:.5}}
-  @keyframes liveBar{0%{background-position:0% 50%}100%{background-position:200% 50%}}
   .hoy-estado{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
   .estado-badge{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
   .estado-proximo{background:#e8f0f6;color:#123952}
@@ -66,15 +62,15 @@ const css = `
   .pts-ok{background:rgba(46,158,107,.1);color:#2e9e6b}
   .pts-no{background:rgba(220,38,38,.06);color:#dc2626}
   .hoy-inputs{display:flex;align-items:center;gap:6px;margin-left:auto}
-  .hoy-si{width:42px;text-align:center;padding:7px 4px;border-radius:11px;border:1.5px solid #dde4ec;background:#f2f7fb;color:#123952;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;outline:none;transition:border-color .2s}
+  .hoy-si{width:42px;text-align:center;padding:7px 4px;border-radius:8px;border:1.5px solid #dde4ec;background:#f2f7fb;color:#123952;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;outline:none;transition:border-color .2s}
   .hoy-si:focus{border-color:#123952}
-  .hoy-save{padding:7px 12px;border:none;border-radius:10px;background:linear-gradient(135deg,#123952,#1d5278);color:#fff;box-shadow:0 5px 14px rgba(18,57,82,.24);font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+  .hoy-save{padding:7px 12px;border:none;border-radius:8px;background:#123952;color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
   .hoy-save:disabled{opacity:.4;cursor:default}
   .hoy-save.saved{background:#f2f7fb;color:#2e9e6b;border:1.5px solid #2e9e6b}
   .bloqueado-lbl{font-size:10px;color:#6b7280;margin-left:auto;display:flex;align-items:center;gap:4px}
 
   /* ── PROG CARD ── */
-  .prog-card{background:radial-gradient(circle at top right,rgba(232,160,32,.32),transparent 34%),linear-gradient(135deg,#071f31 0%,#123952 55%,#1d5278 100%);border-radius:20px;padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(18,57,82,.2)}
+  .prog-card{background:linear-gradient(135deg,#123952,#1d5278);border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(18,57,82,.2)}
   .prog-lbl{font-size:11px;color:rgba(255,255,255,.65);margin-bottom:5px}
   .prog-bar{width:140px;height:4px;background:rgba(255,255,255,.15);border-radius:4px;overflow:hidden}
   .prog-fill{height:100%;background:#e8a020;border-radius:4px;transition:width .5s}
@@ -84,11 +80,11 @@ const css = `
   .sync{display:flex;align-items:center;gap:5px;font-size:11px;color:#2e9e6b;font-weight:500;margin-bottom:11px}
   .sync-dot{width:6px;height:6px;border-radius:50%;background:#2e9e6b;animation:pulse 2s infinite;flex-shrink:0}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-  .filtros{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;overflow:visible;padding-bottom:0}
-  .fb{padding:7px 12px;border-radius:999px;border:1.5px solid #dde4ec;background:#fff;color:#6b7280;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s;box-shadow:0 2px 8px rgba(18,57,82,.04)}
-  .fb.on{background:linear-gradient(135deg,#123952,#1d5278);border-color:#123952;color:#fff;box-shadow:0 4px 12px rgba(18,57,82,.18)}
+  .filtros{display:flex;gap:5px;margin-bottom:11px;overflow-x:auto;padding-bottom:2px}
+  .fb{padding:5px 12px;border-radius:20px;border:1.5px solid #dde4ec;background:transparent;color:#6b7280;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s}
+  .fb.on{background:#123952;border-color:#123952;color:#fff}
   .grupo-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#123952;background:#e8f0f6;padding:3px 9px;border-radius:5px;display:inline-block;margin:11px 0 7px}
-  .partido{border:1px solid rgba(221,228,236,.9);border-radius:16px;padding:14px;margin-bottom:11px;background:linear-gradient(180deg,#ffffff,#f8fbfd);box-shadow:0 8px 22px rgba(18,57,82,.10);transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease}.partido:active{transform:scale(.992);box-shadow:0 3px 12px rgba(18,57,82,.08)}
+  .partido{border:1px solid #dde4ec;border-radius:13px;padding:13px;margin-bottom:9px;background:#fff;box-shadow:0 2px 10px rgba(18,57,82,.06)}
   .partido-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
   .fase-tag{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6b7280;background:#f5f5f5;padding:3px 8px;border-radius:4px}
   .fecha-hora{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
@@ -103,11 +99,11 @@ const css = `
   .res-score{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:#123952;line-height:1.1}
   .res-lbl{font-size:8px;color:#6b7280;letter-spacing:1px;text-transform:uppercase}
   .pick-row{display:flex;align-items:center;gap:7px;padding-top:11px;border-top:1px solid #dde4ec}
-  .si{flex:1;text-align:center;padding:9px 6px;border-radius:12px;border:1.5px solid #dde4ec;background:#f2f7fb;color:#123952;font-family:'Playfair Display',serif;font-size:20px;font-weight:700;outline:none;width:100%;transition:border-color .2s}
+  .si{flex:1;text-align:center;padding:9px 6px;border-radius:9px;border:1.5px solid #dde4ec;background:#f2f7fb;color:#123952;font-family:'Playfair Display',serif;font-size:20px;font-weight:700;outline:none;width:100%;transition:border-color .2s}
   .si:focus{border-color:#123952}
   .si:disabled{opacity:.5;background:#f5f5f5}
   .score-sep{font-size:16px;color:#6b7280;font-weight:300}
-  .save-btn{padding:9px 14px;border:none;border-radius:11px;background:linear-gradient(135deg,#123952,#1d5278);color:#fff;box-shadow:0 5px 14px rgba(18,57,82,.24);font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .2s}
+  .save-btn{padding:9px 14px;border:none;border-radius:9px;background:#123952;color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .2s}
   .save-btn:hover{background:#1d5278}
   .save-btn:disabled{opacity:.5;cursor:default}
   .save-btn.saved{background:#f2f7fb;color:#2e9e6b;border:1.5px solid #2e9e6b}
@@ -118,7 +114,7 @@ const css = `
   .chip-no{background:rgba(220,38,38,.06);color:#dc2626;border:1px solid rgba(220,38,38,.15)}
   .sec-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#123952;margin:4px 0 12px;display:flex;align-items:center;gap:8px}
   .sec-title::after{content:'';flex:1;height:1px;background:#dde4ec}
-  .tr{display:flex;align-items:center;padding:12px 14px;border:1px solid rgba(221,228,236,.9);border-radius:15px;margin-bottom:9px;gap:11px;background:rgba(255,255,255,.97);box-shadow:0 5px 16px rgba(18,57,82,.06);transition:transform .18s ease, box-shadow .18s ease}.tr:active{transform:scale(.992);box-shadow:0 3px 10px rgba(18,57,82,.08)}
+  .tr{display:flex;align-items:center;padding:11px 13px;border:1px solid #dde4ec;border-radius:12px;margin-bottom:7px;gap:11px;background:#fff;box-shadow:0 2px 8px rgba(18,57,82,.05)}
   .tr.top{border-color:#e8a020;background:rgba(232,160,32,.03)}
   .tr.me{border-color:#123952;background:#f2f7fb}
   .t-pos{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:#dde4ec;min-width:22px}
@@ -162,35 +158,6 @@ const css = `
   .modal-pick-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0}
   .modal-pick-row:last-child{border-bottom:none}
   .pts-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#123952}
-  .fb{
-    flex:0 0 auto!important;
-    padding:9px 15px!important;
-    border-radius:999px!important;
-    background:rgba(255,255,255,.92)!important;
-    border:1px solid rgba(18,57,82,.08)!important;
-    color:#4b5563!important;
-    font-size:12px!important;
-    font-weight:700!important;
-    letter-spacing:.2px!important;
-    box-shadow:0 4px 10px rgba(18,57,82,.05)!important;
-    backdrop-filter:blur(10px)!important;
-    transition:all .18s ease!important;
-  }
-
-  .fb:active{
-    transform:scale(.96)!important;
-  }
-
-  .fb.on{
-    background:linear-gradient(135deg,#071f31,#123952 55%,#1d5278)!important;
-    color:#fff!important;
-    border-color:transparent!important;
-    box-shadow:
-      0 8px 18px rgba(18,57,82,.22),
-      0 0 0 1px rgba(255,255,255,.08) inset!important;
-    transform:translateY(-1px)!important;
-  }
-
 `;
 
 interface User { username: string; nombre: string; isAdmin: boolean; }
@@ -201,55 +168,10 @@ const FASES = ["Grupos","Octavos","Cuartos","Semis","Final"];
 const GRUPOS_KEYS = Object.keys(GRUPOS);
 
 // Determinar estado de un partido basado en hora Montevideo
-
-function getOddData(partido: Partido, odds: Record<string,{home:number;draw:number;away:number}>) {
-  const real = odds[`${partido.local}|${partido.visitante}`];
-  if (real) return real;
-
-  const fuerza: Record<string, number> = {
-    "Argentina": 92, "Brasil": 90, "Francia": 90, "España": 88, "Inglaterra": 87,
-    "Portugal": 86, "Alemania": 85, "Países Bajos": 84, "Bélgica": 82, "Uruguay": 80,
-    "Croacia": 79, "Colombia": 78, "Marruecos": 76, "Suiza": 75, "Dinamarca": 74,
-    "Estados Unidos": 73, "México": 72, "Japón": 72, "Senegal": 71, "Ecuador": 70,
-    "Corea del Sur": 69, "Australia": 67, "Canadá": 66, "Paraguay": 66, "Serbia": 66,
-    "Polonia": 65, "Noruega": 65, "Turquía": 65, "Egipto": 64, "Irán": 64,
-    "Túnez": 62, "Arabia Saudita": 61, "Camerún": 61, "Ghana": 61, "Costa de Marfil": 61,
-    "Argelia": 60, "Escocia": 60, "Sudáfrica": 59, "Nueva Zelanda": 58, "Panamá": 57,
-    "Qatar": 56, "Jordania": 55, "Uzbekistán": 55, "Cabo Verde": 54, "Haití": 53,
-    "Irak": 53, "RD Congo": 53, "Kenia": 51
-  };
-
-  const fl = fuerza[partido.local] ?? 60;
-  const fv = fuerza[partido.visitante] ?? 60;
-  const diff = fl - fv;
-
-  let home = 38 + Math.round(diff * 0.45);
-  let away = 32 - Math.round(diff * 0.45);
-  let draw = 100 - home - away;
-
-  home = Math.max(18, Math.min(68, home));
-  away = Math.max(18, Math.min(68, away));
-  draw = Math.max(18, Math.min(34, draw));
-
-  const total = home + draw + away;
-  home = Math.round(home * 100 / total);
-  draw = Math.round(draw * 100 / total);
-  away = 100 - home - draw;
-
-  return { home, draw, away };
-}
-
-
-function partidoUYMs(fecha: string, hora: string): number {
-  const [year, month, day] = fecha.split("-").map(Number);
-  const [h, m] = hora.split(":").map(Number);
-  return Date.UTC(year, month - 1, day, h + 3, m, 0);
-}
-
 function getEstadoPartido(fecha: string, hora: string, tieneResultado: boolean): "proximo"|"jugando"|"finalizado" {
   if (tieneResultado) return "finalizado";
   const [h, m] = hora.split(":").map(Number);
-  const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() ;
+  const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() + 3*60*60*1000;
   const finMs = partidoMs + 110*60*1000; // +110min aprox duración
   const ahora = Date.now();
   if (ahora < partidoMs) return "proximo";
@@ -258,7 +180,8 @@ function getEstadoPartido(fecha: string, hora: string, tieneResultado: boolean):
 }
 
 function esBloqueado(fecha: string, hora: string): boolean {
-  const partidoMs = partidoUYMs(fecha, hora);
+  const [h, m] = hora.split(":").map(Number);
+  const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() + 3*60*60*1000;
   const bloqueoMs = partidoMs - (10 * 60 * 1000);
   return Date.now() >= bloqueoMs;
 }
@@ -267,29 +190,16 @@ export default function PencaPage() {
   const router = useRouter();
   const [grupoActivo, setGrupoActivo] = useState<string>("fascioli");
   const [nombreGrupo, setNombreGrupo] = useState<string>("PencaFascioli");
-  const [gruposTabla, setGruposTabla] = useState<{id:string;nombre:string}[]>([{id:"fascioli",nombre:"PencaFascioli"}]);
-  const [tablaGrupoSeleccionado, setTablaGrupoSeleccionado] = useState<string>("fascioli");
-  const [nombreTablaSeleccionada, setNombreTablaSeleccionada] = useState<string>("PencaFascioli");
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const gId = params.get("grupo") ?? "fascioli";
     const tabParam = params.get("tab");
     if (tabParam) setTab(tabParam as any);
     setGrupoActivo(gId);
-    setTablaGrupoSeleccionado(gId);
-    if (gId === "fascioli") setNombreGrupo("PencaFascioli");
-
+    if (gId === "fascioli") { setNombreGrupo("PencaFascioli"); return; }
     fetch("/api/grupos").then(r=>r.json()).then(d => {
-      const gruposApi = d.grupos??[];
-      const sinDuplicados = gruposApi.filter((g:any)=>g.id !== "fascioli");
-      const lista = [{id:"fascioli",nombre:"PencaFascioli"}, ...sinDuplicados];
-      setGruposTabla(lista);
-
-      const g = lista.find((g: any) => g.id === gId);
-      if (g) {
-        setNombreGrupo(g.nombre);
-        setNombreTablaSeleccionada(g.nombre);
-      }
+      const g = d.grupos?.find((g: any) => g.id === gId);
+      if (g) setNombreGrupo(g.nombre);
     });
   }, []);
 
@@ -330,9 +240,6 @@ export default function PencaPage() {
     }
   }, []);
   const [showInstallModal, setShowInstallModal] = useState(false);
-  const [pickPendiente, setPickPendiente] = useState<any>(null);
-  const [aplicarTodosGrupos, setAplicarTodosGrupos] = useState(false);
-  const [noMostrarInstall, setNoMostrarInstall] = useState(false);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2700); };
 
@@ -385,73 +292,26 @@ export default function PencaPage() {
     return () => clearInterval(iv);
   }, [sincronizar]);
 
-  
-const enviarPick = async (
-    partidoId:string,
-    local:number,
-    visitante:number,
-    aplicarATodos=false
-  ) => {
-    const r = await fetch("/api/grupos/predicciones",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        grupoId:new URLSearchParams(window.location.search).get("grupo")??"fascioli",
-        partidoId,
-        local,
-        visitante,
-        aplicarATodos
-      })
-    });
-
+  const guardarPick = async (partidoId: string, local: number, visitante: number) => {
+    const r = await fetch("/api/grupos/predicciones",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({grupoId:new URLSearchParams(window.location.search).get("grupo")??"fascioli",partidoId,local,visitante})});
     if (r.ok) {
-      setPredicciones((p:any)=>({...p,[partidoId]:{local,visitante}}));
-      setGuardados((g:any)=>({...g,[partidoId]:true}));
-
-      setTimeout(()=>{
-        setGuardados((g:any)=>({...g,[partidoId]:false}));
-      },2000);
-
-      showToast(
-        aplicarATodos
-          ? "✅ Pronóstico actualizado en todos tus grupos"
-          : "✅ Pronóstico guardado"
-      );
+      setPredicciones(p=>({...p,[partidoId]:{local,visitante}}));
+      setGuardados(g=>({...g,[partidoId]:true}));
+      setTimeout(()=>setGuardados(g=>({...g,[partidoId]:false})),2000);
+    } else {
+      const d = await r.json();
+      showToast(d.error??"Error al guardar");
     }
   };
-
-  const guardarPick = async (
-    partidoId:string,
-    local:number,
-    visitante:number
-  ) => {
-
-    if (predicciones?.[partidoId]) {
-      setPickPendiente({ partidoId, local, visitante });
-      setAplicarTodosGrupos(false);
-      return;
-    }
-
-    await enviarPick(partidoId, local, visitante, false);
-  };
-
 
   const esIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const esPWA = () =>
-    window.matchMedia("(display-mode: standalone)").matches ||
-    (window.navigator as any).standalone === true;
+  const esPWA = () => window.matchMedia("(display-mode: standalone)").matches;
 
   useEffect(() => {
-    const ocultar = localStorage.getItem("install_modal_ocultar");
-    const mostradoSesion = sessionStorage.getItem("install_modal_mostrado_sesion");
-
-    if (!ocultar && !mostradoSesion && !esPWA()) {
-      const t = setTimeout(() => {
-        setShowInstallModal(true);
-        sessionStorage.setItem("install_modal_mostrado_sesion", "1");
-      }, 1500);
-
-      return () => clearTimeout(t);
+    const visto = localStorage.getItem("install_modal_visto");
+    if (!visto && !esPWA()) {
+      setTimeout(() => setShowInstallModal(true), 1500);
+      localStorage.setItem("install_modal_visto", "1");
     }
   }, []);
 
@@ -483,15 +343,6 @@ const enviarPick = async (
     setPerfilUsuario({username, nombre, predicciones: r.predicciones??{}});
   };
   const logout = async () => { await fetch("/api/auth/logout",{method:"POST"}); router.push("/login"); };
-
-  const cambiarTablaGrupo = async (grupoId: string) => {
-    setTablaGrupoSeleccionado(grupoId);
-    const g = gruposTabla.find(g=>g.id===grupoId);
-    setNombreTablaSeleccionada(g?.nombre ?? "Tabla");
-
-    const r = await fetch(`/api/grupos/tabla?grupoId=${grupoId}`).then(r=>r.json());
-    setTabla(r.tabla??[]);
-  };
 
   if (cargando) return <div style={{display:"flex",justifyContent:"center",alignItems:"center",minHeight:"100vh",flexDirection:"column",gap:16,background:"#f2f7fb"}}><img src="/pelota.png" style={{width:80,height:80,objectFit:"contain"}} /><span style={{color:"#6b7280",fontFamily:"DM Sans,sans-serif"}}>Cargando...</span></div>;
 
@@ -542,26 +393,9 @@ const enviarPick = async (
             </div>
           </div>
           <div className="hero">
-            <div style={{width:"100%"}}>
-              <div className="hero-title">Mundial 2026</div>
-              <div className="hero-date">Estados Unidos · México · Canadá</div>
-              <div style={{
-                margin:"8px auto 0",
-                display:"inline-flex",
-                alignItems:"center",
-                justifyContent:"center",
-                gap:6,
-                background:"rgba(232,160,32,.12)",
-                border:"1px solid rgba(232,160,32,.28)",
-                color:"#e8a020",
-                borderRadius:999,
-                padding:"5px 11px",
-                fontSize:11,
-                fontWeight:800
-              }}>
-                🎯 Pronósticos para: <span style={{color:"#fff"}}>{nombreGrupo}</span>
-              </div>
-            </div>
+            <span className="hero-flag">🏆</span>
+            <div><div className="hero-title">Copa del Mundo FIFA</div><div className="hero-date">11 JUN — 19 JUL 2026 · Hora UY</div><div style={{fontSize:11,color:"#e8a020",fontWeight:700,marginTop:4}}>Pronósticos para: <span style={{textDecoration:"underline"}}>{nombreGrupo}</span></div></div>
+            <img src="/pelota.png" style={{height:28,objectFit:"contain"}} />
           </div>
           <nav className="nav">
             {([["picks","🎯","Pronósticos"],["grupos","📊","Grupos"],["tabla","🏆","Tabla"],["info","ℹ️","Info"],["misgrupos","🏘️","Mis grupos"]] as [string,string,string][]).map(([id,ic,lb])=>(
@@ -610,14 +444,14 @@ const enviarPick = async (
                 if (esProxima) {
                   return (
                     <div key={fecha} style={{marginBottom:20}}>
-                      <div style={{background:"linear-gradient(135deg,#071f31,#123952 55%,#e8a020)",borderRadius:"18px 18px 0 0",boxShadow:"0 10px 28px rgba(18,57,82,.24)",padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <div style={{background:"linear-gradient(135deg,#123952,#1d5278)",borderRadius:"14px 14px 0 0",padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                         <div>
                           <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:3}}>⚡ Próxima jornada</div>
                           <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:"#e8a020",fontWeight:500}}>{fmtFechaLarga(fecha)}</div>
                         </div>
                         <div style={{fontSize:28}}>🏆</div>
                       </div>
-                      <div style={{border:"1px solid rgba(18,57,82,.35)",borderTop:"none",borderRadius:"0 0 18px 18px",overflow:"hidden",boxShadow:"0 10px 26px rgba(18,57,82,.10)"}}>
+                      <div style={{border:"1px solid #123952",borderTop:"none",borderRadius:"0 0 14px 14px",overflow:"hidden"}}>
                         {ps.map((p,i)=>{
                           const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
                           const pred=predicciones[p.id];
@@ -626,7 +460,7 @@ const enviarPick = async (
                           const puntos=res&&pred?calcularPuntos(pred,res,config):null;
                           return (
                             <div key={p.id} style={{borderTop:i>0?"1px solid #dde4ec":"none"}}>
-                              <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p, odds)}/>
+                              <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={odds[`${p.local}|${p.visitante}`]}/>
                             </div>
                           );
                         })}
@@ -638,7 +472,7 @@ const enviarPick = async (
                   <div key={fecha} style={{marginBottom:16}}>
                     <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>{fmtFechaLarga(fecha)}</div>
                     {ps.map(p=>(
-                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p, odds)}/>
+                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={odds[`${p.local}|${p.visitante}`]}/>
                     ))}
                   </div>
                 );
@@ -681,70 +515,8 @@ const enviarPick = async (
           {/* ── TABLA ── */}
           {tab==="tabla"&&<>
             <div className="sec-title">Clasificación penca</div>
-
-            <div style={{
-              background:"linear-gradient(180deg,#ffffff,#f8fbfd)",
-              border:"1px solid rgba(221,228,236,.95)",
-              borderRadius:18,
-              padding:14,
-              marginBottom:14,
-              boxShadow:"0 8px 22px rgba(18,57,82,.08)"
-            }}>
-              <div style={{
-                fontSize:10,
-                fontWeight:800,
-                letterSpacing:1.8,
-                textTransform:"uppercase",
-                color:"#6b7280",
-                marginBottom:8
-              }}>
-                Ver tabla de
-              </div>
-
-              <select
-                value={tablaGrupoSeleccionado}
-                onChange={e=>cambiarTablaGrupo(e.target.value)}
-                style={{
-                  width:"100%",
-                  appearance:"none",
-                  border:"1.5px solid #dde4ec",
-                  borderRadius:14,
-                  padding:"12px 14px",
-                  background:"#f2f7fb",
-                  color:"#123952",
-                  fontSize:14,
-                  fontWeight:800,
-                  outline:"none"
-                }}
-              >
-                {gruposTabla.map(g=>(
-                  <option key={g.id} value={g.id}>{g.nombre}</option>
-                ))}
-              </select>
-
-              <div style={{
-                marginTop:10,
-                display:"inline-flex",
-                alignItems:"center",
-                gap:6,
-                background:"rgba(232,160,32,.12)",
-                border:"1px solid rgba(232,160,32,.28)",
-                color:"#e8a020",
-                borderRadius:999,
-                padding:"5px 10px",
-                fontSize:11,
-                fontWeight:800
-              }}>
-                🏆 Ranking: <span style={{color:"#123952"}}>{nombreTablaSeleccionada}</span>
-              </div>
-            </div>
-
             {tabla.length===0&&<div className="empty"><em>👥</em>Aún no hay participantes</div>}
-
-            {tabla.length>0&&<div style={{fontSize:11,color:"#6b7280",textAlign:"center",padding:"6px 0 10px",fontStyle:"italic"}}>
-              👆 Tocá un nombre para ver sus pronósticos cerrados
-            </div>}
-
+            {tabla.length>0&&<div style={{fontSize:11,color:"#6b7280",textAlign:"center",padding:"6px 0 10px",fontStyle:"italic"}}>👆 Tocá un nombre para ver sus pronósticos cerrados</div>}
             {tabla.map((u,i)=>(
               <div key={u.username} className={`tr ${i<3?"top":""} ${u.username===user?.username?"me":""}`} onClick={()=>cargarPerfil(u.username,u.nombre)} style={{cursor:"pointer"}}>
                 <div className="t-pos">{i+1}</div>
@@ -785,159 +557,6 @@ const enviarPick = async (
           </div>
         )}
         {toast&&<div className="toast">{toast}</div>}
-        
-      {pickPendiente && (
-        <div
-          style={{
-            position:"fixed",
-            inset:0,
-            background:"rgba(0,0,0,.55)",
-            zIndex:500,
-            display:"flex",
-            alignItems:"flex-end",
-            justifyContent:"center"
-          }}
-          onClick={()=>setPickPendiente(null)}
-        >
-          <div
-            onClick={(e)=>e.stopPropagation()}
-            style={{
-              width:"100%",
-              maxWidth:430,
-              background:"#fff",
-              borderRadius:"24px 24px 0 0",
-              padding:"24px 20px 38px",
-              boxShadow:"0 -12px 35px rgba(0,0,0,.25)"
-            }}
-          >
-
-            <div
-              style={{
-                width:44,
-                height:4,
-                borderRadius:999,
-                background:"#dde4ec",
-                margin:"0 auto 18px"
-              }}
-            />
-
-            <div
-              style={{
-                fontSize:21,
-                fontWeight:800,
-                color:"#123952",
-                marginBottom:10
-              }}
-            >
-              Modificar pronóstico
-            </div>
-
-            <div
-              style={{
-                fontSize:14,
-                lineHeight:1.55,
-                color:"#6b7280",
-                marginBottom:18
-              }}
-            >
-              Ya tenías un pronóstico cargado para este partido.
-            </div>
-
-            <label
-              style={{
-                display:"flex",
-                gap:12,
-                alignItems:"flex-start",
-                padding:14,
-                borderRadius:16,
-                border:"1px solid #dde4ec",
-                background:"#f4f8fb",
-                cursor:"pointer"
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={aplicarTodosGrupos}
-                onChange={(e)=>setAplicarTodosGrupos(e.target.checked)}
-                style={{marginTop:2}}
-              />
-
-              <div>
-                <div
-                  style={{
-                    fontSize:14,
-                    fontWeight:800,
-                    color:"#123952"
-                  }}
-                >
-                  Aplicar este cambio a todos mis grupos
-                </div>
-
-                <div
-                  style={{
-                    fontSize:12,
-                    marginTop:4,
-                    color:"#6b7280",
-                    lineHeight:1.45
-                  }}
-                >
-                  Si no lo marcás, se actualizará únicamente en este grupo.
-                </div>
-              </div>
-            </label>
-
-            <div style={{display:"flex",gap:10,marginTop:20}}>
-
-              <button
-                onClick={()=>setPickPendiente(null)}
-                style={{
-                  flex:1,
-                  padding:14,
-                  borderRadius:13,
-                  border:"1px solid #dde4ec",
-                  background:"#fff",
-                  fontWeight:700,
-                  color:"#6b7280"
-                }}
-              >
-                Cancelar
-              </button>
-
-              <button
-                onClick={async()=>{
-                  const pick = pickPendiente;
-                  setPickPendiente(null);
-
-                  if (pick) {
-                    await enviarPick(
-                      pick.partidoId,
-                      pick.local,
-                      pick.visitante,
-                      aplicarTodosGrupos
-                    );
-                  }
-                }}
-                style={{
-                  flex:1,
-                  padding:14,
-                  borderRadius:13,
-                  border:"none",
-                  background:"linear-gradient(135deg,#123952,#1d5278)",
-                  color:"#fff",
-                  fontWeight:800,
-                  boxShadow:"0 6px 16px rgba(18,57,82,.22)"
-                }}
-              >
-                Guardar
-              </button>
-
-            </div>
-
-          </div>
-        </div>
-      )}
-
-
         {showInstallModal&&(
           <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={()=>setShowInstallModal(false)}>
             <div style={{background:"#fff",borderRadius:"20px 20px 0 0",width:"100%",maxWidth:430,padding:"24px 20px 40px"}} onClick={e=>e.stopPropagation()}>
@@ -958,23 +577,7 @@ const enviarPick = async (
                     3. Abrí la app desde el ícono y activá las notificaciones
                   </div>
               }
-              <label style={{display:"flex",alignItems:"center",gap:8,marginTop:16,fontSize:13,color:"#6b7280",cursor:"pointer"}}>
-                <input
-                  type="checkbox"
-                  checked={noMostrarInstall}
-                  onChange={e=>setNoMostrarInstall(e.target.checked)}
-                />
-                No volver a mostrar este aviso
-              </label>
-              <button
-                onClick={()=>{
-                  if (noMostrarInstall) localStorage.setItem("install_modal_ocultar","1");
-                  setShowInstallModal(false);
-                }}
-                style={{width:"100%",marginTop:16,padding:14,border:"none",borderRadius:12,background:"#123952",color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer"}}
-              >
-                Entendido
-              </button>
+              <button onClick={()=>setShowInstallModal(false)} style={{width:"100%",marginTop:16,padding:14,border:"none",borderRadius:12,background:"#123952",color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer"}}>Entendido</button>
             </div>
           </div>
         )}
@@ -987,7 +590,7 @@ const enviarPick = async (
 
 /* ── HoyCard ── */
 function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guardado, ciudad, onGuardar, oddData }: {
-  partido: Partido; estado: "proximo"|"jugando"|"entretiempo"|"finalizado";
+  partido: Partido; estado: "proximo"|"jugando"|"finalizado";
   pred?: Resultado; res?: Resultado; bloqueado: boolean;
   puntos: number|null; config: PuntosConfig;
   guardado?: boolean; ciudad?: string; onGuardar: (l: number, v: number) => void;
@@ -997,18 +600,13 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
   const [vv, setVv] = useState<string|number>(pred?.visitante??"");
   useEffect(()=>{ setLv(pred?.local??""); setVv(pred?.visitante??""); },[pred]);
 
-  const estadoLabel = estado==="proximo" ? "Próximo" : estado==="jugando" ? "EN VIVO" : estado==="entretiempo" ? "ENTRETIEMPO" : "Finalizado";
+  const estadoLabel = estado==="proximo" ? "Próximo" : estado==="jugando" ? "⚡ En juego" : "Finalizado";
   const ptsClass = puntos===null?"":puntos===config.resultado_exacto?"pts-ex":puntos>0?"pts-ok":"pts-no";
 
   return (
     <div className={`hoy-partido ${estado}`}>
       <div className="hoy-estado">
-        {estado==="jugando"
-          ? <span className="live-badge"><span className="live-dot"/> {estadoLabel}</span>
-          : estado==="entretiempo"
-            ? <span className="estado-badge estado-entretiempo">⏸ {estadoLabel}</span>
-            : <span className={`estado-badge estado-${estado}`}>{estadoLabel}</span>
-        }
+        <span className={`estado-badge estado-${estado}`}>{estadoLabel}</span>
         <span className="hoy-hora">{partido.hora} hs</span>
         {ciudad&&<span style={{fontSize:10,color:"#6b7280",fontWeight:500}}>📍{ciudad}</span>}
       </div>
@@ -1026,30 +624,6 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
           <span className="hoy-name">{partido.visitante}</span>
         </div>
       </div>
-      {oddData&&!bloqueado&&(
-        <div style={{margin:"8px 0 10px"}}>
-          <div style={{display:"flex",borderRadius:6,overflow:"hidden",height:8}}>
-            <div style={{width:`${oddData.home}%`,background:"#123952"}}/>
-            <div style={{width:`${oddData.draw}%`,background:"#e8a020"}}/>
-            <div style={{width:`${oddData.away}%`,background:"#2e9e6b"}}/>
-          </div>
-          <div style={{display:"flex",justifyContent:"space-between",marginTop:4,fontSize:10,fontWeight:700}}>
-            <span style={{color:"#123952"}}>{oddData.home}%</span>
-            <span style={{color:"#e8a020"}}>Empate {oddData.draw}%</span>
-            <span style={{color:"#2e9e6b"}}>{oddData.away}%</span>
-          </div>
-        </div>
-      )}
-      {estado==="jugando"&&(
-        <div style={{fontSize:11,fontWeight:700,color:"#dc2626",textAlign:"center",margin:"6px 0 8px",letterSpacing:.3}}>
-          ⚡ Partido en vivo · actualizando marcador
-        </div>
-      )}
-      {estado==="entretiempo"&&(
-        <div style={{fontSize:11,fontWeight:700,color:"#e8a020",textAlign:"center",margin:"6px 0 8px",letterSpacing:.3}}>
-          ⏸ Entretiempo · vuelve en minutos
-        </div>
-      )}
       {!bloqueado&&<div style={{padding:"6px 0"}}><CountdownBloqueo fecha={partido.fecha} hora={partido.hora}/></div>}
       <div className="hoy-pick">
         <span className="hoy-pick-lbl">Tu pronóstico:</span>
@@ -1143,34 +717,25 @@ function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloquead
 function CountdownBloqueo({ fecha, hora }: { fecha: string; hora: string }) {
   const [texto, setTexto] = useState("");
   const [urgente, setUrgente] = useState(false);
-
   useEffect(() => {
     const calcular = () => {
-      const bloqueoMs = partidoUYMs(fecha, hora) - 10*60*1000;
+      const [h, m] = hora.split(":").map(Number);
+      const bloqueoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() + 3*60*60*1000 - 10*60*1000;
       const diff = bloqueoMs - Date.now();
-
-      if (diff <= 0) {
-        setTexto("");
-        return;
-      }
-
+      if (diff <= 0) { setTexto(""); return; }
       const dias = Math.floor(diff/(1000*60*60*24));
       const horas = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
       const mins = Math.floor((diff%(1000*60*60))/(1000*60));
       const segs = Math.floor((diff%(1000*60))/1000);
-
       setUrgente(diff < 60*60*1000);
-
       if (dias > 0) setTexto(`Cierra en ${dias}d ${horas}h ${mins}m`);
       else if (horas > 0) setTexto(`Cierra en ${horas}h ${mins}m`);
       else setTexto(`Cierra en ${mins}m ${segs}s`);
     };
-
     calcular();
     const iv = setInterval(calcular, 1000);
     return () => clearInterval(iv);
   }, [fecha, hora]);
-
   if (!texto) return null;
   return <span className={`countdown ${urgente?"urgente":""}`}>🔒 {texto}</span>;
 }
@@ -1183,7 +748,7 @@ function PerfilModal({ perfil, resultados, config, onClose }: {
 }) {
   const bloqueados = TODOS_PARTIDOS.filter(p => {
     const [h, m] = p.hora.split(":").map(Number);
-    const bloqueoMs = partidoUYMs(p.fecha, p.hora) - 10*60*1000;
+    const bloqueoMs = new Date(`${p.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()-3*60*1000;
     return Date.now() >= bloqueoMs;
   });
   const conPick = bloqueados.filter(p => perfil.predicciones[p.id]);
@@ -1223,8 +788,3 @@ function PerfilModal({ perfil, resultados, config, onClose }: {
     </div>
   );
 }
-
-
-/* PREMIUM POLISH V2 */
-<style>{`
-`}</style>
