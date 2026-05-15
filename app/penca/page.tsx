@@ -244,6 +244,7 @@ export default function PencaPage() {
     }
   }, []);
   const [showInstallModal, setShowInstallModal] = useState(false);
+  const [noMostrarInstall, setNoMostrarInstall] = useState(false);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2700); };
 
@@ -312,10 +313,9 @@ export default function PencaPage() {
   const esPWA = () => window.matchMedia("(display-mode: standalone)").matches;
 
   useEffect(() => {
-    const visto = localStorage.getItem("install_modal_visto");
-    if (!visto && !esPWA()) {
+    const ocultar = localStorage.getItem("install_modal_ocultar");
+    if (!ocultar && !esPWA()) {
       setTimeout(() => setShowInstallModal(true), 1500);
-      localStorage.setItem("install_modal_visto", "1");
     }
   }, []);
 
@@ -581,7 +581,23 @@ export default function PencaPage() {
                     3. Abrí la app desde el ícono y activá las notificaciones
                   </div>
               }
-              <button onClick={()=>setShowInstallModal(false)} style={{width:"100%",marginTop:16,padding:14,border:"none",borderRadius:12,background:"#123952",color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer"}}>Entendido</button>
+              <label style={{display:"flex",alignItems:"center",gap:8,marginTop:16,fontSize:13,color:"#6b7280",cursor:"pointer"}}>
+                <input
+                  type="checkbox"
+                  checked={noMostrarInstall}
+                  onChange={e=>setNoMostrarInstall(e.target.checked)}
+                />
+                No volver a mostrar este aviso
+              </label>
+              <button
+                onClick={()=>{
+                  if (noMostrarInstall) localStorage.setItem("install_modal_ocultar","1");
+                  setShowInstallModal(false);
+                }}
+                style={{width:"100%",marginTop:16,padding:14,border:"none",borderRadius:12,background:"#123952",color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer"}}
+              >
+                Entendido
+              </button>
             </div>
           </div>
         )}
