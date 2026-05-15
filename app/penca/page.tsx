@@ -523,6 +523,7 @@ export default function PencaPage() {
           {tab==="tabla"&&<>
             <div className="sec-title">Clasificación penca</div>
             {tabla.length===0&&<div className="empty"><em>👥</em>Aún no hay participantes</div>}
+            {tabla.length>0&&<div style={{fontSize:11,color:"#6b7280",textAlign:"center",padding:"6px 0 10px",fontStyle:"italic"}}>👆 Tocá un nombre para ver sus pronósticos cerrados</div>}
             {tabla.map((u,i)=>(
               <div key={u.username} className={`tr ${i<3?"top":""} ${u.username===user?.username?"me":""}`} onClick={()=>cargarPerfil(u.username,u.nombre)} style={{cursor:"pointer"}}>
                 <div className="t-pos">{i+1}</div>
