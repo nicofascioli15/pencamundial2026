@@ -172,7 +172,7 @@ function getEstadoPartido(fecha: string, hora: string, tieneResultado: boolean):
   if (tieneResultado) return "finalizado";
   const [h, m] = hora.split(":").map(Number);
   const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() + 3*60*60*1000;
-  const finMs = partidoMs + 13*60*1000; // +110min aprox duración
+  const finMs = partidoMs + 110*60*1000; // +110min aprox duración
   const ahora = Date.now();
   if (ahora < partidoMs) return "proximo";
   if (ahora < finMs) return "jugando";
@@ -202,10 +202,6 @@ export default function PencaPage() {
       if (g) setNombreGrupo(g.nombre);
     });
   }, []);
-
-  useEffect(() => {
-    if (grupoActivo) cargarDatos();
-  }, [grupoActivo]);
 
   // Recargar datos cuando cambia el grupo
   useEffect(() => {
@@ -256,7 +252,6 @@ export default function PencaPage() {
       fetch("/api/config").then(r=>r.json()),
       fetch("/api/mundial-grupos").then(r=>r.json()),
       fetch("/api/odds").then(r=>r.json()),
-      fetch("/api/odds").then(r=>r.json()),
       fetch("/api/partidos-hoy").then(r=>r.json()),
     ]);
     setPredicciones(pRes.predicciones??{});
@@ -268,8 +263,6 @@ export default function PencaPage() {
     setSiguientesDias(hRes.siguientesDias??[]);
     setFechaHoy(hRes.fechaHoy??"");
     setOdds(oRes.odds??{});
-    setOdds(oRes.odds??{});
-    const [,,,,,,oddsRes] = await Promise.resolve([null,null,null,null,null,null,null]);
   }, []);
 
   const sincronizar = useCallback(async () => {
@@ -549,7 +542,7 @@ export default function PencaPage() {
             <div className="info-card">
               <div className="sec-title">Reglas</div>
               <p style={{fontSize:13,color:"#6b7280",lineHeight:1.7}}>
-                🔒 Los pronósticos se bloquean automáticamente <strong style={{color:"#123952"}}>3 minutos antes</strong> del inicio de cada partido.<br/><br/>⏱️ Se contabilizan solo los <strong style={{color:"#123952"}}>90 minutos reglamentarios</strong>, sin incluir prórroga ni penales.<br/><br/>
+                🔒 Los pronósticos se bloquean automáticamente <strong style={{color:"#123952"}}>10 minutos antes</strong> del inicio de cada partido.<br/><br/>⏱️ Se contabilizan solo los <strong style={{color:"#123952"}}>90 minutos reglamentarios</strong>, sin incluir prórroga ni penales.<br/><br/>
                 🔄 Los resultados se actualizan solos cada 2 minutos desde football-data.org.<br/><br/>🏘️ Si pronosticás en cualquier grupo, ese pick se copia automáticamente a los grupos donde todavía no tenés pronóstico para ese partido. Si querés diferenciarte en un grupo, cambialo manualmente.<br/><br/>
                 🕐 Todos los horarios están en <strong style={{color:"#123952"}}>hora Uruguay (UTC-3)</strong>.
               </p>
@@ -727,7 +720,7 @@ function CountdownBloqueo({ fecha, hora }: { fecha: string; hora: string }) {
   useEffect(() => {
     const calcular = () => {
       const [h, m] = hora.split(":").map(Number);
-      const bloqueoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()-3*60*1000;
+      const bloqueoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() + 3*60*60*1000 - 10*60*1000;
       const diff = bloqueoMs - Date.now();
       if (diff <= 0) { setTexto(""); return; }
       const dias = Math.floor(diff/(1000*60*60*24));
