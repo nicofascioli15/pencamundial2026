@@ -162,6 +162,35 @@ const css = `
   .modal-pick-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0}
   .modal-pick-row:last-child{border-bottom:none}
   .pts-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#123952}
+  .fb{
+    flex:0 0 auto!important;
+    padding:9px 15px!important;
+    border-radius:999px!important;
+    background:rgba(255,255,255,.92)!important;
+    border:1px solid rgba(18,57,82,.08)!important;
+    color:#4b5563!important;
+    font-size:12px!important;
+    font-weight:700!important;
+    letter-spacing:.2px!important;
+    box-shadow:0 4px 10px rgba(18,57,82,.05)!important;
+    backdrop-filter:blur(10px)!important;
+    transition:all .18s ease!important;
+  }
+
+  .fb:active{
+    transform:scale(.96)!important;
+  }
+
+  .fb.on{
+    background:linear-gradient(135deg,#071f31,#123952 55%,#1d5278)!important;
+    color:#fff!important;
+    border-color:transparent!important;
+    box-shadow:
+      0 8px 18px rgba(18,57,82,.22),
+      0 0 0 1px rgba(255,255,255,.08) inset!important;
+    transform:translateY(-1px)!important;
+  }
+
 `;
 
 interface User { username: string; nombre: string; isAdmin: boolean; }
