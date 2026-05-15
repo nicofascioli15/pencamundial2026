@@ -249,6 +249,8 @@ export default function PencaPage() {
     }
   }, []);
   const [showInstallModal, setShowInstallModal] = useState(false);
+  const [pickPendiente, setPickPendiente] = useState<any>(null);
+  const [aplicarTodosGrupos, setAplicarTodosGrupos] = useState(false);
   const [noMostrarInstall, setNoMostrarInstall] = useState(false);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2700); };
@@ -302,17 +304,56 @@ export default function PencaPage() {
     return () => clearInterval(iv);
   }, [sincronizar]);
 
-  const guardarPick = async (partidoId: string, local: number, visitante: number) => {
-    const r = await fetch("/api/grupos/predicciones",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({grupoId:new URLSearchParams(window.location.search).get("grupo")??"fascioli",partidoId,local,visitante})});
+  
+const enviarPick = async (
+    partidoId:string,
+    local:number,
+    visitante:number,
+    aplicarATodos=false
+  ) => {
+    const r = await fetch("/api/grupos/predicciones",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        grupoId:new URLSearchParams(window.location.search).get("grupo")??"fascioli",
+        partidoId,
+        local,
+        visitante,
+        aplicarATodos
+      })
+    });
+
     if (r.ok) {
-      setPredicciones(p=>({...p,[partidoId]:{local,visitante}}));
-      setGuardados(g=>({...g,[partidoId]:true}));
-      setTimeout(()=>setGuardados(g=>({...g,[partidoId]:false})),2000);
-    } else {
-      const d = await r.json();
-      showToast(d.error??"Error al guardar");
+      setPredicciones((p:any)=>({...p,[partidoId]:{local,visitante}}));
+      setGuardados((g:any)=>({...g,[partidoId]:true}));
+
+      setTimeout(()=>{
+        setGuardados((g:any)=>({...g,[partidoId]:false}));
+      },2000);
+
+      showToast(
+        aplicarATodos
+          ? "✅ Pronóstico actualizado en todos tus grupos"
+          : "✅ Pronóstico guardado"
+      );
     }
   };
+
+  const guardarPick = async (
+    partidoId:string,
+    local:number,
+    visitante:number
+  ) => {
+
+    if (predicciones?.[partidoId]) {
+      setPickPendiente({ partidoId, local, visitante });
+      setAplicarTodosGrupos(false);
+      return;
+    }
+
+    await enviarPick(partidoId, local, visitante, false);
+  };
+
 
   const esIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
   const esPWA = () =>
@@ -575,6 +616,159 @@ export default function PencaPage() {
           </div>
         )}
         {toast&&<div className="toast">{toast}</div>}
+        
+      {pickPendiente && (
+        <div
+          style={{
+            position:"fixed",
+            inset:0,
+            background:"rgba(0,0,0,.55)",
+            zIndex:500,
+            display:"flex",
+            alignItems:"flex-end",
+            justifyContent:"center"
+          }}
+          onClick={()=>setPickPendiente(null)}
+        >
+          <div
+            onClick={(e)=>e.stopPropagation()}
+            style={{
+              width:"100%",
+              maxWidth:430,
+              background:"#fff",
+              borderRadius:"24px 24px 0 0",
+              padding:"24px 20px 38px",
+              boxShadow:"0 -12px 35px rgba(0,0,0,.25)"
+            }}
+          >
+
+            <div
+              style={{
+                width:44,
+                height:4,
+                borderRadius:999,
+                background:"#dde4ec",
+                margin:"0 auto 18px"
+              }}
+            />
+
+            <div
+              style={{
+                fontSize:21,
+                fontWeight:800,
+                color:"#123952",
+                marginBottom:10
+              }}
+            >
+              Modificar pronóstico
+            </div>
+
+            <div
+              style={{
+                fontSize:14,
+                lineHeight:1.55,
+                color:"#6b7280",
+                marginBottom:18
+              }}
+            >
+              Ya tenías un pronóstico cargado para este partido.
+            </div>
+
+            <label
+              style={{
+                display:"flex",
+                gap:12,
+                alignItems:"flex-start",
+                padding:14,
+                borderRadius:16,
+                border:"1px solid #dde4ec",
+                background:"#f4f8fb",
+                cursor:"pointer"
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={aplicarTodosGrupos}
+                onChange={(e)=>setAplicarTodosGrupos(e.target.checked)}
+                style={{marginTop:2}}
+              />
+
+              <div>
+                <div
+                  style={{
+                    fontSize:14,
+                    fontWeight:800,
+                    color:"#123952"
+                  }}
+                >
+                  Aplicar este cambio a todos mis grupos
+                </div>
+
+                <div
+                  style={{
+                    fontSize:12,
+                    marginTop:4,
+                    color:"#6b7280",
+                    lineHeight:1.45
+                  }}
+                >
+                  Si no lo marcás, se actualizará únicamente en este grupo.
+                </div>
+              </div>
+            </label>
+
+            <div style={{display:"flex",gap:10,marginTop:20}}>
+
+              <button
+                onClick={()=>setPickPendiente(null)}
+                style={{
+                  flex:1,
+                  padding:14,
+                  borderRadius:13,
+                  border:"1px solid #dde4ec",
+                  background:"#fff",
+                  fontWeight:700,
+                  color:"#6b7280"
+                }}
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={async()=>{
+                  const pick = pickPendiente;
+                  setPickPendiente(null);
+
+                  if (pick) {
+                    await enviarPick(
+                      pick.partidoId,
+                      pick.local,
+                      pick.visitante,
+                      aplicarTodosGrupos
+                    );
+                  }
+                }}
+                style={{
+                  flex:1,
+                  padding:14,
+                  borderRadius:13,
+                  border:"none",
+                  background:"linear-gradient(135deg,#123952,#1d5278)",
+                  color:"#fff",
+                  fontWeight:800,
+                  boxShadow:"0 6px 16px rgba(18,57,82,.22)"
+                }}
+              >
+                Guardar
+              </button>
+
+            </div>
+
+          </div>
+        </div>
+      )}
+
+
         {showInstallModal&&(
           <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={()=>setShowInstallModal(false)}>
             <div style={{background:"#fff",borderRadius:"20px 20px 0 0",width:"100%",maxWidth:430,padding:"24px 20px 40px"}} onClick={e=>e.stopPropagation()}>
