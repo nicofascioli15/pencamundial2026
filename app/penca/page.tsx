@@ -280,7 +280,9 @@ export default function PencaPage() {
     if (gId === "fascioli") setNombreGrupo("PencaFascioli");
 
     fetch("/api/grupos").then(r=>r.json()).then(d => {
-      const lista = [{id:"fascioli",nombre:"PencaFascioli"}, ...(d.grupos??[])];
+      const gruposApi = d.grupos??[];
+      const sinDuplicados = gruposApi.filter((g:any)=>g.id !== "fascioli");
+      const lista = [{id:"fascioli",nombre:"PencaFascioli"}, ...sinDuplicados];
       setGruposTabla(lista);
 
       const g = lista.find((g: any) => g.id === gId);
