@@ -32,64 +32,11 @@ const css = `
   .hoy-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
   .hoy-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#123952;display:flex;align-items:center;gap:6px}
   .hoy-fecha{font-family:'DM Mono',monospace;font-size:11px;color:#6b7280}
-  .hoy-card{
-    border-radius:24px;
-    overflow:hidden;
-    margin-bottom:18px;
-    padding:2px;
-    background:
-      linear-gradient(180deg,rgba(255,255,255,.9),rgba(240,245,250,.9));
-  }
-
-  .hoy-partido{
-    background:
-      linear-gradient(180deg,rgba(255,255,255,.99),rgba(248,251,253,.98));
-    border:1px solid rgba(221,228,236,.72);
-    border-radius:24px;
-    padding:18px;
-    margin-bottom:12px;
-    position:relative;
-    overflow:hidden;
-    box-shadow:
-      0 14px 38px rgba(18,57,82,.08),
-      0 3px 10px rgba(18,57,82,.03);
-    transition:
-      transform .18s ease,
-      box-shadow .18s ease,
-      border-color .18s ease;
-    backdrop-filter:blur(8px);
-  }
-
-  .hoy-partido:active{
-    transform:scale(.992);
-  }
-
-  .hoy-partido:hover{
-    transform:translateY(-1px);
-    box-shadow:
-      0 18px 42px rgba(18,57,82,.11),
-      0 4px 12px rgba(18,57,82,.04);
-  }
-
-  .hoy-partido.proximo::before{
-    content:'';
-    position:absolute;
-    inset:0;
-    border-radius:24px;
-    padding:1.5px;
-    background:
-      linear-gradient(
-        135deg,
-        rgba(29,82,120,.55),
-        rgba(232,160,32,.28)
-      );
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite:xor;
-            mask-composite:exclude;
-    pointer-events:none;
-  }
+  .hoy-card{border-radius:22px;overflow:hidden;margin-bottom:18px;box-shadow:0 14px 34px rgba(18,57,82,.14);border:1px solid rgba(18,57,82,.16);background:#fff}
+  .hoy-partido{background:#fff;border:1px solid rgba(221,228,236,.95);border-radius:20px;padding:17px;margin-bottom:10px;position:relative;overflow:hidden;box-shadow:0 8px 22px rgba(18,57,82,.07);transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease}
+  .hoy-partido:active{transform:scale(.992)}
+  .hoy-partido:hover{box-shadow:0 12px 28px rgba(18,57,82,.10)}
+  .hoy-partido.proximo::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#123952 0%,#123952 68%,#e8a020 100%)}
   .hoy-partido.jugando::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#e8a020,#f0c040);animation:shimmer 1.5s infinite}
   .hoy-partido.finalizado::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#2e9e6b}
   .hoy-partido.entretiempo{box-shadow:0 0 0 1px rgba(232,160,32,.25),0 8px 24px rgba(232,160,32,.16)}
