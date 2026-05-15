@@ -210,7 +210,7 @@ function partidoUYMs(fecha: string, hora: string): number {
 function getEstadoPartido(fecha: string, hora: string, tieneResultado: boolean): "proximo"|"jugando"|"finalizado" {
   if (tieneResultado) return "finalizado";
   const [h, m] = hora.split(":").map(Number);
-  const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() + 3*60*60*1000;
+  const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() ;
   const finMs = partidoMs + 110*60*1000; // +110min aprox duración
   const ahora = Date.now();
   if (ahora < partidoMs) return "proximo";
@@ -1003,25 +1003,34 @@ function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloquead
 function CountdownBloqueo({ fecha, hora }: { fecha: string; hora: string }) {
   const [texto, setTexto] = useState("");
   const [urgente, setUrgente] = useState(false);
+
   useEffect(() => {
     const calcular = () => {
-      const [h, m] = hora.split(":").map(Number);
-      const bloqueoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() + 3*60*60*1000 - 10*60*1000;
+      const bloqueoMs = partidoUYMs(fecha, hora) - 10*60*1000;
       const diff = bloqueoMs - Date.now();
-      if (diff <= 0) { setTexto(""); return; }
+
+      if (diff <= 0) {
+        setTexto("");
+        return;
+      }
+
       const dias = Math.floor(diff/(1000*60*60*24));
       const horas = Math.floor((diff%(1000*60*60*24))/(1000*60*60));
       const mins = Math.floor((diff%(1000*60*60))/(1000*60));
       const segs = Math.floor((diff%(1000*60))/1000);
+
       setUrgente(diff < 60*60*1000);
+
       if (dias > 0) setTexto(`Cierra en ${dias}d ${horas}h ${mins}m`);
       else if (horas > 0) setTexto(`Cierra en ${horas}h ${mins}m`);
       else setTexto(`Cierra en ${mins}m ${segs}s`);
     };
+
     calcular();
     const iv = setInterval(calcular, 1000);
     return () => clearInterval(iv);
   }, [fecha, hora]);
+
   if (!texto) return null;
   return <span className={`countdown ${urgente?"urgente":""}`}>🔒 {texto}</span>;
 }
