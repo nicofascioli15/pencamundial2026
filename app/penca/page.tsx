@@ -84,9 +84,9 @@ const css = `
   .sync{display:flex;align-items:center;gap:5px;font-size:11px;color:#2e9e6b;font-weight:500;margin-bottom:11px}
   .sync-dot{width:6px;height:6px;border-radius:50%;background:#2e9e6b;animation:pulse 2s infinite;flex-shrink:0}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-  .filtros{display:flex;gap:5px;margin-bottom:11px;overflow-x:auto;padding-bottom:2px}
-  .fb{padding:5px 12px;border-radius:20px;border:1.5px solid #dde4ec;background:transparent;color:#6b7280;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s}
-  .fb.on{background:#123952;border-color:#123952;color:#fff}
+  .filtros{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;overflow:visible;padding-bottom:0}
+  .fb{padding:7px 12px;border-radius:999px;border:1.5px solid #dde4ec;background:#fff;color:#6b7280;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s;box-shadow:0 2px 8px rgba(18,57,82,.04)}
+  .fb.on{background:linear-gradient(135deg,#123952,#1d5278);border-color:#123952;color:#fff;box-shadow:0 4px 12px rgba(18,57,82,.18)}
   .grupo-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#123952;background:#e8f0f6;padding:3px 9px;border-radius:5px;display:inline-block;margin:11px 0 7px}
   .partido{border:1px solid rgba(221,228,236,.9);border-radius:16px;padding:14px;margin-bottom:11px;background:linear-gradient(180deg,#ffffff,#f8fbfd);box-shadow:0 8px 22px rgba(18,57,82,.10);transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease}.partido:active{transform:scale(.992);box-shadow:0 3px 12px rgba(18,57,82,.08)}
   .partido-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
