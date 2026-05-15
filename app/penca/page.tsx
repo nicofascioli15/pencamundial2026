@@ -172,6 +172,12 @@ const FASES = ["Grupos","Octavos","Cuartos","Semis","Final"];
 const GRUPOS_KEYS = Object.keys(GRUPOS);
 
 // Determinar estado de un partido basado en hora Montevideo
+function partidoUYMs(fecha: string, hora: string): number {
+  const [year, month, day] = fecha.split("-").map(Number);
+  const [h, m] = hora.split(":").map(Number);
+  return Date.UTC(year, month - 1, day, h + 3, m, 0);
+}
+
 function getEstadoPartido(fecha: string, hora: string, tieneResultado: boolean): "proximo"|"jugando"|"finalizado" {
   if (tieneResultado) return "finalizado";
   const [h, m] = hora.split(":").map(Number);
@@ -184,8 +190,7 @@ function getEstadoPartido(fecha: string, hora: string, tieneResultado: boolean):
 }
 
 function esBloqueado(fecha: string, hora: string): boolean {
-  const [h, m] = hora.split(":").map(Number);
-  const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() + 3*60*60*1000;
+  const partidoMs = partidoUYMs(fecha, hora);
   const bloqueoMs = partidoMs - (10 * 60 * 1000);
   return Date.now() >= bloqueoMs;
 }
@@ -806,7 +811,7 @@ function PerfilModal({ perfil, resultados, config, onClose }: {
 }) {
   const bloqueados = TODOS_PARTIDOS.filter(p => {
     const [h, m] = p.hora.split(":").map(Number);
-    const bloqueoMs = new Date(`${p.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()-3*60*1000;
+    const bloqueoMs = partidoUYMs(p.fecha, p.hora) - 10*60*1000;
     return Date.now() >= bloqueoMs;
   });
   const conPick = bloqueados.filter(p => perfil.predicciones[p.id]);
