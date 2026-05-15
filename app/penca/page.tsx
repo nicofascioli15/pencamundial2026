@@ -311,6 +311,7 @@ export default function PencaPage() {
   const [cargando, setCargando] = useState(true);
   const [ultimaSync, setUltimaSync] = useState<string|null>(null);
   const [partidosHoy, setPartidosHoy] = useState<Partido[]>([]);
+  const [proximaFecha, setProximaFecha] = useState<string | null>(null);
   const [siguientesDias, setSiguientesDias] = useState<{fecha:string;partidos:Partido[]}[]>([]);
   const [fechaHoy, setFechaHoy] = useState<string>("");
   const [perfilUsuario, setPerfilUsuario] = useState<{username:string;nombre:string;predicciones:Record<string,Resultado>}|null>(null);
@@ -353,6 +354,7 @@ export default function PencaPage() {
     setConfig(cRes.config??PUNTOS_DEFAULT);
     setTablaGrupos(gRes.tablaGrupos??{});
     setPartidosHoy(hRes.partidos??[]);
+    setProximaFecha(hRes.proximaFecha??null);
     setSiguientesDias(hRes.siguientesDias??[]);
     setFechaHoy(hRes.fechaHoy??"");
     setOdds(oRes.odds??{});
@@ -603,7 +605,7 @@ const enviarPick = async (
                 })
                 .sort((a,b)=>new Date(`${a.fecha}T${a.hora}:00`).getTime()-new Date(`${b.fecha}T${b.hora}:00`).getTime());
               const fechasUnicas = Array.from(new Set(filtrados.map(p=>p.fecha)));
-              const proximaFechaDestacada = partidosHoy[0]?.fecha;
+              const proximaFechaDestacada = proximaFecha;
               return fechasUnicas.map((fecha,idx)=>{
                 const ps = filtrados.filter(p=>p.fecha===fecha);
                 const esProxima = fecha===proximaFechaDestacada && partidosHoy.length>0;
