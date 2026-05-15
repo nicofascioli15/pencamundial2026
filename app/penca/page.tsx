@@ -118,16 +118,140 @@ const css = `
   .chip-no{background:rgba(220,38,38,.06);color:#dc2626;border:1px solid rgba(220,38,38,.15)}
   .sec-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#123952;margin:4px 0 12px;display:flex;align-items:center;gap:8px}
   .sec-title::after{content:'';flex:1;height:1px;background:#dde4ec}
-  .tr{display:flex;align-items:center;padding:12px 14px;border:1px solid rgba(221,228,236,.9);border-radius:15px;margin-bottom:9px;gap:11px;background:rgba(255,255,255,.97);box-shadow:0 5px 16px rgba(18,57,82,.06);transition:transform .18s ease, box-shadow .18s ease}.tr:active{transform:scale(.992);box-shadow:0 3px 10px rgba(18,57,82,.08)}
-  .tr.top{border-color:#e8a020;background:rgba(232,160,32,.03)}
-  .tr.me{border-color:#123952;background:#f2f7fb}
-  .t-pos{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:#dde4ec;min-width:22px}
-  .tr.top .t-pos{color:#e8a020}
-  .t-user{flex:1}
-  .t-name{font-weight:700;font-size:14px}
-  .t-stats{font-size:11px;color:#6b7280;margin-top:1px}
-  .t-pts{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#123952}
-  .t-medal{font-size:18px}
+  .tr{
+    display:flex;
+    align-items:center;
+    padding:14px 15px;
+    border:1px solid rgba(221,228,236,.9);
+    border-radius:20px;
+    margin-bottom:12px;
+    gap:12px;
+    background:rgba(255,255,255,.98);
+    box-shadow:
+      0 10px 28px rgba(18,57,82,.07),
+      0 2px 8px rgba(18,57,82,.03);
+    transition:
+      transform .18s ease,
+      box-shadow .18s ease,
+      border-color .18s ease,
+      background .18s ease;
+    animation:fadeRank .35s ease;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .tr::before{
+    content:'';
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:0;
+    width:4px;
+    background:transparent;
+    transition:all .2s ease;
+  }
+
+  .tr:active{
+    transform:scale(.988);
+  }
+
+  .tr:hover{
+    transform:translateY(-1px);
+    box-shadow:
+      0 16px 34px rgba(18,57,82,.10),
+      0 3px 10px rgba(18,57,82,.04);
+  }
+
+  .tr.top{
+    border-color:rgba(232,160,32,.65);
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,250,242,.96));
+    box-shadow:
+      0 14px 36px rgba(232,160,32,.14),
+      0 3px 12px rgba(18,57,82,.04);
+  }
+
+  .tr.top::before{
+    background:linear-gradient(180deg,#f0c040,#e8a020);
+  }
+
+  .tr.me{
+    border-color:#123952;
+    background:
+      linear-gradient(180deg,#f7fbff,#eef5fb);
+    box-shadow:
+      0 14px 36px rgba(18,57,82,.12),
+      0 3px 10px rgba(18,57,82,.05);
+  }
+
+  .tr.me::before{
+    background:#123952;
+  }
+
+  .t-pos{
+    font-family:'Playfair Display',serif;
+    font-size:26px;
+    font-weight:900;
+    color:#d5dde6;
+    min-width:34px;
+    text-align:center;
+    transition:transform .18s ease;
+  }
+
+  .tr.top .t-pos{
+    color:#e8a020;
+    text-shadow:0 2px 10px rgba(232,160,32,.18);
+  }
+
+  .tr:hover .t-pos{
+    transform:scale(1.06);
+  }
+
+  .t-user{
+    flex:1;
+  }
+
+  .t-name{
+    font-weight:800;
+    font-size:15px;
+    color:#111827;
+    letter-spacing:-.2px;
+  }
+
+  .t-stats{
+    font-size:11px;
+    color:#6b7280;
+    margin-top:3px;
+  }
+
+  .t-pts{
+    font-family:'Playfair Display',serif;
+    font-size:34px;
+    font-weight:900;
+    color:#123952;
+    line-height:1;
+    letter-spacing:-1px;
+  }
+
+  .tr.top .t-pts{
+    color:#0f3550;
+  }
+
+  .t-medal{
+    font-size:22px;
+    filter:drop-shadow(0 3px 6px rgba(0,0,0,.12));
+  }
+
+  @keyframes fadeRank{
+    from{
+      opacity:0;
+      transform:translateY(6px);
+    }
+    to{
+      opacity:1;
+      transform:translateY(0);
+    }
+  }
   .grupo-box{border:1px solid #dde4ec;border-radius:13px;margin-bottom:13px;overflow:hidden;box-shadow:0 2px 10px rgba(18,57,82,.06)}
   .grupo-box-hdr{background:#123952;padding:9px 13px;display:flex;justify-content:space-between;align-items:center}
   .grupo-box-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.9)}
