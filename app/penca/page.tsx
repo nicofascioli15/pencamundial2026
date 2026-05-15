@@ -68,13 +68,13 @@ const css = `
   .hoy-inputs{display:flex;align-items:center;gap:6px;margin-left:auto}
   .hoy-si{width:42px;text-align:center;padding:7px 4px;border-radius:11px;border:1.5px solid #dde4ec;background:#f2f7fb;color:#123952;font-family:'Playfair Display',serif;font-size:18px;font-weight:700;outline:none;transition:border-color .2s}
   .hoy-si:focus{border-color:#123952}
-  .hoy-save{padding:7px 12px;border:none;border-radius:10px;background:linear-gradient(135deg,#123952,#1d5278);color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
+  .hoy-save{padding:7px 12px;border:none;border-radius:10px;background:linear-gradient(135deg,#123952,#1d5278);color:#fff;box-shadow:0 5px 14px rgba(18,57,82,.24);font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
   .hoy-save:disabled{opacity:.4;cursor:default}
   .hoy-save.saved{background:#f2f7fb;color:#2e9e6b;border:1.5px solid #2e9e6b}
   .bloqueado-lbl{font-size:10px;color:#6b7280;margin-left:auto;display:flex;align-items:center;gap:4px}
 
   /* ── PROG CARD ── */
-  .prog-card{background:linear-gradient(135deg,#123952 0%,#1d5278 62%,#24668f 100%);border-radius:18px;padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(18,57,82,.2)}
+  .prog-card{background:radial-gradient(circle at top right,rgba(232,160,32,.32),transparent 34%),linear-gradient(135deg,#071f31 0%,#123952 55%,#1d5278 100%);border-radius:20px;padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 20px rgba(18,57,82,.2)}
   .prog-lbl{font-size:11px;color:rgba(255,255,255,.65);margin-bottom:5px}
   .prog-bar{width:140px;height:4px;background:rgba(255,255,255,.15);border-radius:4px;overflow:hidden}
   .prog-fill{height:100%;background:#e8a020;border-radius:4px;transition:width .5s}
@@ -88,7 +88,7 @@ const css = `
   .fb{padding:5px 12px;border-radius:20px;border:1.5px solid #dde4ec;background:transparent;color:#6b7280;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s}
   .fb.on{background:#123952;border-color:#123952;color:#fff}
   .grupo-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#123952;background:#e8f0f6;padding:3px 9px;border-radius:5px;display:inline-block;margin:11px 0 7px}
-  .partido{border:1px solid rgba(221,228,236,.9);border-radius:16px;padding:14px;margin-bottom:11px;background:rgba(255,255,255,.96);box-shadow:0 6px 18px rgba(18,57,82,.07);transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease}.partido:active{transform:scale(.992);box-shadow:0 3px 12px rgba(18,57,82,.08)}
+  .partido{border:1px solid rgba(221,228,236,.9);border-radius:16px;padding:14px;margin-bottom:11px;background:linear-gradient(180deg,#ffffff,#f8fbfd);box-shadow:0 8px 22px rgba(18,57,82,.10);transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease}.partido:active{transform:scale(.992);box-shadow:0 3px 12px rgba(18,57,82,.08)}
   .partido-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
   .fase-tag{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6b7280;background:#f5f5f5;padding:3px 8px;border-radius:4px}
   .fecha-hora{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
@@ -107,7 +107,7 @@ const css = `
   .si:focus{border-color:#123952}
   .si:disabled{opacity:.5;background:#f5f5f5}
   .score-sep{font-size:16px;color:#6b7280;font-weight:300}
-  .save-btn{padding:9px 14px;border:none;border-radius:11px;background:linear-gradient(135deg,#123952,#1d5278);color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .2s}
+  .save-btn{padding:9px 14px;border:none;border-radius:11px;background:linear-gradient(135deg,#123952,#1d5278);color:#fff;box-shadow:0 5px 14px rgba(18,57,82,.24);font-family:'DM Sans',sans-serif;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .2s}
   .save-btn:hover{background:#1d5278}
   .save-btn:disabled{opacity:.5;cursor:default}
   .save-btn.saved{background:#f2f7fb;color:#2e9e6b;border:1.5px solid #2e9e6b}
@@ -457,14 +457,14 @@ export default function PencaPage() {
                 if (esProxima) {
                   return (
                     <div key={fecha} style={{marginBottom:20}}>
-                      <div style={{background:"linear-gradient(135deg,#123952,#1d5278)",borderRadius:"14px 14px 0 0",padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <div style={{background:"linear-gradient(135deg,#071f31,#123952 55%,#e8a020)",borderRadius:"18px 18px 0 0",boxShadow:"0 10px 28px rgba(18,57,82,.24)",padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                         <div>
                           <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:3}}>⚡ Próxima jornada</div>
                           <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:"#e8a020",fontWeight:500}}>{fmtFechaLarga(fecha)}</div>
                         </div>
                         <div style={{fontSize:28}}>🏆</div>
                       </div>
-                      <div style={{border:"1px solid #123952",borderTop:"none",borderRadius:"0 0 14px 14px",overflow:"hidden"}}>
+                      <div style={{border:"1px solid rgba(18,57,82,.35)",borderTop:"none",borderRadius:"0 0 18px 18px",overflow:"hidden",boxShadow:"0 10px 26px rgba(18,57,82,.10)"}}>
                         {ps.map((p,i)=>{
                           const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
                           const pred=predicciones[p.id];
@@ -846,3 +846,8 @@ function PerfilModal({ perfil, resultados, config, onClose }: {
     </div>
   );
 }
+
+
+/* PREMIUM POLISH V2 */
+<style>{`
+`}</style>
