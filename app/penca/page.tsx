@@ -624,6 +624,20 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
           <span className="hoy-name">{partido.visitante}</span>
         </div>
       </div>
+      {oddData&&!bloqueado&&(
+        <div style={{margin:"8px 0 10px"}}>
+          <div style={{display:"flex",borderRadius:6,overflow:"hidden",height:8}}>
+            <div style={{width:`${oddData.home}%`,background:"#123952"}}/>
+            <div style={{width:`${oddData.draw}%`,background:"#e8a020"}}/>
+            <div style={{width:`${oddData.away}%`,background:"#2e9e6b"}}/>
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",marginTop:4,fontSize:10,fontWeight:700}}>
+            <span style={{color:"#123952"}}>{oddData.home}%</span>
+            <span style={{color:"#e8a020"}}>Empate {oddData.draw}%</span>
+            <span style={{color:"#2e9e6b"}}>{oddData.away}%</span>
+          </div>
+        </div>
+      )}
       {!bloqueado&&<div style={{padding:"6px 0"}}><CountdownBloqueo fecha={partido.fecha} hora={partido.hora}/></div>}
       <div className="hoy-pick">
         <span className="hoy-pick-lbl">Tu pronóstico:</span>
