@@ -785,7 +785,7 @@ const enviarPick = async (
                             color:"#123952",
                             marginBottom:4
                           }}>
-                            ⚡ Próxima jornada
+                            🔥 Partidos destacados
                           </div>
 
                           <div style={{
@@ -794,7 +794,7 @@ const enviarPick = async (
                             color:"#6b7280",
                             fontWeight:500
                           }}>
-                            {fmtFechaLarga(fecha)}
+                            {fmtFechaLarga(fecha)} · No te olvides de pronosticar
                           </div>
                         </div>
 
@@ -814,6 +814,29 @@ const enviarPick = async (
                       </div>
 
                       <div>
+                        <div style={{
+                          background:"linear-gradient(135deg,#123952,#1d5278)",
+                          color:"#fff",
+                          borderRadius:18,
+                          padding:"10px 14px",
+                          marginBottom:14,
+                          boxShadow:"0 12px 28px rgba(18,57,82,.18)",
+                          display:"flex",
+                          alignItems:"center",
+                          justifyContent:"space-between",
+                          gap:10
+                        }}>
+                          <div>
+                            <div style={{fontSize:10,fontWeight:900,letterSpacing:1.8,textTransform:"uppercase",color:"rgba(255,255,255,.65)"}}>
+                              Hoy se juega
+                            </div>
+                            <div style={{fontSize:14,fontWeight:900,marginTop:2}}>
+                              {ps.length} partido{ps.length>1?"s":""} para sumar puntos
+                            </div>
+                          </div>
+                          <div style={{fontSize:24}}>⚽</div>
+                        </div>
+
                         {ps.map((p,i)=>{
                           const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
                           const pred=predicciones[p.id];
@@ -821,7 +844,7 @@ const enviarPick = async (
                           const bloq=esBloqueado(p.fecha,p.hora)||!!res;
                           const puntos=res&&pred?calcularPuntos(pred,res,config):null;
                           return (
-                            <div key={p.id} style={{borderTop:i>0?"1px solid #dde4ec":"none"}}>
+                            <div key={p.id} style={{marginBottom:i<ps.length-1?14:0}}>
                               <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p, odds)}/>
                             </div>
                           );
