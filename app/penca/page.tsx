@@ -17,10 +17,10 @@ const css = `
   .user-av{width:22px;height:22px;background:#e8a020;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#123952;flex-shrink:0}
   .user-name{font-size:12px;font-weight:600;color:#fff}
   .user-pts{font-size:10px;color:rgba(255,255,255,.55)}
-  .hero{background:linear-gradient(90deg,#1d5278,#123952);border-top:1px solid rgba(255,255,255,.06);padding:8px 16px;display:flex;align-items:center;justify-content:space-between}
+  .hero{background:radial-gradient(circle at top right,rgba(232,160,32,.20),transparent 35%),linear-gradient(135deg,#071f31,#123952 60%,#1d5278);border-top:1px solid rgba(255,255,255,.08);padding:13px 16px 14px;display:flex;align-items:center;justify-content:center;text-align:center}
   .hero-flag{font-size:18px}
-  .hero-title{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.6);text-align:center}
-  .hero-date{font-family:'DM Mono',monospace;font-size:12px;color:#e8a020;text-align:center;margin-top:1px}
+  .hero-title{font-size:13px;font-weight:900;letter-spacing:2.4px;text-transform:uppercase;color:#fff;text-align:center}
+  .hero-date{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.72);text-align:center;margin-top:4px}
   .nav{display:flex;background:#fff;border-bottom:2px solid #dde4ec}
   .nb{flex:1;padding:11px 2px 9px;border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;color:#6b7280;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;transition:color .2s}
   .nb em{font-style:normal;font-size:17px}
@@ -481,9 +481,26 @@ const enviarPick = async (
             </div>
           </div>
           <div className="hero">
-            <span className="hero-flag">🏆</span>
-            <div><div className="hero-title">Copa del Mundo FIFA</div><div className="hero-date">11 JUN — 19 JUL 2026 · Hora UY</div><div style={{fontSize:11,color:"#e8a020",fontWeight:700,marginTop:4}}>Pronósticos para: <span style={{textDecoration:"underline"}}>{nombreGrupo}</span></div></div>
-            <img src="/pelota.png" style={{height:28,objectFit:"contain"}} />
+            <div style={{width:"100%"}}>
+              <div className="hero-title">Mundial 2026</div>
+              <div className="hero-date">Estados Unidos · México · Canadá</div>
+              <div style={{
+                margin:"8px auto 0",
+                display:"inline-flex",
+                alignItems:"center",
+                justifyContent:"center",
+                gap:6,
+                background:"rgba(232,160,32,.12)",
+                border:"1px solid rgba(232,160,32,.28)",
+                color:"#e8a020",
+                borderRadius:999,
+                padding:"5px 11px",
+                fontSize:11,
+                fontWeight:800
+              }}>
+                🎯 Pronósticos para: <span style={{color:"#fff"}}>{nombreGrupo}</span>
+              </div>
+            </div>
           </div>
           <nav className="nav">
             {([["picks","🎯","Pronósticos"],["grupos","📊","Grupos"],["tabla","🏆","Tabla"],["info","ℹ️","Info"],["misgrupos","🏘️","Mis grupos"]] as [string,string,string][]).map(([id,ic,lb])=>(
