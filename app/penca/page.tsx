@@ -201,6 +201,45 @@ const FASES = ["Grupos","Octavos","Cuartos","Semis","Final"];
 const GRUPOS_KEYS = Object.keys(GRUPOS);
 
 // Determinar estado de un partido basado en hora Montevideo
+
+function getOddData(partido: Partido, odds: Record<string,{home:number;draw:number;away:number}>) {
+  const real = odds[`${partido.local}|${partido.visitante}`];
+  if (real) return real;
+
+  const fuerza: Record<string, number> = {
+    "Argentina": 92, "Brasil": 90, "Francia": 90, "España": 88, "Inglaterra": 87,
+    "Portugal": 86, "Alemania": 85, "Países Bajos": 84, "Bélgica": 82, "Uruguay": 80,
+    "Croacia": 79, "Colombia": 78, "Marruecos": 76, "Suiza": 75, "Dinamarca": 74,
+    "Estados Unidos": 73, "México": 72, "Japón": 72, "Senegal": 71, "Ecuador": 70,
+    "Corea del Sur": 69, "Australia": 67, "Canadá": 66, "Paraguay": 66, "Serbia": 66,
+    "Polonia": 65, "Noruega": 65, "Turquía": 65, "Egipto": 64, "Irán": 64,
+    "Túnez": 62, "Arabia Saudita": 61, "Camerún": 61, "Ghana": 61, "Costa de Marfil": 61,
+    "Argelia": 60, "Escocia": 60, "Sudáfrica": 59, "Nueva Zelanda": 58, "Panamá": 57,
+    "Qatar": 56, "Jordania": 55, "Uzbekistán": 55, "Cabo Verde": 54, "Haití": 53,
+    "Irak": 53, "RD Congo": 53, "Kenia": 51
+  };
+
+  const fl = fuerza[partido.local] ?? 60;
+  const fv = fuerza[partido.visitante] ?? 60;
+  const diff = fl - fv;
+
+  let home = 38 + Math.round(diff * 0.45);
+  let away = 32 - Math.round(diff * 0.45);
+  let draw = 100 - home - away;
+
+  home = Math.max(18, Math.min(68, home));
+  away = Math.max(18, Math.min(68, away));
+  draw = Math.max(18, Math.min(34, draw));
+
+  const total = home + draw + away;
+  home = Math.round(home * 100 / total);
+  draw = Math.round(draw * 100 / total);
+  away = 100 - home - draw;
+
+  return { home, draw, away };
+}
+
+
 function partidoUYMs(fecha: string, hora: string): number {
   const [year, month, day] = fecha.split("-").map(Number);
   const [h, m] = hora.split(":").map(Number);
@@ -565,7 +604,7 @@ const enviarPick = async (
                           const puntos=res&&pred?calcularPuntos(pred,res,config):null;
                           return (
                             <div key={p.id} style={{borderTop:i>0?"1px solid #dde4ec":"none"}}>
-                              <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={odds[`${p.local}|${p.visitante}`]}/>
+                              <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p, odds)}/>
                             </div>
                           );
                         })}
@@ -577,7 +616,7 @@ const enviarPick = async (
                   <div key={fecha} style={{marginBottom:16}}>
                     <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>{fmtFechaLarga(fecha)}</div>
                     {ps.map(p=>(
-                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={odds[`${p.local}|${p.visitante}`]}/>
+                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p, odds)}/>
                     ))}
                   </div>
                 );
