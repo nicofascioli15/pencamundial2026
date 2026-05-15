@@ -267,16 +267,27 @@ export default function PencaPage() {
   const router = useRouter();
   const [grupoActivo, setGrupoActivo] = useState<string>("fascioli");
   const [nombreGrupo, setNombreGrupo] = useState<string>("PencaFascioli");
+  const [gruposTabla, setGruposTabla] = useState<{id:string;nombre:string}[]>([{id:"fascioli",nombre:"PencaFascioli"}]);
+  const [tablaGrupoSeleccionado, setTablaGrupoSeleccionado] = useState<string>("fascioli");
+  const [nombreTablaSeleccionada, setNombreTablaSeleccionada] = useState<string>("PencaFascioli");
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const gId = params.get("grupo") ?? "fascioli";
     const tabParam = params.get("tab");
     if (tabParam) setTab(tabParam as any);
     setGrupoActivo(gId);
-    if (gId === "fascioli") { setNombreGrupo("PencaFascioli"); return; }
+    setTablaGrupoSeleccionado(gId);
+    if (gId === "fascioli") setNombreGrupo("PencaFascioli");
+
     fetch("/api/grupos").then(r=>r.json()).then(d => {
-      const g = d.grupos?.find((g: any) => g.id === gId);
-      if (g) setNombreGrupo(g.nombre);
+      const lista = [{id:"fascioli",nombre:"PencaFascioli"}, ...(d.grupos??[])];
+      setGruposTabla(lista);
+
+      const g = lista.find((g: any) => g.id === gId);
+      if (g) {
+        setNombreGrupo(g.nombre);
+        setNombreTablaSeleccionada(g.nombre);
+      }
     });
   }, []);
 
@@ -471,6 +482,15 @@ const enviarPick = async (
   };
   const logout = async () => { await fetch("/api/auth/logout",{method:"POST"}); router.push("/login"); };
 
+  const cambiarTablaGrupo = async (grupoId: string) => {
+    setTablaGrupoSeleccionado(grupoId);
+    const g = gruposTabla.find(g=>g.id===grupoId);
+    setNombreTablaSeleccionada(g?.nombre ?? "Tabla");
+
+    const r = await fetch(`/api/grupos/tabla?grupoId=${grupoId}`).then(r=>r.json());
+    setTabla(r.tabla??[]);
+  };
+
   if (cargando) return <div style={{display:"flex",justifyContent:"center",alignItems:"center",minHeight:"100vh",flexDirection:"column",gap:16,background:"#f2f7fb"}}><img src="/pelota.png" style={{width:80,height:80,objectFit:"contain"}} /><span style={{color:"#6b7280",fontFamily:"DM Sans,sans-serif"}}>Cargando...</span></div>;
 
 
@@ -659,8 +679,70 @@ const enviarPick = async (
           {/* ── TABLA ── */}
           {tab==="tabla"&&<>
             <div className="sec-title">Clasificación penca</div>
+
+            <div style={{
+              background:"linear-gradient(180deg,#ffffff,#f8fbfd)",
+              border:"1px solid rgba(221,228,236,.95)",
+              borderRadius:18,
+              padding:14,
+              marginBottom:14,
+              boxShadow:"0 8px 22px rgba(18,57,82,.08)"
+            }}>
+              <div style={{
+                fontSize:10,
+                fontWeight:800,
+                letterSpacing:1.8,
+                textTransform:"uppercase",
+                color:"#6b7280",
+                marginBottom:8
+              }}>
+                Ver tabla de
+              </div>
+
+              <select
+                value={tablaGrupoSeleccionado}
+                onChange={e=>cambiarTablaGrupo(e.target.value)}
+                style={{
+                  width:"100%",
+                  appearance:"none",
+                  border:"1.5px solid #dde4ec",
+                  borderRadius:14,
+                  padding:"12px 14px",
+                  background:"#f2f7fb",
+                  color:"#123952",
+                  fontSize:14,
+                  fontWeight:800,
+                  outline:"none"
+                }}
+              >
+                {gruposTabla.map(g=>(
+                  <option key={g.id} value={g.id}>{g.nombre}</option>
+                ))}
+              </select>
+
+              <div style={{
+                marginTop:10,
+                display:"inline-flex",
+                alignItems:"center",
+                gap:6,
+                background:"rgba(232,160,32,.12)",
+                border:"1px solid rgba(232,160,32,.28)",
+                color:"#e8a020",
+                borderRadius:999,
+                padding:"5px 10px",
+                fontSize:11,
+                fontWeight:800
+              }}>
+                🏆 Ranking: <span style={{color:"#123952"}}>{nombreTablaSeleccionada}</span>
+              </div>
+            </div>
+
             {tabla.length===0&&<div className="empty"><em>👥</em>Aún no hay participantes</div>}
-            {tabla.length>0&&<div style={{fontSize:11,color:"#6b7280",textAlign:"center",padding:"6px 0 10px",fontStyle:"italic"}}>👆 Tocá un nombre para ver sus pronósticos cerrados</div>}
+
+            {tabla.length>0&&<div style={{fontSize:11,color:"#6b7280",textAlign:"center",padding:"6px 0 10px",fontStyle:"italic"}}>
+              👆 Tocá un nombre para ver sus pronósticos cerrados
+            </div>}
+
             {tabla.map((u,i)=>(
               <div key={u.username} className={`tr ${i<3?"top":""} ${u.username===user?.username?"me":""}`} onClick={()=>cargarPerfil(u.username,u.nombre)} style={{cursor:"pointer"}}>
                 <div className="t-pos">{i+1}</div>
