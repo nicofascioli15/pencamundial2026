@@ -769,14 +769,51 @@ const enviarPick = async (
                 if (esProxima) {
                   return (
                     <div key={fecha} style={{marginBottom:20}}>
-                      <div style={{background:"linear-gradient(135deg,#071f31,#123952 55%,#e8a020)",borderRadius:"18px 18px 0 0",boxShadow:"0 10px 28px rgba(18,57,82,.24)",padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <div style={{
+                        marginBottom:14,
+                        padding:"0 4px",
+                        display:"flex",
+                        justifyContent:"space-between",
+                        alignItems:"center"
+                      }}>
                         <div>
-                          <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:3}}>⚡ Próxima jornada</div>
-                          <div style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:"#e8a020",fontWeight:500}}>{fmtFechaLarga(fecha)}</div>
+                          <div style={{
+                            fontSize:10,
+                            fontWeight:800,
+                            letterSpacing:2,
+                            textTransform:"uppercase",
+                            color:"#123952",
+                            marginBottom:4
+                          }}>
+                            ⚡ Próxima jornada
+                          </div>
+
+                          <div style={{
+                            fontFamily:"'DM Mono',monospace",
+                            fontSize:13,
+                            color:"#6b7280",
+                            fontWeight:500
+                          }}>
+                            {fmtFechaLarga(fecha)}
+                          </div>
                         </div>
-                        <div style={{fontSize:28}}>🏆</div>
+
+                        <div style={{
+                          width:42,
+                          height:42,
+                          borderRadius:999,
+                          background:"linear-gradient(135deg,#123952,#1d5278)",
+                          display:"flex",
+                          alignItems:"center",
+                          justifyContent:"center",
+                          boxShadow:"0 10px 22px rgba(18,57,82,.18)",
+                          fontSize:20
+                        }}>
+                          🏆
+                        </div>
                       </div>
-                      <div style={{border:"1px solid rgba(18,57,82,.35)",borderTop:"none",borderRadius:"0 0 18px 18px",overflow:"hidden",boxShadow:"0 10px 26px rgba(18,57,82,.10)"}}>
+
+                      <div>
                         {ps.map((p,i)=>{
                           const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
                           const pred=predicciones[p.id];
