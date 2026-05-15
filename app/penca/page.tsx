@@ -37,7 +37,11 @@ const css = `
   .hoy-partido.proximo::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#123952,#1d5278)}
   .hoy-partido.jugando::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#e8a020,#f0c040);animation:shimmer 1.5s infinite}
   .hoy-partido.finalizado::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#2e9e6b}
+  .hoy-partido.entretiempo{box-shadow:0 0 0 1px rgba(232,160,32,.25),0 8px 24px rgba(232,160,32,.16)}
+  .hoy-partido.entretiempo::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#e8a020,#f0c040,#e8a020);background-size:200% 100%;animation:liveBar 2s linear infinite}
+  .estado-entretiempo{background:rgba(232,160,32,.15);color:#e8a020}
   @keyframes shimmer{0%,100%{opacity:1}50%{opacity:.5}}
+  @keyframes liveBar{0%{background-position:0% 50%}100%{background-position:200% 50%}}
   .hoy-estado{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
   .estado-badge{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px}
   .estado-proximo{background:#e8f0f6;color:#123952}
@@ -590,7 +594,7 @@ export default function PencaPage() {
 
 /* ── HoyCard ── */
 function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guardado, ciudad, onGuardar, oddData }: {
-  partido: Partido; estado: "proximo"|"jugando"|"finalizado";
+  partido: Partido; estado: "proximo"|"jugando"|"entretiempo"|"finalizado";
   pred?: Resultado; res?: Resultado; bloqueado: boolean;
   puntos: number|null; config: PuntosConfig;
   guardado?: boolean; ciudad?: string; onGuardar: (l: number, v: number) => void;
@@ -600,13 +604,18 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
   const [vv, setVv] = useState<string|number>(pred?.visitante??"");
   useEffect(()=>{ setLv(pred?.local??""); setVv(pred?.visitante??""); },[pred]);
 
-  const estadoLabel = estado==="proximo" ? "Próximo" : estado==="jugando" ? "⚡ En juego" : "Finalizado";
+  const estadoLabel = estado==="proximo" ? "Próximo" : estado==="jugando" ? "EN VIVO" : estado==="entretiempo" ? "ENTRETIEMPO" : "Finalizado";
   const ptsClass = puntos===null?"":puntos===config.resultado_exacto?"pts-ex":puntos>0?"pts-ok":"pts-no";
 
   return (
     <div className={`hoy-partido ${estado}`}>
       <div className="hoy-estado">
-        <span className={`estado-badge estado-${estado}`}>{estadoLabel}</span>
+        {estado==="jugando"
+          ? <span className="live-badge"><span className="live-dot"/> {estadoLabel}</span>
+          : estado==="entretiempo"
+            ? <span className="estado-badge estado-entretiempo">⏸ {estadoLabel}</span>
+            : <span className={`estado-badge estado-${estado}`}>{estadoLabel}</span>
+        }
         <span className="hoy-hora">{partido.hora} hs</span>
         {ciudad&&<span style={{fontSize:10,color:"#6b7280",fontWeight:500}}>📍{ciudad}</span>}
       </div>
@@ -636,6 +645,16 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
             <span style={{color:"#e8a020"}}>Empate {oddData.draw}%</span>
             <span style={{color:"#2e9e6b"}}>{oddData.away}%</span>
           </div>
+        </div>
+      )}
+      {estado==="jugando"&&(
+        <div style={{fontSize:11,fontWeight:700,color:"#dc2626",textAlign:"center",margin:"6px 0 8px",letterSpacing:.3}}>
+          ⚡ Partido en vivo · actualizando marcador
+        </div>
+      )}
+      {estado==="entretiempo"&&(
+        <div style={{fontSize:11,fontWeight:700,color:"#e8a020",textAlign:"center",margin:"6px 0 8px",letterSpacing:.3}}>
+          ⏸ Entretiempo · vuelve en minutos
         </div>
       )}
       {!bloqueado&&<div style={{padding:"6px 0"}}><CountdownBloqueo fecha={partido.fecha} hora={partido.hora}/></div>}
