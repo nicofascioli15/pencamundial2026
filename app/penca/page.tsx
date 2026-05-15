@@ -815,26 +815,81 @@ const enviarPick = async (
 
                       <div>
                         <div style={{
-                          background:"linear-gradient(135deg,#123952,#1d5278)",
+                          position:"relative",
+                          overflow:"hidden",
+                          background:"linear-gradient(135deg,#071c2c 0%,#123952 58%,#1d5278 100%)",
                           color:"#fff",
-                          borderRadius:18,
-                          padding:"10px 14px",
-                          marginBottom:14,
-                          boxShadow:"0 12px 28px rgba(18,57,82,.18)",
+                          borderRadius:24,
+                          padding:"18px 18px",
+                          marginBottom:18,
+                          boxShadow:"0 20px 42px rgba(18,57,82,.24)",
                           display:"flex",
                           alignItems:"center",
                           justifyContent:"space-between",
-                          gap:10
+                          gap:14
                         }}>
-                          <div>
-                            <div style={{fontSize:10,fontWeight:900,letterSpacing:1.8,textTransform:"uppercase",color:"rgba(255,255,255,.65)"}}>
-                              Hoy se juega
+
+                          <div style={{
+                            position:"absolute",
+                            inset:0,
+                            background:"radial-gradient(circle at top right,rgba(255,255,255,.10),transparent 45%)",
+                            pointerEvents:"none"
+                          }}/>
+
+                          <div style={{position:"relative",zIndex:2}}>
+                            <div style={{
+                              fontSize:10,
+                              fontWeight:900,
+                              letterSpacing:2,
+                              textTransform:"uppercase",
+                              color:"rgba(255,255,255,.62)",
+                              marginBottom:6
+                            }}>
+                              🔥 Partidos destacados
                             </div>
-                            <div style={{fontSize:14,fontWeight:900,marginTop:2}}>
-                              {ps.length} partido{ps.length>1?"s":""} para sumar puntos
+
+                            <div style={{
+                              fontSize:20,
+                              fontWeight:900,
+                              lineHeight:1.1,
+                              marginBottom:6
+                            }}>
+                              {ps.length} partido{ps.length>1?"s":""} para pronosticar
+                            </div>
+
+                            <div style={{
+                              fontSize:13,
+                              color:"rgba(255,255,255,.72)",
+                              fontWeight:500
+                            }}>
+                              {fmtFechaLarga(fecha)}
                             </div>
                           </div>
-                          <div style={{fontSize:24}}>⚽</div>
+
+                          <div style={{
+                            position:"relative",
+                            zIndex:2,
+                            width:74,
+                            height:74,
+                            borderRadius:"50%",
+                            background:"rgba(255,255,255,.08)",
+                            display:"flex",
+                            alignItems:"center",
+                            justifyContent:"center",
+                            backdropFilter:"blur(6px)",
+                            boxShadow:"inset 0 1px 0 rgba(255,255,255,.15)"
+                          }}>
+                            <img
+                              src="/pelota.png"
+                              alt="Pelota Mundial"
+                              style={{
+                                width:56,
+                                height:56,
+                                objectFit:"contain",
+                                filter:"drop-shadow(0 6px 10px rgba(0,0,0,.28))"
+                              }}
+                            />
+                          </div>
                         </div>
 
                         {ps.map((p,i)=>{
