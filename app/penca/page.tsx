@@ -310,12 +310,21 @@ export default function PencaPage() {
   };
 
   const esIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
-  const esPWA = () => window.matchMedia("(display-mode: standalone)").matches;
+  const esPWA = () =>
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (window.navigator as any).standalone === true;
 
   useEffect(() => {
     const ocultar = localStorage.getItem("install_modal_ocultar");
-    if (!ocultar && !esPWA()) {
-      setTimeout(() => setShowInstallModal(true), 1500);
+    const mostradoSesion = sessionStorage.getItem("install_modal_mostrado_sesion");
+
+    if (!ocultar && !mostradoSesion && !esPWA()) {
+      const t = setTimeout(() => {
+        setShowInstallModal(true);
+        sessionStorage.setItem("install_modal_mostrado_sesion", "1");
+      }, 1500);
+
+      return () => clearTimeout(t);
     }
   }, []);
 
