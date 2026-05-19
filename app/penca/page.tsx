@@ -1123,7 +1123,7 @@ const enviarPick = async (
                 {globalG&&(
                   <div style={{marginBottom:12}}>
                     <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#e8a020",marginBottom:6}}>⭐ Grupo oficial</div>
-                    <div className="group-card" onClick={()=>{setGrupoActivo(globalG.id);setTab("proximos");}} style={{border:"2px solid #123952"}}>
+                    <div className="group-card" onClick={()=>{setGrupoActivo(globalG.id);setNombreGrupo(globalG.nombre);window.history.replaceState(null,"",`/penca?grupo=${globalG.id}`);setTab("proximos");}} style={{border:"2px solid #123952"}}>
                       <div className="group-card-bar" style={{background:"#123952",width:5}}/>
                       <div style={{paddingLeft:8}}>
                         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
@@ -1150,7 +1150,7 @@ const enviarPick = async (
 
                 {otrosG.length>0&&<div className="sec-title">Mis grupos privados ({otrosG.length})</div>}
                 {otrosG.map((g:any,idx:number)=>(
-                  <div key={g.id} className="group-card" onClick={()=>{setGrupoActivo(g.id);setTab("proximos");}}>
+                  <div key={g.id} className="group-card" onClick={()=>{setGrupoActivo(g.id);setNombreGrupo(g.nombre);window.history.replaceState(null,"",`/penca?grupo=${g.id}`);setTab("proximos");}}>
                     <div className="group-card-bar" style={{background:coloresGrupo[idx%coloresGrupo.length]}}/>
                     <div style={{paddingLeft:8}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
