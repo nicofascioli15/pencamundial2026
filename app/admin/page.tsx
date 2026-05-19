@@ -162,6 +162,14 @@ export default function AdminPage() {
     } else { const d=await r.json(); showToast("❌ "+(d.error??"Error")); }
   };
 
+  const cambiarTablaGrupo = async (grupoId: string) => {
+    setTablaGrupoSeleccionado(grupoId);
+    const g = gruposTabla.find(g=>g.id===grupoId);
+    setNombreTablaSeleccionada(g?.nombre ?? "Tabla");
+    const r = await fetch(`/api/grupos/tabla?grupoId=${grupoId}`).then(r=>r.json());
+    setTabla(r.tabla??[]);
+  };
+
   const guardarConfig=async()=>{
     const r=await fetch("/api/config",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(config)});
     if(r.ok) showToast("✅ Configuración guardada");
