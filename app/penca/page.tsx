@@ -6,26 +6,31 @@ import { LOGO_SVG } from "@/lib/logo";
 
 const css = `
   .app{max-width:430px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#ffffff 0%,#f6f9fc 100%);box-shadow:0 0 60px rgba(18,57,82,.1);display:flex;flex-direction:column;width:100%}
-  .header{background:#123952;position:sticky;top:0;z-index:100}
-  .header-top{display:flex;justify-content:space-between;align-items:center;padding:13px 16px}
-  .logo-wrap{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+  .header{position:sticky;top:0;z-index:100;overflow:hidden;background:#060e18}
+  .header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 180px 140px at 105% -10%,rgba(60,172,59,.5) 0%,transparent 60%),radial-gradient(ellipse 140px 100px at -5% 105%,rgba(230,29,37,.3) 0%,transparent 55%),radial-gradient(ellipse 160px 130px at 105% 105%,rgba(42,57,141,.4) 0%,transparent 60%);pointer-events:none}
+  .header-tribar{height:3px;background:linear-gradient(90deg,#E61D25 33%,#3CAC3B 33% 66%,#2A398D 66%);position:relative;z-index:2}
+  .header-top{display:flex;justify-content:space-between;align-items:center;padding:11px 16px 8px;position:relative;z-index:2}
+  .logo-wrap{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
   .logo-svg{flex-shrink:0}
-  .logo-div{width:1px;height:20px;background:rgba(255,255,255,.2);flex-shrink:0}
-  .logo-txt{font-size:11px;font-weight:600;color:rgba(255,255,255,.9);line-height:1.2;white-space:nowrap}
-  .logo-txt span{display:block;font-size:9px;font-weight:400;color:#e8a020;letter-spacing:2px;text-transform:uppercase}
-  .user-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:24px;padding:5px 11px 5px 7px;cursor:pointer;flex-shrink:0}
-  .user-av{width:22px;height:22px;background:#e8a020;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#123952;flex-shrink:0}
-  .user-name{font-size:12px;font-weight:600;color:#fff}
-  .user-pts{font-size:10px;color:rgba(255,255,255,.55)}
-  .hero{background:radial-gradient(circle at top right,rgba(232,160,32,.20),transparent 35%),linear-gradient(135deg,#071f31,#123952 60%,#1d5278);border-top:1px solid rgba(255,255,255,.08);padding:13px 16px 14px;display:flex;align-items:center;justify-content:center;text-align:center}
-  .hero-flag{font-size:18px}
-  .hero-title{font-size:13px;font-weight:900;letter-spacing:2.4px;text-transform:uppercase;color:#fff;text-align:center}
-  .hero-date{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.72);text-align:center;margin-top:4px}
-  .nav{display:flex;background:#fff;border-bottom:2px solid #dde4ec}
-  .nb{flex:1;padding:11px 2px 9px;border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;color:#6b7280;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;transition:color .2s}
-  .nb em{font-style:normal;font-size:17px}
-  .nb.on{color:#123952}
-  .nb.on::after{content:'';position:absolute;bottom:-2px;left:15%;right:15%;height:2px;background:#123952;border-radius:2px 2px 0 0}
+  .logo-div{width:1px;height:22px;background:rgba(255,255,255,.15);flex-shrink:0}
+  .logo-txt{font-size:11px;font-weight:700;color:rgba(255,255,255,.9);line-height:1.2;white-space:nowrap}
+  .logo-txt span{display:block;font-size:8px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;background:linear-gradient(90deg,#E61D25,#3CAC3B,#2A398D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .user-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:5px 11px 5px 6px;cursor:pointer;flex-shrink:0;backdrop-filter:blur(10px)}
+  .user-av{width:24px;height:24px;background:linear-gradient(135deg,#e8a020,#f5c842);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#060e18;flex-shrink:0;box-shadow:0 2px 8px rgba(232,160,32,.4)}
+  .user-name{font-size:11px;font-weight:700;color:#fff}
+  .user-pts{font-size:9px;color:rgba(255,255,255,.4)}
+  .hero{padding:2px 16px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;z-index:2}
+  .hero-title{font-family:'Bebas Neue',sans-serif;font-size:42px;line-height:.92;color:#fff}
+  .hero-title .rc{color:#E61D25}.hero-title .gc{color:#3CAC3B}.hero-title .bc{color:#6b8fff}.hero-title .yc{color:#f5c842}
+  .hero-date{font-size:9px;color:rgba(255,255,255,.4);margin-top:5px;font-weight:600;letter-spacing:.5px;display:flex;align-items:center;gap:4px}
+  .hero-trophy{font-size:58px;filter:drop-shadow(0 4px 16px rgba(232,160,32,.45));animation:trophy-float 3s ease-in-out infinite;flex-shrink:0}
+  @keyframes trophy-float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-7px) rotate(3deg)}}
+  .hero-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(230,29,37,.5),rgba(60,172,59,.5),rgba(42,57,141,.5),transparent);position:relative;z-index:2}
+  .nav{display:flex;background:#0a1420;border-top:1px solid rgba(255,255,255,.05)}
+  .nb{flex:1;padding:10px 2px 9px;border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:8.5px;font-weight:700;color:rgba(255,255,255,.28);display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;transition:color .2s;letter-spacing:.3px;text-transform:uppercase}
+  .nb em{font-style:normal;font-size:15px}
+  .nb.on{color:#f5c842}
+  .nb.on::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,#E61D25,#f5c842,#3CAC3B);border-radius:2px 2px 0 0}
   .content{padding:14px 14px 80px;flex:1;animation:softIn .22s ease-out}@keyframes softIn{from{opacity:.0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
   /* ── HOY SECTION ── */
