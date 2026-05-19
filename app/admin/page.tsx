@@ -125,7 +125,8 @@ export default function AdminPage() {
     setNotifEnviando(true); setNotifOk(null);
     const r = await fetch("/api/push/send",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({titulo:notifTitulo,cuerpo:notifCuerpo})}).then(r=>r.json());
     setNotifEnviando(false);
-    setNotifOk(`✅ Enviado a ${r.enviados} usuario${r.enviados!==1?"s":""}`);
+    const enviados = r.enviados ?? 0;
+    setNotifOk(r.error ? `❌ Error: ${r.error}` : `✅ Enviado a ${enviados} usuario${enviados!==1?"s":""}`);
   };
   const refrescarTodo=useCallback(async()=>{
     const [rRes,tRes,uRes,gRes,cRes]=await Promise.all([
@@ -139,6 +140,8 @@ export default function AdminPage() {
     setTabla(tRes.tabla??[]);
     setUsuarios(uRes.usuarios??[]);
     setGrupos(gRes.grupos??[]);
+    const sinDuplicados = (gRes.grupos??[]).filter((g:any)=>g.id !== "fascioli");
+    setGruposTabla([{id:"fascioli",nombre:"PencaFascioli"}, ...sinDuplicados]);
     setConfig(cRes.config??PUNTOS_DEFAULT);
   },[]);
 
