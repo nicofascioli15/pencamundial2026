@@ -723,7 +723,7 @@ const enviarPick = async (
             </div>
           </div>
           <nav className="nav">
-            {([["proximos","📅","Próximos"],["picks","🎯","Picks"],["tabla","🏆","Tabla"],["grupos","📊","Grupos"],["misgrupos","🏘️","Mis grupos"]] as [string,string,string][]).map(([id,ic,lb])=>(
+            {([["proximos","📅","Próximos"],["picks","🎯","Pronósticos"],["tabla","🏆","Tabla"],["grupos","📊","Grupos"],["misgrupos","🏘️","Mis grupos"]] as [string,string,string][]).map(([id,ic,lb])=>(
               <button key={id} className={`nb ${tab===id?"on":""}`} onClick={()=>{ if(id==="misgrupos"){ router.push("/grupos"); return; } setTab(id as any); }}><em>{ic}</em>{lb}</button>
             ))}
           </nav>
@@ -732,53 +732,46 @@ const enviarPick = async (
         <div className="content">
 
           {/* ── PRÓXIMOS ── */}
-          {tab==="proximos"&&<>
-            {partidosHoy.length===0&&siguientesDias.length===0&&(
-              <div className="empty"><em>📅</em>No hay partidos próximos por ahora</div>
-            )}
+          {tab==="proximos"&&(()=>{
+            // Solo partidos NO finalizados, ordenados por fecha/hora
+            const proximosFiltrados = TODOS_PARTIDOS
+              .filter(p => getEstadoPartido(p.fecha, p.hora, !!resultados[p.id]) !== "finalizado")
+              .sort((a,b)=>new Date(`${a.fecha}T${a.hora}:00`).getTime()-new Date(`${b.fecha}T${b.hora}:00`).getTime());
+            const fechasProximas = Array.from(new Set(proximosFiltrados.map(p=>p.fecha)));
 
-            {partidosHoy.length>0&&(
-              <div style={{marginBottom:20}}>
-                <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#123952",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
-                  🔥 Hoy · {fmtFechaLarga(fechaHoy)}
-                  <span style={{flex:1,height:1,background:"#dde4ec"}}/>
-                </div>
-                {partidosHoy.map((p,i)=>{
-                  const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
-                  const pred=predicciones[p.id];
-                  const res=resultados[p.id];
-                  const bloq=esBloqueado(p.fecha,p.hora)||!!res;
-                  const puntos=res&&pred?calcularPuntos(pred,res,config):null;
-                  return(
-                    <div key={p.id} style={{marginBottom:i<partidosHoy.length-1?14:0}}>
-                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)}/>
+            if (fechasProximas.length===0) return (
+              <div className="empty"><em>✅</em>Todos los partidos han finalizado</div>
+            );
+
+            return (
+              <>
+                {fechasProximas.map(fecha=>{
+                  const ps = proximosFiltrados.filter(p=>p.fecha===fecha);
+                  const esHoyFecha = fecha === fechaHoy;
+                  return (
+                    <div key={fecha} style={{marginBottom:20}}>
+                      <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#123952",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
+                        {esHoyFecha ? "🔴 Hoy" : "📅"} · {fmtFechaLarga(fecha)}
+                        <span style={{flex:1,height:1,background:"#dde4ec"}}/>
+                      </div>
+                      {ps.map((p,i)=>{
+                        const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
+                        const pred=predicciones[p.id];
+                        const res=resultados[p.id];
+                        const bloq=esBloqueado(p.fecha,p.hora)||!!res;
+                        const puntos=res&&pred?calcularPuntos(pred,res,config):null;
+                        return(
+                          <div key={p.id} style={{marginBottom:i<ps.length-1?14:0}}>
+                            <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)}/>
+                          </div>
+                        );
+                      })}
                     </div>
                   );
                 })}
-              </div>
-            )}
-
-            {siguientesDias.map(({fecha,partidos:ps})=>(
-              <div key={fecha} style={{marginBottom:20}}>
-                <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#123952",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
-                  📅 {fmtFechaLarga(fecha)}
-                  <span style={{flex:1,height:1,background:"#dde4ec"}}/>
-                </div>
-                {ps.map((p,i)=>{
-                  const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
-                  const pred=predicciones[p.id];
-                  const res=resultados[p.id];
-                  const bloq=esBloqueado(p.fecha,p.hora)||!!res;
-                  const puntos=res&&pred?calcularPuntos(pred,res,config):null;
-                  return(
-                    <div key={p.id} style={{marginBottom:i<ps.length-1?12:0}}>
-                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)}/>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </>}
+              </>
+            );
+          })()}
 
           {/* ── PRONÓSTICOS ── */}
           {tab==="picks"&&<>
@@ -807,6 +800,8 @@ const enviarPick = async (
                 .filter(p=>{
                   if (p.fase!==filtroFase) return false;
                   if (filtroFase==="Grupos"&&filtroGrupo!=="Todos"&&p.grupo!==filtroGrupo) return false;
+                  // Excluir partidos no finalizados de hoy (están en tab Próximos)
+                  if (p.fecha===fechaHoy && getEstadoPartido(p.fecha,p.hora,!!resultados[p.id])!=="finalizado") return false;
                   return true;
                 })
                 .sort((a,b)=>new Date(`${a.fecha}T${a.hora}:00`).getTime()-new Date(`${b.fecha}T${b.hora}:00`).getTime());
