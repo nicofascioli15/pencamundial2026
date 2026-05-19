@@ -403,15 +403,51 @@ function partidoUYMs(fecha: string, hora: string): number {
   return Date.UTC(year, month - 1, day, h + 3, m, 0);
 }
 
-function getEstadoPartido(fecha: string, hora: string, tieneResultado: boolean): "proximo"|"jugando"|"finalizado" {
+// Tiempos del partido en minutos
+const T_PRIMER_TIEMPO = 45;
+const T_HIDRATACION_1 = 3;  // pausa hidratación ~min 30
+const T_DESCANSO = 15;
+const T_SEGUNDO_TIEMPO = 45;
+const T_HIDRATACION_2 = 3;  // pausa hidratación ~min 75
+const T_BUFFER_FINAL = 10;  // tiempo extra alargue/descuento
+
+// Duración total estimada en minutos
+const DUR_PRIMER_TIEMPO  = T_PRIMER_TIEMPO + T_HIDRATACION_1;   // ~48 min
+const DUR_ENTRETIEMPO    = DUR_PRIMER_TIEMPO + T_DESCANSO;       // ~63 min
+const DUR_SEGUNDO_TIEMPO = DUR_ENTRETIEMPO + T_SEGUNDO_TIEMPO + T_HIDRATACION_2; // ~111 min
+const DUR_TOTAL          = DUR_SEGUNDO_TIEMPO + T_BUFFER_FINAL;  // ~121 min
+
+function getEstadoPartido(fecha: string, hora: string, tieneResultado: boolean): "proximo"|"jugando"|"entretiempo"|"finalizado" {
   if (tieneResultado) return "finalizado";
   const [h, m] = hora.split(":").map(Number);
-  const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() ;
-  const finMs = partidoMs + 110*60*1000; // +110min aprox duración
+  const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime();
   const ahora = Date.now();
-  if (ahora < partidoMs) return "proximo";
-  if (ahora < finMs) return "jugando";
+  const transcurrido = (ahora - partidoMs) / 1000 / 60; // minutos desde inicio
+  if (transcurrido < 0) return "proximo";
+  if (transcurrido < DUR_PRIMER_TIEMPO) return "jugando";   // 0–48 min → primer tiempo
+  if (transcurrido < DUR_ENTRETIEMPO) return "entretiempo"; // 48–63 min → descanso
+  if (transcurrido < DUR_TOTAL) return "jugando";           // 63–121 min → segundo tiempo
   return "finalizado";
+}
+
+function getMinutoPartido(fecha: string, hora: string): { minuto: number; tiempo: string } | null {
+  const [h, m] = hora.split(":").map(Number);
+  const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime();
+  const transcurrido = (Date.now() - partidoMs) / 1000 / 60;
+  if (transcurrido < 0) return null;
+
+  if (transcurrido < DUR_PRIMER_TIEMPO) {
+    // Primer tiempo: descontar la pausa de hidratación si ya pasó el min 30
+    const minReal = transcurrido > 32 ? Math.round(transcurrido - T_HIDRATACION_1) : Math.round(transcurrido);
+    return { minuto: Math.min(minReal, 45), tiempo: "1T" };
+  }
+  if (transcurrido < DUR_ENTRETIEMPO) {
+    return { minuto: 45, tiempo: "ET" };
+  }
+  // Segundo tiempo: empieza en el min 46 real
+  const transcurridoST = transcurrido - DUR_ENTRETIEMPO;
+  const minReal = transcurridoST > 47 ? Math.round(46 + transcurridoST - T_HIDRATACION_2) : Math.round(46 + transcurridoST);
+  return { minuto: Math.min(minReal, 90), tiempo: "2T" };
 }
 
 function esBloqueado(fecha: string, hora: string): boolean {
@@ -1188,9 +1224,12 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
     <div className={`hoy-partido ${estado}`}>
       <div className="hoy-estado">
         {estado==="jugando"
-          ? <span className="live-badge"><span className="live-dot"/> {estadoLabel}</span>
+          ? (() => {
+              const min = getMinutoPartido(partido.fecha, partido.hora);
+              return <span className="live-badge"><span className="live-dot"/> EN VIVO {min ? `· ${min.minuto}' (${min.tiempo})` : ""}</span>;
+            })()
           : estado==="entretiempo"
-            ? <span className="estado-badge estado-entretiempo">⏸ {estadoLabel}</span>
+            ? <span className="estado-badge estado-entretiempo">⏸ Entretiempo</span>
             : <span className={`estado-badge estado-${estado}`}>{estadoLabel}</span>
         }
         <span className="hoy-hora">{partido.hora} hs</span>
@@ -1224,11 +1263,14 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
           </div>
         </div>
       )}
-      {estado==="jugando"&&(
-        <div style={{fontSize:11,fontWeight:700,color:"#dc2626",textAlign:"center",margin:"6px 0 8px",letterSpacing:.3}}>
-          ⚡ Partido en vivo · actualizando marcador
-        </div>
-      )}
+      {estado==="jugando"&&(()=>{
+        const min = getMinutoPartido(partido.fecha, partido.hora);
+        return (
+          <div style={{fontSize:11,fontWeight:700,color:"#dc2626",textAlign:"center",margin:"6px 0 8px",letterSpacing:.3}}>
+            ⚡ {min ? `Min ${min.minuto}' · ${min.tiempo === "1T" ? "Primer tiempo" : "Segundo tiempo"}` : "Partido en vivo"}
+          </div>
+        );
+      })()}
       {estado==="entretiempo"&&(
         <div style={{fontSize:11,fontWeight:700,color:"#e8a020",textAlign:"center",margin:"6px 0 8px",letterSpacing:.3}}>
           ⏸ Entretiempo · vuelve en minutos
