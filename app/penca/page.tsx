@@ -123,6 +123,30 @@ const css = `
   .sync-dot{width:6px;height:6px;border-radius:50%;background:#2e9e6b;animation:pulse 2s infinite;flex-shrink:0}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
   .filtros{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;overflow:visible;padding-bottom:0}
+  .grupo-carrusel{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none;margin-bottom:16px}
+  .grupo-carrusel::-webkit-scrollbar{display:none}
+  .grupo-chip{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 12px;border-radius:16px;border:1.5px solid #dde4ec;background:#fff;cursor:pointer;transition:all .18s;box-shadow:0 2px 8px rgba(18,57,82,.05);min-width:68px}
+  .grupo-chip.on{background:linear-gradient(135deg,#123952,#1d5278);border-color:transparent;box-shadow:0 8px 20px rgba(18,57,82,.25)}
+  .gc-letra{font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#123952}
+  .grupo-chip.on .gc-letra{color:rgba(255,255,255,.9)}
+  .gc-flags{font-size:14px;line-height:1.5;text-align:center;display:flex;flex-wrap:wrap;justify-content:center;gap:1px;max-width:50px}
+  .todos-chip{flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:16px;border:1.5px solid #dde4ec;background:#fff;cursor:pointer;transition:all .18s;font-size:12px;font-weight:800;color:#123952}
+  .todos-chip.on{background:linear-gradient(135deg,#123952,#1d5278);border-color:transparent;color:#fff}
+  .fase-carrusel{display:flex;gap:7px;overflow-x:auto;padding:0 0 4px;scrollbar-width:none;margin-bottom:14px}
+  .fase-carrusel::-webkit-scrollbar{display:none}
+  .group-card{background:#fff;border:1px solid #dde4ec;border-radius:16px;padding:16px;margin-bottom:10px;box-shadow:0 2px 12px rgba(18,57,82,.06);cursor:pointer;position:relative;overflow:hidden;transition:transform .1s}
+  .group-card:active{transform:scale(.98)}
+  .group-card-bar{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px}
+  .group-name{font-size:16px;font-weight:700;color:#1a1f24}
+  .group-meta{font-size:11px;color:#6b7280;margin-top:3px}
+  .group-code{font-family:monospace;font-size:11px;font-weight:700;background:#f2f7fb;color:#123952;padding:3px 8px;border-radius:6px;flex-shrink:0}
+  .group-footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;margin-top:10px;border-top:1px solid #f0f0f0}
+  .group-pos{font-size:20px;font-weight:900;color:#e8a020}
+  .group-pts{font-size:24px;font-weight:900;color:#123952}
+  .global-badge{background:#e8a020;color:#123952;font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;letter-spacing:1px;text-transform:uppercase}
+  .action-row{display:flex;gap:8px;margin-bottom:16px}
+  .btn-primary{flex:1;padding:13px;border:none;border-radius:12px;background:#123952;color:#fff;font-weight:700;font-size:13px;cursor:pointer}
+  .btn-secondary{flex:1;padding:13px;border:1.5px solid #dde4ec;border-radius:12px;background:#fff;color:#123952;font-weight:700;font-size:13px;cursor:pointer}
   .fb{padding:7px 12px;border-radius:999px;border:1.5px solid #dde4ec;background:#fff;color:#6b7280;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s;box-shadow:0 2px 8px rgba(18,57,82,.04)}
   .fb.on{background:linear-gradient(135deg,#123952,#1d5278);border-color:#123952;color:#fff;box-shadow:0 4px 12px rgba(18,57,82,.18)}
   .grupo-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#123952;background:#e8f0f6;padding:3px 9px;border-radius:5px;display:inline-block;margin:11px 0 7px}
@@ -547,6 +571,15 @@ export default function PencaPage() {
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2700); };
 
+  const [gruposUser, setGruposUser] = useState<any[]>([]);
+  const [cargandoGrupos, setCargandoGrupos] = useState(false);
+  const [modalCrear, setModalCrear] = useState(false);
+  const [modalUnirse, setModalUnirse] = useState(false);
+  const [nombreNuevo, setNombreNuevo] = useState("");
+  const [codigoUnirse, setCodigoUnirse] = useState("");
+  const [grupoErr, setGrupoErr] = useState("");
+  const [grupoLoading, setGrupoLoading] = useState(false);
+
   const cargarDatos = useCallback(async () => {
     const gId = new URLSearchParams(window.location.search).get("grupo") ?? "fascioli";
     const [pRes,rRes,tRes,cRes,gRes,oRes,hRes] = await Promise.all([
@@ -601,6 +634,55 @@ export default function PencaPage() {
   }, [sincronizar]);
 
   
+  const cargarGrupos = async () => {
+    setCargandoGrupos(true);
+    const d = await fetch("/api/grupos").then(r=>r.json());
+    setGruposUser(d.grupos??[]);
+    setCargandoGrupos(false);
+  };
+
+  const crearGrupo = async () => {
+    if (!nombreNuevo.trim()) { setGrupoErr("Ingresá un nombre"); return; }
+    setGrupoLoading(true); setGrupoErr("");
+    const r = await fetch("/api/grupos",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({nombre:nombreNuevo})}).then(r=>r.json());
+    setGrupoLoading(false);
+    if (r.error) { setGrupoErr(r.error); return; }
+    setModalCrear(false); setNombreNuevo("");
+    cargarGrupos(); showToast("✅ Grupo creado");
+  };
+
+  const unirseGrupoFn = async () => {
+    if (!codigoUnirse.trim()) { setGrupoErr("Ingresá el código"); return; }
+    setGrupoLoading(true); setGrupoErr("");
+    const r = await fetch("/api/grupos/unirse",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({codigo:codigoUnirse})}).then(r=>r.json());
+    setGrupoLoading(false);
+    if (r.error) { setGrupoErr(r.error); return; }
+    setModalUnirse(false); setCodigoUnirse("");
+    cargarGrupos(); showToast("✅ Te uniste al grupo");
+  };
+
+  const salirGrupoFn = async (grupoId:string, nombre:string) => {
+    if (!confirm(`¿Salir del grupo "${nombre}"?`)) return;
+    const r = await fetch("/api/grupos/salir",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({grupoId})}).then(r=>r.json());
+    if (r.error) { showToast("❌ "+r.error); return; }
+    cargarGrupos(); showToast("✅ Saliste del grupo");
+  };
+
+  const borrarGrupoFn = async (grupoId:string, nombre:string) => {
+    if (!confirm(`¿Borrar el grupo "${nombre}"?`)) return;
+    const r = await fetch("/api/grupos/borrar",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({grupoId})}).then(r=>r.json());
+    if (r.error) { showToast("❌ "+r.error); return; }
+    cargarGrupos(); showToast("✅ Grupo eliminado");
+  };
+
+  const compartirGrupoFn = (nombre:string, codigo:string) => {
+    const url = `${window.location.origin}/unirse?codigo=${codigo}`;
+    const msg = `¡Únete a la Penca!\n\nJugá en el grupo *${nombre}*\n\nCódigo: *${codigo}*\n${url}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,"_blank");
+  };
+
+  const coloresGrupo = ["#e8a020","#2e9e6b","#9333ea","#dc2626","#0891b2","#f59e0b"];
+
 const enviarPick = async (
     partidoId:string,
     local:number,
@@ -757,30 +839,24 @@ const enviarPick = async (
             </div>
           </div>
           <div className="hero">
-            <div style={{width:"100%"}}>
-              <div className="hero-title">Mundial 2026</div>
-              <div className="hero-date">Estados Unidos · México · Canadá</div>
-              <div style={{
-                margin:"8px auto 0",
-                display:"inline-flex",
-                alignItems:"center",
-                justifyContent:"center",
-                gap:6,
-                background:"rgba(232,160,32,.12)",
-                border:"1px solid rgba(232,160,32,.28)",
-                color:"#e8a020",
-                borderRadius:999,
-                padding:"5px 11px",
-                fontSize:11,
-                fontWeight:800
-              }}>
-                🎯 Pronósticos para: <span style={{color:"#fff"}}>{nombreGrupo}</span>
+            <div>
+              <div className="hero-title">
+                <span className="rc">MUN</span><span className="gc">DIAL</span><br/>
+                <span className="bc">20</span><span className="yc">26</span>
+              </div>
+              <div className="hero-date">
+                <span>🇺🇸</span><span>🇲🇽</span><span>🇨🇦</span>
+                <span>11 Jun – 19 Jul 2026</span>
+              </div>
+              <div style={{marginTop:8,display:"inline-flex",alignItems:"center",gap:5,background:"rgba(255,255,255,.07)",border:"1px solid rgba(255,255,255,.12)",borderRadius:999,padding:"4px 10px",fontSize:10,fontWeight:700,color:"rgba(255,255,255,.55)"}}>
+                🎯 <span style={{color:"#f5c842"}}>{nombreGrupo}</span>
               </div>
             </div>
+            <div className="hero-trophy" style={{userSelect:"none",lineHeight:1}}>🏆</div>
           </div>
           <nav className="nav">
             {([["proximos","📅","Próximos"],["picks","🎯","Pronósticos"],["tabla","🏆","Tabla"],["grupos","📊","Grupos"],["misgrupos","🏘️","Mis grupos"]] as [string,string,string][]).map(([id,ic,lb])=>(
-              <button key={id} className={`nb ${tab===id?"on":""}`} onClick={()=>{ if(id==="misgrupos"){ router.push("/grupos"); return; } setTab(id as any); }}><em>{ic}</em>{lb}</button>
+              <button key={id} className={`nb ${tab===id?"on":""}`} onClick={()=>{ if(id==="misgrupos"){ cargarGrupos(); setTab("misgrupos"); return; } setTab(id as any); }}><em>{ic}</em>{lb}</button>
             ))}
           </nav>
         </div>
@@ -1028,6 +1104,121 @@ const enviarPick = async (
                 🕐 Todos los horarios están en <strong style={{color:"#123952"}}>hora Uruguay (UTC-3)</strong>.
               </p>
             </div>
+          </>}
+
+          {/* ── MIS GRUPOS ── */}
+          {tab==="misgrupos"&&<>
+            <div className="action-row" style={{marginTop:4}}>
+              <button className="btn-primary" onClick={()=>{setModalCrear(true);setGrupoErr("");}}>➕ Crear grupo</button>
+              <button className="btn-secondary" onClick={()=>{setModalUnirse(true);setGrupoErr("");}}>🔑 Unirme</button>
+            </div>
+
+            {cargandoGrupos&&<div style={{textAlign:"center",padding:40,color:"#6b7280"}}>Cargando...</div>}
+
+            {!cargandoGrupos&&(()=>{
+              const globalG = gruposUser.find((g:any)=>g.id==="fascioli");
+              const otrosG = gruposUser.filter((g:any)=>g.id!=="fascioli");
+              return <>
+                {globalG&&(
+                  <div style={{marginBottom:12}}>
+                    <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:"uppercase",color:"#e8a020",marginBottom:6}}>⭐ Grupo oficial</div>
+                    <div className="group-card" onClick={()=>{setGrupoActivo(globalG.id);setTab("proximos");}} style={{border:"2px solid #123952"}}>
+                      <div className="group-card-bar" style={{background:"#123952",width:5}}/>
+                      <div style={{paddingLeft:8}}>
+                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:8}}>
+                            <div className="group-name">{globalG.nombre}</div>
+                            <span className="global-badge">GLOBAL</span>
+                          </div>
+                          <div className="group-meta">👥 {globalG.miembros} participantes</div>
+                        </div>
+                        <div className="group-footer">
+                          <div>
+                            <div style={{fontSize:12,fontWeight:600,color:"#1a1f24"}}>Tu posición</div>
+                            <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>✅ {globalG.miExactos} exactos · 👍 {globalG.miGanadores} ganadores</div>
+                          </div>
+                          <div style={{display:"flex",alignItems:"center",gap:10}}>
+                            <div className="group-pts">{globalG.miPts} pts</div>
+                            {globalG.miPos>0&&<div className="group-pos">#{globalG.miPos}</div>}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {otrosG.length>0&&<div className="sec-title">Mis grupos privados ({otrosG.length})</div>}
+                {otrosG.map((g:any,idx:number)=>(
+                  <div key={g.id} className="group-card" onClick={()=>{setGrupoActivo(g.id);setTab("proximos");}}>
+                    <div className="group-card-bar" style={{background:coloresGrupo[idx%coloresGrupo.length]}}/>
+                    <div style={{paddingLeft:8}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                        <div>
+                          <div className="group-name">{g.nombre}</div>
+                          <div className="group-meta">👥 {g.miembros} participantes</div>
+                        </div>
+                        {g.codigo!=="GLOBAL"&&(
+                          <div style={{display:"flex",gap:6,alignItems:"center"}}>
+                            <div className="group-code">{g.codigo}</div>
+                            <button onClick={e=>{e.stopPropagation();compartirGrupoFn(g.nombre,g.codigo);}} style={{background:"#25D366",border:"none",borderRadius:8,padding:"4px 8px",color:"#fff",fontSize:12,cursor:"pointer",fontWeight:700}}>
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                            </button>
+                            {g.ownerUsername===user?.username
+                              ?<button onClick={e=>{e.stopPropagation();borrarGrupoFn(g.id,g.nombre);}} style={{background:"transparent",border:"1.5px solid #dc2626",borderRadius:8,padding:"4px 8px",color:"#dc2626",fontSize:12,cursor:"pointer",fontWeight:700}}>🗑</button>
+                              :<button onClick={e=>{e.stopPropagation();salirGrupoFn(g.id,g.nombre);}} style={{background:"transparent",border:"1.5px solid #6b7280",borderRadius:8,padding:"4px 8px",color:"#6b7280",fontSize:12,cursor:"pointer",fontWeight:700}}>Salir</button>
+                            }
+                          </div>
+                        )}
+                      </div>
+                      <div className="group-footer">
+                        <div>
+                          <div style={{fontSize:12,fontWeight:600,color:"#1a1f24"}}>Tu posición</div>
+                          <div style={{fontSize:11,color:"#6b7280",marginTop:2}}>✅ {g.miExactos} exactos · 👍 {g.miGanadores} ganadores</div>
+                        </div>
+                        <div style={{display:"flex",alignItems:"center",gap:10}}>
+                          <div className="group-pts">{g.miPts} pts</div>
+                          {g.miPos>0&&<div className="group-pos">#{g.miPos}</div>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {gruposUser.length===0&&(
+                  <div style={{textAlign:"center",padding:40,color:"#6b7280"}}>
+                    <div style={{fontSize:32,marginBottom:12}}>🏘️</div>
+                    <div style={{fontWeight:700,marginBottom:4}}>No estás en ningún grupo</div>
+                    <div style={{fontSize:13}}>Creá uno o unite con un código</div>
+                  </div>
+                )}
+              </>;
+            })()}
+
+            {modalCrear&&(
+              <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.5)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={()=>setModalCrear(false)}>
+                <div style={{background:"#fff",borderRadius:"20px 20px 0 0",width:"100%",maxWidth:430,padding:"24px 20px 40px"}} onClick={e=>e.stopPropagation()}>
+                  <div style={{width:40,height:4,background:"#dde4ec",borderRadius:4,margin:"0 auto 20px"}}/>
+                  <div style={{fontSize:18,fontWeight:700,marginBottom:16}}>Crear grupo</div>
+                  <label style={{fontSize:11,fontWeight:700,color:"#6b7280",letterSpacing:1,textTransform:"uppercase",display:"block",marginBottom:6}}>Nombre del grupo</label>
+                  <input value={nombreNuevo} onChange={e=>setNombreNuevo(e.target.value)} placeholder="Ej: Amigos de Nico" style={{width:"100%",padding:"12px 14px",borderRadius:10,border:"1.5px solid #dde4ec",fontSize:15,outline:"none",marginBottom:6,fontFamily:"inherit"}}/>
+                  {grupoErr&&<div style={{fontSize:12,color:"#dc2626",fontWeight:600,marginBottom:10}}>⚠️ {grupoErr}</div>}
+                  <button onClick={crearGrupo} disabled={grupoLoading} style={{width:"100%",marginTop:10,padding:14,border:"none",borderRadius:12,background:"#123952",color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer"}}>{grupoLoading?"Creando...":"Crear grupo →"}</button>
+                </div>
+              </div>
+            )}
+
+            {modalUnirse&&(
+              <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.5)",zIndex:200,display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={()=>setModalUnirse(false)}>
+                <div style={{background:"#fff",borderRadius:"20px 20px 0 0",width:"100%",maxWidth:430,padding:"24px 20px 40px"}} onClick={e=>e.stopPropagation()}>
+                  <div style={{width:40,height:4,background:"#dde4ec",borderRadius:4,margin:"0 auto 20px"}}/>
+                  <div style={{fontSize:18,fontWeight:700,marginBottom:16}}>Unirme a un grupo</div>
+                  <label style={{fontSize:11,fontWeight:700,color:"#6b7280",letterSpacing:1,textTransform:"uppercase",display:"block",marginBottom:6}}>Código del grupo</label>
+                  <input value={codigoUnirse} onChange={e=>setCodigoUnirse(e.target.value.toUpperCase())} placeholder="Ej: PEPE2" style={{width:"100%",padding:"12px 14px",borderRadius:10,border:"1.5px solid #dde4ec",fontSize:15,outline:"none",marginBottom:6,fontFamily:"monospace"}}/>
+                  {grupoErr&&<div style={{fontSize:12,color:"#dc2626",fontWeight:600,marginBottom:10}}>⚠️ {grupoErr}</div>}
+                  <button onClick={unirseGrupoFn} disabled={grupoLoading} style={{width:"100%",marginTop:10,padding:14,border:"none",borderRadius:12,background:"#123952",color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer"}}>{grupoLoading?"Uniéndome...":"Unirme →"}</button>
+                </div>
+              </div>
+            )}
           </>}
         </div>
         {(pullY > 0 || refreshing) && (
