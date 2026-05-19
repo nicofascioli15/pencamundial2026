@@ -581,6 +581,9 @@ export default function PencaPage() {
   }, [cargarDatos]);
 
   useEffect(() => {
+    // Sync automático en segundo plano al abrir la app
+    fetch("/api/sync").catch(()=>{});
+
     (async () => {
       const me = await fetch("/api/auth/me").then(r=>r.json());
       if (!me.user) { router.push("/login"); return; }
