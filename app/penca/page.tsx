@@ -796,16 +796,10 @@ const enviarPick = async (
               ))}
             </div>}
             {(()=>{
-              // Calcular el día próximo con partidos pendientes (para excluirlo — está en tab Próximos)
-              const _fechasAll = Array.from(new Set(TODOS_PARTIDOS.map(pp=>pp.fecha))).sort();
-              const _fechaProx = _fechasAll.find(f=>TODOS_PARTIDOS.filter(pp=>pp.fecha===f).some(pp=>getEstadoPartido(pp.fecha,pp.hora,!!resultados[pp.id])!=="finalizado"));
-
               const filtrados = TODOS_PARTIDOS
                 .filter(p=>{
                   if (p.fase!==filtroFase) return false;
                   if (filtroFase==="Grupos"&&filtroGrupo!=="Todos"&&p.grupo!==filtroGrupo) return false;
-                  // Excluir partidos del día próximo no finalizados (están en tab Próximos)
-                  if (_fechaProx && p.fecha===_fechaProx && getEstadoPartido(p.fecha,p.hora,!!resultados[p.id])!=="finalizado") return false;
                   return true;
                 })
                 .sort((a,b)=>new Date(`${a.fecha}T${a.hora}:00`).getTime()-new Date(`${b.fecha}T${b.hora}:00`).getTime());
