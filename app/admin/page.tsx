@@ -225,6 +225,23 @@ export default function AdminPage() {
           {/* ── TABLA ── */}
           {tab==="tabla"&&<>
             <div className="sec-title">Clasificación penca</div>
+
+            {/* Selector de grupo */}
+            <div style={{background:"#fff",border:"1px solid #dde4ec",borderRadius:14,padding:14,marginBottom:14,boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:1.8,textTransform:"uppercase",color:"#6b7280",marginBottom:8}}>Ver tabla de</div>
+              <select
+                value={tablaGrupoSeleccionado}
+                onChange={e=>cambiarTablaGrupo(e.target.value)}
+                style={{width:"100%",appearance:"none" as any,border:"1.5px solid #dde4ec",borderRadius:10,padding:"10px 12px",background:"#f2f7fb",color:"#123952",fontSize:14,fontWeight:700,outline:"none"}}
+              >
+                {gruposTabla.map(g=>(
+                  <option key={g.id} value={g.id}>{g.nombre}</option>
+                ))}
+              </select>
+              <div style={{marginTop:8,fontSize:12,color:"#6b7280"}}>
+                🏆 Mostrando: <strong style={{color:"#123952"}}>{nombreTablaSeleccionada}</strong> · {tabla.length} participantes
+              </div>
+            </div>
             {tabla.map((u,i)=>(
               <div key={u.username} className={`tr ${i<3?"top":""}`}>
                 <div className="t-pos">{i+1}</div>
