@@ -455,7 +455,7 @@ export default function PencaPage() {
     if (grupoActivo) cargarDatos();
   }, [grupoActivo]);
   const [user, setUser] = useState<User|null>(null);
-  const [tab, setTab] = useState<"picks"|"grupos"|"tabla"|"info"|"misgrupos">("picks");
+  const [tab, setTab] = useState<"picks"|"proximos"|"grupos"|"tabla"|"info"|"misgrupos">("proximos");
   const [predicciones, setPredicciones] = useState<Record<string,Resultado>>({});
   const [resultados, setResultados] = useState<Record<string,Resultado>>({});
   const [tabla, setTabla] = useState<TablaRow[]>([]);
@@ -723,13 +723,62 @@ const enviarPick = async (
             </div>
           </div>
           <nav className="nav">
-            {([["picks","🎯","Pronósticos"],["grupos","📊","Grupos"],["tabla","🏆","Tabla"],["info","ℹ️","Info"],["misgrupos","🏘️","Mis grupos"]] as [string,string,string][]).map(([id,ic,lb])=>(
+            {([["proximos","📅","Próximos"],["picks","🎯","Picks"],["tabla","🏆","Tabla"],["grupos","📊","Grupos"],["misgrupos","🏘️","Mis grupos"]] as [string,string,string][]).map(([id,ic,lb])=>(
               <button key={id} className={`nb ${tab===id?"on":""}`} onClick={()=>{ if(id==="misgrupos"){ router.push("/grupos"); return; } setTab(id as any); }}><em>{ic}</em>{lb}</button>
             ))}
           </nav>
         </div>
 
         <div className="content">
+
+          {/* ── PRÓXIMOS ── */}
+          {tab==="proximos"&&<>
+            {partidosHoy.length===0&&siguientesDias.length===0&&(
+              <div className="empty"><em>📅</em>No hay partidos próximos por ahora</div>
+            )}
+
+            {partidosHoy.length>0&&(
+              <div style={{marginBottom:20}}>
+                <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#123952",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
+                  🔥 Hoy · {fmtFechaLarga(fechaHoy)}
+                  <span style={{flex:1,height:1,background:"#dde4ec"}}/>
+                </div>
+                {partidosHoy.map((p,i)=>{
+                  const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
+                  const pred=predicciones[p.id];
+                  const res=resultados[p.id];
+                  const bloq=esBloqueado(p.fecha,p.hora)||!!res;
+                  const puntos=res&&pred?calcularPuntos(pred,res,config):null;
+                  return(
+                    <div key={p.id} style={{marginBottom:i<partidosHoy.length-1?14:0}}>
+                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)}/>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {siguientesDias.map(({fecha,partidos:ps})=>(
+              <div key={fecha} style={{marginBottom:20}}>
+                <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#123952",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
+                  📅 {fmtFechaLarga(fecha)}
+                  <span style={{flex:1,height:1,background:"#dde4ec"}}/>
+                </div>
+                {ps.map((p,i)=>{
+                  const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
+                  const pred=predicciones[p.id];
+                  const res=resultados[p.id];
+                  const bloq=esBloqueado(p.fecha,p.hora)||!!res;
+                  const puntos=res&&pred?calcularPuntos(pred,res,config):null;
+                  return(
+                    <div key={p.id} style={{marginBottom:i<ps.length-1?12:0}}>
+                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)}/>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </>}
 
           {/* ── PRONÓSTICOS ── */}
           {tab==="picks"&&<>
@@ -768,143 +817,11 @@ const enviarPick = async (
                 const esProxima = fecha===proximaFechaDestacada && partidosHoy.length>0;
                 if (esProxima) {
                   return (
-                    <div key={fecha} style={{marginBottom:20}}>
-                      <div style={{
-                        marginBottom:14,
-                        padding:"0 4px",
-                        display:"flex",
-                        justifyContent:"space-between",
-                        alignItems:"center"
-                      }}>
-                        <div>
-                          <div style={{
-                            fontSize:10,
-                            fontWeight:800,
-                            letterSpacing:2,
-                            textTransform:"uppercase",
-                            color:"#123952",
-                            marginBottom:4
-                          }}>
-                            🔥 Partidos destacados
-                          </div>
-
-                          <div style={{
-                            fontFamily:"'DM Mono',monospace",
-                            fontSize:13,
-                            color:"#6b7280",
-                            fontWeight:500
-                          }}>
-                            {fmtFechaLarga(fecha)} · No te olvides de pronosticar
-                          </div>
-                        </div>
-
-                        <div style={{
-                          width:42,
-                          height:42,
-                          borderRadius:999,
-                          background:"linear-gradient(135deg,#123952,#1d5278)",
-                          display:"flex",
-                          alignItems:"center",
-                          justifyContent:"center",
-                          boxShadow:"0 10px 22px rgba(18,57,82,.18)",
-                          fontSize:20
-                        }}>
-                          🏆
-                        </div>
-                      </div>
-
-                      <div>
-                        <div style={{
-                          position:"relative",
-                          overflow:"hidden",
-                          background:"linear-gradient(135deg,#071c2c 0%,#123952 58%,#1d5278 100%)",
-                          color:"#fff",
-                          borderRadius:24,
-                          padding:"18px 18px",
-                          marginBottom:18,
-                          boxShadow:"0 20px 42px rgba(18,57,82,.24)",
-                          display:"flex",
-                          alignItems:"center",
-                          justifyContent:"space-between",
-                          gap:14
-                        }}>
-
-                          <div style={{
-                            position:"absolute",
-                            inset:0,
-                            background:"radial-gradient(circle at top right,rgba(255,255,255,.10),transparent 45%)",
-                            pointerEvents:"none"
-                          }}/>
-
-                          <div style={{position:"relative",zIndex:2}}>
-                            <div style={{
-                              fontSize:10,
-                              fontWeight:900,
-                              letterSpacing:2,
-                              textTransform:"uppercase",
-                              color:"rgba(255,255,255,.62)",
-                              marginBottom:6
-                            }}>
-                              🔥 Partidos destacados
-                            </div>
-
-                            <div style={{
-                              fontSize:20,
-                              fontWeight:900,
-                              lineHeight:1.1,
-                              marginBottom:6
-                            }}>
-                              {ps.length} partido{ps.length>1?"s":""} para pronosticar
-                            </div>
-
-                            <div style={{
-                              fontSize:13,
-                              color:"rgba(255,255,255,.72)",
-                              fontWeight:500
-                            }}>
-                              {fmtFechaLarga(fecha)}
-                            </div>
-                          </div>
-
-                          <div style={{
-                            position:"relative",
-                            zIndex:2,
-                            width:74,
-                            height:74,
-                            borderRadius:"50%",
-                            background:"rgba(255,255,255,.08)",
-                            display:"flex",
-                            alignItems:"center",
-                            justifyContent:"center",
-                            backdropFilter:"blur(6px)",
-                            boxShadow:"inset 0 1px 0 rgba(255,255,255,.15)"
-                          }}>
-                            <img
-                              src="/pelota.png"
-                              alt="Pelota Mundial"
-                              style={{
-                                width:56,
-                                height:56,
-                                objectFit:"contain",
-                                filter:"drop-shadow(0 6px 10px rgba(0,0,0,.28))"
-                              }}
-                            />
-                          </div>
-                        </div>
-
-                        {ps.map((p,i)=>{
-                          const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
-                          const pred=predicciones[p.id];
-                          const res=resultados[p.id];
-                          const bloq=esBloqueado(p.fecha,p.hora)||!!res;
-                          const puntos=res&&pred?calcularPuntos(pred,res,config):null;
-                          return (
-                            <div key={p.id} style={{marginBottom:i<ps.length-1?14:0}}>
-                              <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p, odds)}/>
-                            </div>
-                          );
-                        })}
-                      </div>
+                    <div key={fecha} style={{marginBottom:16}}>
+                      <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>{fmtFechaLarga(fecha)}</div>
+                      {ps.map(p=>(
+                        <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p,odds)}/>
+                      ))}
                     </div>
                   );
                 }
