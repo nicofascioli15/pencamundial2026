@@ -319,6 +319,18 @@ const css = `
   .modal-pick-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0}
   .modal-pick-row:last-child{border-bottom:none}
   .pts-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#123952}
+  .grupo-carrusel{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-bottom:16px}
+  .grupo-carrusel::-webkit-scrollbar{display:none}
+  .grupo-chip{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:5px;padding:10px 12px;border-radius:16px;border:1.5px solid #dde4ec;background:#fff;cursor:pointer;transition:all .18s ease;box-shadow:0 2px 8px rgba(18,57,82,.05);min-width:68px}
+  .grupo-chip:active{transform:scale(.95)}
+  .grupo-chip.on{background:linear-gradient(135deg,#123952,#1d5278);border-color:transparent;box-shadow:0 8px 20px rgba(18,57,82,.25);transform:translateY(-2px)}
+  .gc-letra{font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#123952}
+  .grupo-chip.on .gc-letra{color:rgba(255,255,255,.9)}
+  .gc-flags{font-size:14px;line-height:1.5;text-align:center;display:flex;flex-wrap:wrap;justify-content:center;gap:1px;max-width:50px}
+  .todos-chip{flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:16px;border:1.5px solid #dde4ec;background:#fff;cursor:pointer;transition:all .18s;box-shadow:0 2px 8px rgba(18,57,82,.05);font-size:12px;font-weight:800;color:#123952;letter-spacing:.5px}
+  .todos-chip.on{background:linear-gradient(135deg,#123952,#1d5278);border-color:transparent;color:#fff;box-shadow:0 6px 16px rgba(18,57,82,.22)}
+  .fase-carrusel{display:flex;gap:7px;overflow-x:auto;padding:0 0 4px;scrollbar-width:none;margin-bottom:14px}
+  .fase-carrusel::-webkit-scrollbar{display:none}
   .fb{
     flex:0 0 auto!important;
     padding:9px 15px!important;
@@ -823,14 +835,27 @@ const enviarPick = async (
               </div>
             </div>
             {ultimaSync&&<div className="sync"><div className="sync-dot"/>Resultados actualizados a las {ultimaSync}</div>}
-            <div className="filtros">
-              {FASES.map(f=><button key={f} className={`fb ${filtroFase===f?"on":""}`} onClick={()=>setFiltroFase(f)}>{f}</button>)}
-            </div>
-            {filtroFase==="Grupos"&&<div className="filtros">
-              {["Todos",...GRUPOS_KEYS].map(g=>(
-                <button key={g} className={`fb ${filtroGrupo===g?"on":""}`} onClick={()=>setFiltroGrupo(g)}>{g==="Todos"?"Todos":`Gr. ${g}`}</button>
+            {/* Carrusel de fases */}
+            <div className="fase-carrusel">
+              {FASES.map(f=>(
+                <button key={f} className={`fb ${filtroFase===f?"on":""}`} onClick={()=>setFiltroFase(f)}>{f}</button>
               ))}
-            </div>}
+            </div>
+
+            {/* Carrusel de grupos con banderas */}
+            {filtroFase==="Grupos"&&(
+              <div className="grupo-carrusel">
+                <div className={`todos-chip ${filtroGrupo==="Todos"?"on":""}`} onClick={()=>setFiltroGrupo("Todos")}>
+                  Todos
+                </div>
+                {GRUPOS_KEYS.map(g=>(
+                  <div key={g} className={`grupo-chip ${filtroGrupo===g?"on":""}`} onClick={()=>setFiltroGrupo(g)}>
+                    <span className="gc-letra">Gr. {g}</span>
+                    <span className="gc-flags">{GRUPOS[g].map(e=>getFlag(e)).join(" ")}</span>
+                  </div>
+                ))}
+              </div>
+            )}
             {(()=>{
               const filtrados = TODOS_PARTIDOS
                 .filter(p=>{
