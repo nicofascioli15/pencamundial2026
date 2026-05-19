@@ -103,6 +103,9 @@ export default function AdminPage() {
   const [confirmados,setConfirmados]=useState<Record<string,boolean>>({});
   const [toast,setToast]=useState<string|null>(null);
   const [cargando,setCargando]=useState(true);
+  const [tablaGrupoSeleccionado, setTablaGrupoSeleccionado] = useState("fascioli");
+  const [nombreTablaSeleccionada, setNombreTablaSeleccionada] = useState("PencaFascioli");
+  const [gruposTabla, setGruposTabla] = useState<{id:string;nombre:string}[]>([{id:"fascioli",nombre:"PencaFascioli"}]);
 
   const showToast=(msg:string)=>{setToast(msg);setTimeout(()=>setToast(null),2700);};
 
