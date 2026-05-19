@@ -6,6 +6,7 @@ import { LOGO_SVG } from "@/lib/logo";
 
 const css = `
   .app{max-width:430px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#ffffff 0%,#f6f9fc 100%);box-shadow:0 0 60px rgba(18,57,82,.1);display:flex;flex-direction:column;width:100%}
+  @media(max-width:430px){.app{max-width:100%;box-shadow:none;margin:0}}
   .header{position:sticky;top:0;z-index:100;overflow:hidden;background:#060e18}
   .header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 180px 140px at 105% -10%,rgba(60,172,59,.5) 0%,transparent 60%),radial-gradient(ellipse 140px 100px at -5% 105%,rgba(230,29,37,.3) 0%,transparent 55%),radial-gradient(ellipse 160px 130px at 105% 105%,rgba(42,57,141,.4) 0%,transparent 60%);pointer-events:none}
   .header-tribar{height:3px;background:linear-gradient(90deg,#E61D25 33%,#3CAC3B 33% 66%,#2A398D 66%);position:relative;z-index:2}
