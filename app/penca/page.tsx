@@ -1627,7 +1627,7 @@ function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloquead
         <input className="si" type="number" min={0} max={20} placeholder="0" value={vv} onChange={e=>handleChangePc("v",e.target.value)} disabled={estaBlq}/>
         {estaBlq
           ?<div className="locked-btn">🔒 {res ? "Final" : "Iniciado"}</div>
-          :{guardado&&<span style={{fontSize:18,color:"#2e9e6b",marginLeft:4}}>✓</span>}
+          :<>{guardado&&<span style={{fontSize:18,color:"#2e9e6b",marginLeft:4}}>✓</span>}</>
         }
       </div>
       {oddData&&!estaBlq&&(
