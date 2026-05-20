@@ -739,9 +739,10 @@ const enviarPick = async (
     local:number,
     visitante:number
   ) => {
-    if (predicciones?.[partidoId]) {
+    if (predicciones?.[partidoId] && !aplicarSiempre) {
+      // Solo mostrar modal si NO tiene aplicarSiempre activado
       setPickPendiente({ partidoId, local, visitante });
-      setAplicarTodosGrupos(aplicarSiempre);
+      setAplicarTodosGrupos(false);
       return;
     }
     await enviarPick(partidoId, local, visitante, aplicarSiempre);
@@ -974,7 +975,7 @@ const enviarPick = async (
                     <div key={fecha} style={{marginBottom:16}}>
                       <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>{fmtFechaLarga(fecha)}</div>
                       {ps.map(p=>(
-                        <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p,odds)}/>
+                        <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p,odds)} aplicarSiempre={aplicarSiempre} onToggleAplicar={toggleAplicarSiempre}/>
                       ))}
                     </div>
                   );
@@ -983,7 +984,7 @@ const enviarPick = async (
                   <div key={fecha} style={{marginBottom:16}}>
                     <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>{fmtFechaLarga(fecha)}</div>
                     {ps.map(p=>(
-                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p, odds)} liveInfo={liveData[p.id]}/>
+                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p, odds)} liveInfo={liveData[p.id]} aplicarSiempre={aplicarSiempre} onToggleAplicar={toggleAplicarSiempre}/>
                     ))}
                   </div>
                 );
@@ -1574,12 +1575,14 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
 }
 
 /* ── PartidoCard ── */
-function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloqueado, oddData, liveInfo }: {
+function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloqueado, oddData, liveInfo, aplicarSiempre, onToggleAplicar }: {
   partido: Partido; pred?: Resultado; res?: Resultado;
   config: PuntosConfig; guardado?: boolean; bloqueado: boolean;
   onGuardar: (id: string, l: number, v: number) => void;
   oddData?: {home:number;draw:number;away:number};
   liveInfo?: {estado:string;minuto:number|null;local:number;visitante:number};
+  aplicarSiempre?: boolean;
+  onToggleAplicar?: () => void;
 }) {
   const [lv,setLv]=useState<string|number>(pred?.local??"");
   const [vv,setVv]=useState<string|number>(pred?.visitante??"");
@@ -1621,6 +1624,16 @@ function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloquead
         }
         <div className="eq"><span className="eq-flag">{getFlag(partido.visitante)}</span><span className="eq-name">{partido.visitante}</span></div>
       </div>
+      {!estaBlq&&onToggleAplicar&&(
+        <div onClick={onToggleAplicar} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 2px",cursor:"pointer",userSelect:"none"}}>
+          <div style={{width:30,height:17,borderRadius:9,background:aplicarSiempre?"#123952":"#dde4ec",transition:"background .2s",position:"relative",flexShrink:0}}>
+            <div style={{position:"absolute",top:2,left:aplicarSiempre?15:2,width:13,height:13,borderRadius:"50%",background:"#fff",transition:"left .2s",boxShadow:"0 1px 3px rgba(0,0,0,.2)"}}/>
+          </div>
+          <span style={{fontSize:10,color:aplicarSiempre?"#123952":"#9ca3af",fontWeight:600}}>
+            {aplicarSiempre?"Aplicar a todos mis grupos":"Solo este grupo"}
+          </span>
+        </div>
+      )}
       <div className="pick-row">
         <input className="si" type="number" min={0} max={20} placeholder="0" value={lv} onChange={e=>handleChangePc("l",e.target.value)} disabled={estaBlq}/>
         <span className="score-sep">—</span>
