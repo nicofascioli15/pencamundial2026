@@ -568,18 +568,13 @@ export default function PencaPage() {
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [pickPendiente, setPickPendiente] = useState<any>(null);
   const [aplicarTodosGrupos, setAplicarTodosGrupos] = useState(false);
-  const [aplicarSiempre, setAplicarSiempre] = useState<boolean>(()=>{
-    if (typeof window === "undefined") return true;
-    const v = localStorage.getItem("aplicar_todos_grupos");
-    return v === null ? true : v === "true";
-  });
+  // Por partido: true = aplicar a todos, false = solo este grupo
+  const [aplicarPorPartido, setAplicarPorPartido] = useState<Record<string,boolean>>({});
 
-  const toggleAplicarSiempre = () => {
-    setAplicarSiempre(v => {
-      const nuevo = !v;
-      localStorage.setItem("aplicar_todos_grupos", String(nuevo));
-      return nuevo;
-    });
+  const getAplicar = (partidoId: string) => aplicarPorPartido[partidoId] !== false;
+
+  const toggleAplicarSiempre = (partidoId: string) => {
+    setAplicarPorPartido(prev => ({ ...prev, [partidoId]: !getAplicar(partidoId) }));
   };
   const [noMostrarInstall, setNoMostrarInstall] = useState(false);
 
@@ -739,13 +734,13 @@ const enviarPick = async (
     local:number,
     visitante:number
   ) => {
-    if (predicciones?.[partidoId] && !aplicarSiempre) {
-      // Solo mostrar modal si NO tiene aplicarSiempre activado
+    const aplicar = getAplicar(partidoId);
+    if (predicciones?.[partidoId] && !aplicar) {
       setPickPendiente({ partidoId, local, visitante });
       setAplicarTodosGrupos(false);
       return;
     }
-    await enviarPick(partidoId, local, visitante, aplicarSiempre);
+    await enviarPick(partidoId, local, visitante, aplicar);
   };
 
 
@@ -914,7 +909,7 @@ const enviarPick = async (
                   const puntos=res&&pred?calcularPuntos(pred,res,config):null;
                   return(
                     <div key={p.id} style={{marginBottom:i<partidosDia.length-1?14:0}}>
-                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)} liveInfo={liveData[p.id]} aplicarSiempre={aplicarSiempre} onToggleAplicar={toggleAplicarSiempre}/>
+                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)} liveInfo={liveData[p.id]} aplicarSiempre={getAplicar(p.id)} onToggleAplicar={()=>toggleAplicarSiempre(p.id)}/>
                     </div>
                   );
                 })}
@@ -975,7 +970,7 @@ const enviarPick = async (
                     <div key={fecha} style={{marginBottom:16}}>
                       <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>{fmtFechaLarga(fecha)}</div>
                       {ps.map(p=>(
-                        <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p,odds)} aplicarSiempre={aplicarSiempre} onToggleAplicar={toggleAplicarSiempre}/>
+                        <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p,odds)} aplicarSiempre={getAplicar(p.id)} onToggleAplicar={()=>toggleAplicarSiempre(p.id)}/>
                       ))}
                     </div>
                   );
@@ -984,7 +979,7 @@ const enviarPick = async (
                   <div key={fecha} style={{marginBottom:16}}>
                     <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>{fmtFechaLarga(fecha)}</div>
                     {ps.map(p=>(
-                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p, odds)} liveInfo={liveData[p.id]} aplicarSiempre={aplicarSiempre} onToggleAplicar={toggleAplicarSiempre}/>
+                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p, odds)} liveInfo={liveData[p.id]} aplicarSiempre={getAplicar(p.id)} onToggleAplicar={()=>toggleAplicarSiempre(p.id)}/>
                     ))}
                   </div>
                 );
