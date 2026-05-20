@@ -900,16 +900,7 @@ const enviarPick = async (
 
             return (
               <div style={{marginBottom:20}}>
-                {/* Toggle aplicar a todos los grupos */}
-                <div onClick={toggleAplicarSiempre} style={{display:"flex",alignItems:"center",gap:10,background:"#fff",border:"1px solid #dde4ec",borderRadius:12,padding:"10px 14px",marginBottom:12,cursor:"pointer",userSelect:"none",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
-                  <div style={{width:36,height:20,borderRadius:10,background:aplicarSiempre?"#123952":"#dde4ec",transition:"background .2s",position:"relative",flexShrink:0}}>
-                    <div style={{position:"absolute",top:2,left:aplicarSiempre?18:2,width:16,height:16,borderRadius:"50%",background:"#fff",transition:"left .2s",boxShadow:"0 1px 4px rgba(0,0,0,.2)"}}/>
-                  </div>
-                  <div>
-                    <div style={{fontSize:12,fontWeight:700,color:"#123952"}}>Aplicar a todos mis grupos</div>
-                    <div style={{fontSize:10,color:"#6b7280"}}>{aplicarSiempre?"El pronóstico se guarda en todos tus grupos":"Solo se guarda en el grupo actual"}</div>
-                  </div>
-                </div>
+
                 <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#123952",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
                   {esHoyFecha ? "🔴 Hoy" : "📅"} · {fmtFechaLarga(fechaProxima)}
                   <span style={{flex:1,height:1,background:"#dde4ec"}}/>
@@ -922,7 +913,7 @@ const enviarPick = async (
                   const puntos=res&&pred?calcularPuntos(pred,res,config):null;
                   return(
                     <div key={p.id} style={{marginBottom:i<partidosDia.length-1?14:0}}>
-                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)}/>
+                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)} liveInfo={liveData[p.id]} aplicarSiempre={aplicarSiempre} onToggleAplicar={toggleAplicarSiempre}/>
                     </div>
                   );
                 })}
@@ -1455,13 +1446,15 @@ const enviarPick = async (
 }
 
 /* ── HoyCard ── */
-function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guardado, ciudad, onGuardar, oddData, liveInfo }: {
+function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guardado, ciudad, onGuardar, oddData, liveInfo, aplicarSiempre, onToggleAplicar }: {
   partido: Partido; estado: "proximo"|"jugando"|"entretiempo"|"finalizado";
   pred?: Resultado; res?: Resultado; bloqueado: boolean;
   puntos: number|null; config: PuntosConfig;
   guardado?: boolean; ciudad?: string; onGuardar: (l: number, v: number) => void;
   oddData?: {home:number;draw:number;away:number};
   liveInfo?: {estado:string;minuto:number|null;local:number;visitante:number};
+  aplicarSiempre?: boolean;
+  onToggleAplicar?: () => void;
 }) {
   const [lv, setLv] = useState<string|number>(pred?.local??"");
   const [vv, setVv] = useState<string|number>(pred?.visitante??"");
@@ -1548,6 +1541,16 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
         </div>
       )}
       {!bloqueado&&<div style={{padding:"6px 0"}}><CountdownBloqueo fecha={partido.fecha} hora={partido.hora}/></div>}
+      {!bloqueado&&onToggleAplicar&&(
+        <div onClick={onToggleAplicar} style={{display:"flex",alignItems:"center",gap:8,padding:"4px 2px 8px",cursor:"pointer",userSelect:"none"}}>
+          <div style={{width:30,height:17,borderRadius:9,background:aplicarSiempre?"#123952":"#dde4ec",transition:"background .2s",position:"relative",flexShrink:0}}>
+            <div style={{position:"absolute",top:2,left:aplicarSiempre?15:2,width:13,height:13,borderRadius:"50%",background:"#fff",transition:"left .2s",boxShadow:"0 1px 3px rgba(0,0,0,.2)"}}/>
+          </div>
+          <span style={{fontSize:10,color:aplicarSiempre?"#123952":"#9ca3af",fontWeight:600}}>
+            {aplicarSiempre?"Aplicar a todos mis grupos":"Solo este grupo"}
+          </span>
+        </div>
+      )}
       <div className="hoy-pick">
         <span className="hoy-pick-lbl">Tu pronóstico:</span>
         {puntos !== null && (
@@ -1580,9 +1583,20 @@ function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloquead
 }) {
   const [lv,setLv]=useState<string|number>(pred?.local??"");
   const [vv,setVv]=useState<string|number>(pred?.visitante??"");
+  const autoSaveRef = useRef<ReturnType<typeof setTimeout>|null>(null);
   useEffect(()=>{setLv(pred?.local??"");setVv(pred?.visitante??"");},[pred]);
   const puntos=res&&pred?calcularPuntos(pred,res,config):null;
   const chipCls=puntos===null?"":puntos===config.resultado_exacto?"chip-ex":puntos>0?"chip-ok":"chip-no";
+
+  const handleChangePc = (tipo: "l"|"v", val: string) => {
+    if (tipo==="l") setLv(val); else setVv(val);
+    if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
+    autoSaveRef.current = setTimeout(()=>{
+      const l = tipo==="l" ? Number(val) : Number(lv);
+      const v = tipo==="v" ? Number(val) : Number(vv);
+      if (!isNaN(l) && !isNaN(v) && val!=="") onGuardar(partido.id, l, v);
+    }, 1000);
+  };
   const fmtFecha=(f:string)=>new Date(f+"T12:00:00").toLocaleDateString("es-UY",{day:"numeric",month:"short"});
   const estaBlq = bloqueado || !!res;
 
@@ -1608,14 +1622,12 @@ function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloquead
         <div className="eq"><span className="eq-flag">{getFlag(partido.visitante)}</span><span className="eq-name">{partido.visitante}</span></div>
       </div>
       <div className="pick-row">
-        <input className="si" type="number" min={0} max={20} placeholder="0" value={lv} onChange={e=>setLv(e.target.value)} disabled={estaBlq}/>
+        <input className="si" type="number" min={0} max={20} placeholder="0" value={lv} onChange={e=>handleChangePc("l",e.target.value)} disabled={estaBlq}/>
         <span className="score-sep">—</span>
-        <input className="si" type="number" min={0} max={20} placeholder="0" value={vv} onChange={e=>setVv(e.target.value)} disabled={estaBlq}/>
+        <input className="si" type="number" min={0} max={20} placeholder="0" value={vv} onChange={e=>handleChangePc("v",e.target.value)} disabled={estaBlq}/>
         {estaBlq
           ?<div className="locked-btn">🔒 {res ? "Final" : "Iniciado"}</div>
-          :<button className={`save-btn ${guardado?"saved":""}`} disabled={lv===""||vv===""} onClick={()=>onGuardar(partido.id,Number(lv),Number(vv))}>
-            {guardado?"✓ Guardado":"Guardar"}
-          </button>
+          :{guardado&&<span style={{fontSize:18,color:"#2e9e6b",marginLeft:4}}>✓</span>}
         }
       </div>
       {oddData&&!estaBlq&&(
