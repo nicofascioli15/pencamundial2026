@@ -572,6 +572,9 @@ export default function PencaPage() {
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2700); };
 
+  // Datos en vivo desde API
+  const [liveData, setLiveData] = useState<Record<string, {estado:string;minuto:number|null;local:number;visitante:number}>>({});
+
   const [gruposUser, setGruposUser] = useState<any[]>([]);
   const [cargandoGrupos, setCargandoGrupos] = useState(false);
   const [modalCrear, setModalCrear] = useState(false);
@@ -968,7 +971,7 @@ const enviarPick = async (
                   <div key={fecha} style={{marginBottom:16}}>
                     <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>{fmtFechaLarga(fecha)}</div>
                     {ps.map(p=>(
-                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p, odds)}/>
+                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p, odds)} liveInfo={liveData[p.id]}/>
                     ))}
                   </div>
                 );
@@ -1431,16 +1434,36 @@ const enviarPick = async (
 }
 
 /* ── HoyCard ── */
-function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guardado, ciudad, onGuardar, oddData }: {
+function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guardado, ciudad, onGuardar, oddData, liveInfo }: {
   partido: Partido; estado: "proximo"|"jugando"|"entretiempo"|"finalizado";
   pred?: Resultado; res?: Resultado; bloqueado: boolean;
   puntos: number|null; config: PuntosConfig;
   guardado?: boolean; ciudad?: string; onGuardar: (l: number, v: number) => void;
   oddData?: {home:number;draw:number;away:number};
+  liveInfo?: {estado:string;minuto:number|null;local:number;visitante:number};
 }) {
   const [lv, setLv] = useState<string|number>(pred?.local??"");
   const [vv, setVv] = useState<string|number>(pred?.visitante??"");
+  const [segundos, setSegundos] = useState(0);
+  const autoSaveRef = useRef<ReturnType<typeof setTimeout>|null>(null);
+
   useEffect(()=>{ setLv(pred?.local??""); setVv(pred?.visitante??""); },[pred]);
+
+  useEffect(()=>{
+    if (!liveInfo || liveInfo.estado==="entretiempo" || liveInfo.estado==="finalizado") return;
+    const interval = setInterval(()=>setSegundos(s=>(s+1)%60), 1000);
+    return ()=>clearInterval(interval);
+  },[liveInfo]);
+
+  const handleChange = (tipo: "l"|"v", val: string) => {
+    if (tipo==="l") setLv(val); else setVv(val);
+    if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
+    autoSaveRef.current = setTimeout(()=>{
+      const l = tipo==="l" ? Number(val) : Number(lv);
+      const v = tipo==="v" ? Number(val) : Number(vv);
+      if (!isNaN(l) && !isNaN(v) && val!=="") onGuardar(l, v);
+    }, 1000);
+  };
 
   const estadoLabel = estado==="proximo" ? "Próximo" : estado==="jugando" ? "EN VIVO" : estado==="entretiempo" ? "ENTRETIEMPO" : "Finalizado";
   const ptsClass = puntos===null?"":puntos===config.resultado_exacto?"pts-ex":puntos>0?"pts-ok":"pts-no";
@@ -1467,7 +1490,9 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
         </div>
         {res
           ? <div className="hoy-res"><div className="hoy-score">{res.local} - {res.visitante}</div><div className="hoy-res-lbl">Final</div></div>
-          : <span className="hoy-vs">VS</span>
+          : liveInfo && (liveInfo.estado==="jugando" || liveInfo.estado==="entretiempo")
+            ? <div className="hoy-res"><div className="hoy-score" style={{color:"#dc2626"}}>{liveInfo.local} - {liveInfo.visitante}</div><div className="hoy-res-lbl" style={{color:"#dc2626"}}>En vivo</div></div>
+            : <span className="hoy-vs">VS</span>
         }
         <div className="hoy-eq">
           <span className="hoy-flag">{getFlag(partido.visitante)}</span>
