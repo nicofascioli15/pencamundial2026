@@ -734,13 +734,7 @@ const enviarPick = async (
     local:number,
     visitante:number
   ) => {
-    const aplicar = getAplicar(partidoId);
-    if (predicciones?.[partidoId] && !aplicar) {
-      setPickPendiente({ partidoId, local, visitante });
-      setAplicarTodosGrupos(false);
-      return;
-    }
-    await enviarPick(partidoId, local, visitante, aplicar);
+    await enviarPick(partidoId, local, visitante, getAplicar(partidoId));
   };
 
 
