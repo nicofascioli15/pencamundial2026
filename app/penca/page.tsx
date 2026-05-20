@@ -1538,12 +1538,12 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
             : <span className="hoy-pick-none">Sin pronóstico</span>
         ) : (
           <div className="hoy-inputs">
-            <input className="hoy-si" type="number" min={0} max={20} placeholder="0" value={lv} onChange={e=>setLv(e.target.value)}/>
+            <input className="hoy-si" type="number" min={0} max={20} placeholder="0" value={lv} onChange={e=>handleChange("l",e.target.value)}/>
             <span style={{color:"#6b7280",fontSize:14}}>-</span>
-            <input className="hoy-si" type="number" min={0} max={20} placeholder="0" value={vv} onChange={e=>setVv(e.target.value)}/>
-            <button className={`hoy-save ${guardado?"saved":""}`} disabled={lv===""||vv===""} onClick={()=>onGuardar(Number(lv),Number(vv))}>
-              {guardado?"✓":"Guardar"}
-            </button>
+            <input className="hoy-si" type="number" min={0} max={20} placeholder="0" value={vv} onChange={e=>handleChange("v",e.target.value)}/>
+            <div className={`hoy-save ${guardado?"saved":""}`} style={{display:"flex",alignItems:"center",justifyContent:"center",minWidth:52,fontSize:guardado?18:11,color:guardado?"#2e9e6b":"#9ca3af",background:guardado?"rgba(46,158,107,.1)":"#f2f7fb",border:`1.5px solid ${guardado?"#2e9e6b":"#dde4ec"}`,borderRadius:10,padding:"7px 8px",cursor:"default"}}>
+              {guardado?"✓":"auto"}
+            </div>
           </div>
         )}
       </div>
