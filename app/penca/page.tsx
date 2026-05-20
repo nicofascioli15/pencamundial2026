@@ -568,6 +568,19 @@ export default function PencaPage() {
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [pickPendiente, setPickPendiente] = useState<any>(null);
   const [aplicarTodosGrupos, setAplicarTodosGrupos] = useState(false);
+  const [aplicarSiempre, setAplicarSiempre] = useState<boolean>(()=>{
+    if (typeof window === "undefined") return true;
+    const v = localStorage.getItem("aplicar_todos_grupos");
+    return v === null ? true : v === "true";
+  });
+
+  const toggleAplicarSiempre = () => {
+    setAplicarSiempre(v => {
+      const nuevo = !v;
+      localStorage.setItem("aplicar_todos_grupos", String(nuevo));
+      return nuevo;
+    });
+  };
   const [noMostrarInstall, setNoMostrarInstall] = useState(false);
 
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2700); };
@@ -726,14 +739,12 @@ const enviarPick = async (
     local:number,
     visitante:number
   ) => {
-
     if (predicciones?.[partidoId]) {
       setPickPendiente({ partidoId, local, visitante });
-      setAplicarTodosGrupos(false);
+      setAplicarTodosGrupos(aplicarSiempre);
       return;
     }
-
-    await enviarPick(partidoId, local, visitante, false);
+    await enviarPick(partidoId, local, visitante, aplicarSiempre);
   };
 
 
@@ -889,6 +900,16 @@ const enviarPick = async (
 
             return (
               <div style={{marginBottom:20}}>
+                {/* Toggle aplicar a todos los grupos */}
+                <div onClick={toggleAplicarSiempre} style={{display:"flex",alignItems:"center",gap:10,background:"#fff",border:"1px solid #dde4ec",borderRadius:12,padding:"10px 14px",marginBottom:12,cursor:"pointer",userSelect:"none",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
+                  <div style={{width:36,height:20,borderRadius:10,background:aplicarSiempre?"#123952":"#dde4ec",transition:"background .2s",position:"relative",flexShrink:0}}>
+                    <div style={{position:"absolute",top:2,left:aplicarSiempre?18:2,width:16,height:16,borderRadius:"50%",background:"#fff",transition:"left .2s",boxShadow:"0 1px 4px rgba(0,0,0,.2)"}}/>
+                  </div>
+                  <div>
+                    <div style={{fontSize:12,fontWeight:700,color:"#123952"}}>Aplicar a todos mis grupos</div>
+                    <div style={{fontSize:10,color:"#6b7280"}}>{aplicarSiempre?"El pronóstico se guarda en todos tus grupos":"Solo se guarda en el grupo actual"}</div>
+                  </div>
+                </div>
                 <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#123952",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
                   {esHoyFecha ? "🔴 Hoy" : "📅"} · {fmtFechaLarga(fechaProxima)}
                   <span style={{flex:1,height:1,background:"#dde4ec"}}/>
