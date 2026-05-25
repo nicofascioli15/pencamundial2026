@@ -744,6 +744,15 @@ const enviarPick = async (
     window.matchMedia("(display-mode: standalone)").matches ||
     (window.navigator as any).standalone === true;
 
+  // Detectar cuando el usuario ancla la app
+  useEffect(() => {
+    const handleInstall = () => {
+      fetch("/api/pwa-install", { method: "POST" }).catch(()=>{});
+    };
+    window.addEventListener("appinstalled", handleInstall);
+    return () => window.removeEventListener("appinstalled", handleInstall);
+  }, []);
+
   useEffect(() => {
     const ocultar = localStorage.getItem("install_modal_ocultar");
     const mostradoSesion = sessionStorage.getItem("install_modal_mostrado_sesion");

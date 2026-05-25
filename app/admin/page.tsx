@@ -275,6 +275,7 @@ export default function AdminPage() {
             <div style={{display:"flex",gap:10,marginBottom:12}}>
               <div style={{background:"#f2f7fb",border:"1px solid #dde4ec",borderRadius:10,padding:"10px 14px",flex:1,textAlign:"center"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:900,color:"#e8a020"}}>{usuarios.length}</div><div style={{fontSize:11,color:"#6b7280"}}>Usuarios</div></div>
               <div style={{background:"#f2f7fb",border:"1px solid #dde4ec",borderRadius:10,padding:"10px 14px",flex:1,textAlign:"center"}}><div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:900,color:"#e8a020"}}>{grupos.filter(g=>g.id!=="fascioli").length}</div><div style={{fontSize:11,color:"#6b7280"}}>Grupos privados</div></div>
+              <PwaCounter/>
             </div>
             <div style={{background:"#fff",border:"1px solid #dde4ec",borderRadius:14,padding:"0 14px",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
               {usuarios.length===0&&<p style={{color:"#6b7280",fontSize:14,padding:"16px 0"}}>Sin participantes aún.</p>}
@@ -413,6 +414,19 @@ function AdminPartidoCard({partido,resActual,confirmado,onGuardar,onBorrar}:{
         </button>
         {resActual&&<button onClick={()=>onBorrar(partido.id)} style={{padding:"9px 12px",border:"1.5px solid #dc2626",borderRadius:9,background:"transparent",color:"#dc2626",fontWeight:700,fontSize:13,cursor:"pointer"}}>🗑</button>}
       </div>
+    </div>
+  );
+}
+
+function PwaCounter() {
+  const [total, setTotal] = useState<number|null>(null);
+  useEffect(()=>{
+    fetch("/api/pwa-install").then(r=>r.json()).then(d=>setTotal(d.total??0));
+  },[]);
+  return (
+    <div style={{background:"#f2f7fb",border:"1px solid #dde4ec",borderRadius:10,padding:"10px 14px",flex:1,textAlign:"center"}}>
+      <div style={{fontFamily:"Georgia,serif",fontSize:22,fontWeight:900,color:"#2e9e6b"}}>{total??"-"}</div>
+      <div style={{fontSize:11,color:"#6b7280"}}>App instalada 📲</div>
     </div>
   );
 }
