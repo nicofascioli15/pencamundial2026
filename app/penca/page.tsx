@@ -504,6 +504,7 @@ export default function PencaPage() {
   const [nombreGrupo, setNombreGrupo] = useState<string>("PencaFascioli");
   const [gruposTabla, setGruposTabla] = useState<{id:string;nombre:string}[]>([{id:"fascioli",nombre:"PencaFascioli"}]);
   const [tablaGrupoSeleccionado, setTablaGrupoSeleccionado] = useState<string>("fascioli");
+  const [infoAbierta, setInfoAbierta] = useState(false);
   const [nombreTablaSeleccionada, setNombreTablaSeleccionada] = useState<string>("PencaFascioli");
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -1074,6 +1075,38 @@ const enviarPick = async (
               </div>
             </div>
 
+            {/* Acordeón de puntos y reglas */}
+            <div style={{background:"#fff",border:"1px solid #dde4ec",borderRadius:14,marginBottom:14,overflow:"hidden",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
+              <div onClick={()=>setInfoAbierta(v=>!v)} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",cursor:"pointer",userSelect:"none"}}>
+                <div style={{display:"flex",alignItems:"center",gap:8}}>
+                  <span style={{fontSize:16}}>📋</span>
+                  <div>
+                    <div style={{fontSize:12,fontWeight:700,color:"#123952"}}>Puntos y reglas</div>
+                    <div style={{fontSize:10,color:"#6b7280"}}>Sistema de puntuación y condiciones</div>
+                  </div>
+                </div>
+                <span style={{fontSize:16,color:"#6b7280",transition:"transform .2s",display:"inline-block",transform:infoAbierta?"rotate(180deg)":"rotate(0deg)"}}>▾</span>
+              </div>
+              {infoAbierta&&(
+                <div style={{borderTop:"1px solid #f0f0f0",padding:"12px 14px"}}>
+                  <div style={{marginBottom:12}}>
+                    <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:"uppercase",color:"#123952",marginBottom:8}}>Sistema de puntos</div>
+                    <div className="pts-row"><div><div className="pts-lbl">🎯 Resultado exacto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás los goles exactos de ambos equipos</div></div><div className="pts-val">{config.resultado_exacto} pts</div></div>
+                    <div className="pts-row"><div><div className="pts-lbl">🎯 Ganador + diferencia</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás el ganador y la diferencia de goles</div></div><div className="pts-val">{config.ganador_diferencia} pts</div></div>
+                    <div className="pts-row"><div><div className="pts-lbl">👍 Ganador correcto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás el ganador o que hay empate</div></div><div className="pts-val">{config.ganador_correcto} pts</div></div>
+                    <div className="pts-row"><div><div className="pts-lbl">❌ Sin puntos</div><div style={{fontSize:11,color:"#6b7280"}}>No acertás ni el ganador ni el empate</div></div><div className="pts-val" style={{color:"#dc2626"}}>0 pts</div></div>
+                  </div>
+                  <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:"uppercase",color:"#123952",marginBottom:8}}>Reglas</div>
+                  <p style={{fontSize:12,color:"#6b7280",lineHeight:1.7}}>
+                    🔒 Pronósticos se bloquean <strong style={{color:"#123952"}}>10 min antes</strong> del partido.<br/>
+                    ⏱️ Solo se cuentan los <strong style={{color:"#123952"}}>90 min reglamentarios</strong>.<br/>
+                    🔄 Resultados en tiempo real desde football-data.org.<br/>
+                    🕐 Horarios en <strong style={{color:"#123952"}}>hora Uruguay (UTC-3)</strong>.
+                  </p>
+                </div>
+              )}
+            </div>
+
             {tabla.length===0&&<div className="empty"><em>👥</em>Aún no hay participantes</div>}
 
             {tabla.length>0&&<div style={{fontSize:11,color:"#6b7280",textAlign:"center",padding:"6px 0 10px",fontStyle:"italic"}}>
@@ -1092,26 +1125,6 @@ const enviarPick = async (
               </div>
             ))}
 
-            {/* Sistema de puntos y reglas */}
-            <div style={{marginTop:24}}>
-              <div className="info-card">
-                <div className="sec-title">Sistema de puntos</div>
-                <div className="pts-row"><div><div className="pts-lbl">🎯 Resultado exacto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás los goles exactos de ambos equipos</div></div><div className="pts-val">{config.resultado_exacto} pts</div></div>
-                <div className="pts-row"><div><div className="pts-lbl">🎯 Ganador + diferencia</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás el ganador y la diferencia de goles</div></div><div className="pts-val">{config.ganador_diferencia} pts</div></div>
-                <div className="pts-row"><div><div className="pts-lbl">👍 Ganador correcto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás el ganador o que hay empate</div></div><div className="pts-val">{config.ganador_correcto} pts</div></div>
-                <div className="pts-row"><div><div className="pts-lbl">❌ Sin puntos</div><div style={{fontSize:11,color:"#6b7280"}}>No acertás ni el ganador ni el empate</div></div><div className="pts-val" style={{color:"#dc2626"}}>0 pts</div></div>
-              </div>
-              <div className="info-card">
-                <div className="sec-title">Reglas</div>
-                <p style={{fontSize:13,color:"#6b7280",lineHeight:1.7}}>
-                  🔒 Los pronósticos se bloquean automáticamente <strong style={{color:"#123952"}}>10 minutos antes</strong> del inicio de cada partido.<br/><br/>
-                  ⏱️ Se contabilizan solo los <strong style={{color:"#123952"}}>90 minutos reglamentarios</strong>, sin incluir prórroga ni penales.<br/><br/>
-                  🔄 Los resultados se actualizan solos en tiempo real desde football-data.org.<br/><br/>
-                  🏘️ Si pronosticás con "Aplicar a todos mis grupos" activado, el pick se replica en todos tus grupos automáticamente.<br/><br/>
-                  🕐 Todos los horarios están en <strong style={{color:"#123952"}}>hora Uruguay (UTC-3)</strong>.
-                </p>
-              </div>
-            </div>
           </>}
 
 
