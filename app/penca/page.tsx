@@ -744,12 +744,21 @@ const enviarPick = async (
     window.matchMedia("(display-mode: standalone)").matches ||
     (window.navigator as any).standalone === true;
 
-  // Detectar cuando el usuario ancla la app
+  // Detectar cuando el usuario ancla la app o ya la tiene instalada
   useEffect(() => {
+    // Nuevo install
     const handleInstall = () => {
       fetch("/api/pwa-install", { method: "POST" }).catch(()=>{});
     };
     window.addEventListener("appinstalled", handleInstall);
+
+    // Ya estaba instalada (abre como PWA)
+    const yaEsPWA = window.matchMedia("(display-mode: standalone)").matches
+      || (window.navigator as any).standalone === true;
+    if (yaEsPWA) {
+      fetch("/api/pwa-install", { method: "POST" }).catch(()=>{});
+    }
+
     return () => window.removeEventListener("appinstalled", handleInstall);
   }, []);
 
