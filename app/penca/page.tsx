@@ -1091,26 +1091,30 @@ const enviarPick = async (
                 <div className="t-medal">{["🥇","🥈","🥉"][i]??""}</div>
               </div>
             ))}
+
+            {/* Sistema de puntos y reglas */}
+            <div style={{marginTop:24}}>
+              <div className="info-card">
+                <div className="sec-title">Sistema de puntos</div>
+                <div className="pts-row"><div><div className="pts-lbl">🎯 Resultado exacto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás los goles exactos de ambos equipos</div></div><div className="pts-val">{config.resultado_exacto} pts</div></div>
+                <div className="pts-row"><div><div className="pts-lbl">🎯 Ganador + diferencia</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás el ganador y la diferencia de goles</div></div><div className="pts-val">{config.ganador_diferencia} pts</div></div>
+                <div className="pts-row"><div><div className="pts-lbl">👍 Ganador correcto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás el ganador o que hay empate</div></div><div className="pts-val">{config.ganador_correcto} pts</div></div>
+                <div className="pts-row"><div><div className="pts-lbl">❌ Sin puntos</div><div style={{fontSize:11,color:"#6b7280"}}>No acertás ni el ganador ni el empate</div></div><div className="pts-val" style={{color:"#dc2626"}}>0 pts</div></div>
+              </div>
+              <div className="info-card">
+                <div className="sec-title">Reglas</div>
+                <p style={{fontSize:13,color:"#6b7280",lineHeight:1.7}}>
+                  🔒 Los pronósticos se bloquean automáticamente <strong style={{color:"#123952"}}>10 minutos antes</strong> del inicio de cada partido.<br/><br/>
+                  ⏱️ Se contabilizan solo los <strong style={{color:"#123952"}}>90 minutos reglamentarios</strong>, sin incluir prórroga ni penales.<br/><br/>
+                  🔄 Los resultados se actualizan solos en tiempo real desde football-data.org.<br/><br/>
+                  🏘️ Si pronosticás con "Aplicar a todos mis grupos" activado, el pick se replica en todos tus grupos automáticamente.<br/><br/>
+                  🕐 Todos los horarios están en <strong style={{color:"#123952"}}>hora Uruguay (UTC-3)</strong>.
+                </p>
+              </div>
+            </div>
           </>}
 
-          {/* ── INFO ── */}
-          {tab==="info"&&<>
-            <div className="info-card">
-              <div className="sec-title">Sistema de puntos</div>
-              <div className="pts-row"><div><div className="pts-lbl">🎯 Resultado exacto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás los goles exactos de ambos equipos</div></div><div className="pts-val">{config.resultado_exacto} pts</div></div>
-              <div className="pts-row"><div><div className="pts-lbl">🎯 Ganador + diferencia</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás el ganador y la diferencia de goles</div></div><div className="pts-val">{config.ganador_diferencia} pts</div></div>
-              <div className="pts-row"><div><div className="pts-lbl">👍 Ganador correcto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás el ganador o que hay empate</div></div><div className="pts-val">{config.ganador_correcto} pts</div></div>
-              <div className="pts-row"><div><div className="pts-lbl">❌ Sin puntos</div><div style={{fontSize:11,color:"#6b7280"}}>No acertás ni el ganador ni el empate</div></div><div className="pts-val" style={{color:"#dc2626"}}>0 pts</div></div>
-            </div>
-            <div className="info-card">
-              <div className="sec-title">Reglas</div>
-              <p style={{fontSize:13,color:"#6b7280",lineHeight:1.7}}>
-                🔒 Los pronósticos se bloquean automáticamente <strong style={{color:"#123952"}}>10 minutos antes</strong> del inicio de cada partido.<br/><br/>⏱️ Se contabilizan solo los <strong style={{color:"#123952"}}>90 minutos reglamentarios</strong>, sin incluir prórroga ni penales.<br/><br/>
-                🔄 Los resultados se actualizan solos cada 2 minutos desde football-data.org.<br/><br/>🏘️ Si pronosticás en cualquier grupo, ese pick se copia automáticamente a los grupos donde todavía no tenés pronóstico para ese partido. Si querés diferenciarte en un grupo, cambialo manualmente.<br/><br/>
-                🕐 Todos los horarios están en <strong style={{color:"#123952"}}>hora Uruguay (UTC-3)</strong>.
-              </p>
-            </div>
-          </>}
+
 
           {/* ── MIS GRUPOS ── */}
           {tab==="misgrupos"&&<>
