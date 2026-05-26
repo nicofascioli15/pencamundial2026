@@ -583,6 +583,7 @@ export default function PencaPage() {
 
   // Datos en vivo desde API
   const [liveData, setLiveData] = useState<Record<string, {estado:string;minuto:number|null;local:number;visitante:number}>>({});
+  const [soloSinPick, setSoloSinPick] = useState(false);
 
   const [gruposUser, setGruposUser] = useState<any[]>([]);
   const [cargandoGrupos, setCargandoGrupos] = useState(false);
@@ -903,8 +904,10 @@ const enviarPick = async (
               <div className="empty"><em>🏆</em>¡El Mundial terminó! Todos los partidos finalizaron</div>
             );
 
-            // Solo los partidos de ese día
-            const partidosDia = todosOrdenados.filter(p=>p.fecha===fechaProxima);
+            // Solo los partidos de ese día (con filtro opcional de sin pick)
+            const partidosDia = todosOrdenados
+              .filter(p=>p.fecha===fechaProxima)
+              .filter(p=> soloSinPick ? !predicciones[p.id] && !esBloqueado(p.fecha,p.hora) : true);
             const esHoyFecha = fechaProxima === fechaHoy;
 
             return (
@@ -914,6 +917,77 @@ const enviarPick = async (
                   {esHoyFecha ? "🔴 Hoy" : "📅"} · {fmtFechaLarga(fechaProxima)}
                   <span style={{flex:1,height:1,background:"#dde4ec"}}/>
                 </div>
+                {partidosDia.map((p,i)=>{
+                  const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
+                  const pred=predicciones[p.id];
+                  const res=resultados[p.id];
+                  const bloq=esBloqueado(p.fecha,p.hora)||!!res;
+                  const puntos=res&&pred?calcularPuntos(pred,res,config):null;
+                  return(
+                    <div key={p.id} style={{marginBottom:i<partidosDia.length-1?14:0}}>
+                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)} liveInfo={liveData[p.id]} aplicarSiempre={getAplicar(p.id)} onToggleAplicar={()=>toggleAplicarSiempre(p.id)}/>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+
+          {/* ── PRÓXIMOS ── */}
+          {tab==="proximos"&&(()=>{
+            const todosOrdenados = TODOS_PARTIDOS
+              .sort((a,b)=>new Date(`${a.fecha}T${a.hora}:00`).getTime()-new Date(`${b.fecha}T${b.hora}:00`).getTime());
+            const fechasUnicas = Array.from(new Set(todosOrdenados.map(p=>p.fecha)));
+            const fechaProxima = fechasUnicas.find(fecha=>
+              todosOrdenados.filter(p=>p.fecha===fecha).some(p=>getEstadoPartido(p.fecha,p.hora,!!resultados[p.id])!=="finalizado")
+            );
+
+            if (!fechaProxima) return (
+              <div className="empty"><em>🏆</em>¡El Mundial terminó!</div>
+            );
+
+            const esHoyFecha = fechaProxima === fechaHoy;
+
+            // Calcular pendientes (sin pick, no bloqueados, no finalizados)
+            const pendientes = TODOS_PARTIDOS.filter(p=>
+              !resultados[p.id] && !esBloqueado(p.fecha,p.hora) && !predicciones[p.id]
+            ).length;
+
+            const partidosDia = todosOrdenados
+              .filter(p=>p.fecha===fechaProxima)
+              .filter(p=> soloSinPick ? !predicciones[p.id] && !esBloqueado(p.fecha,p.hora) : true);
+
+            return (
+              <div style={{marginBottom:20}}>
+                {/* Banner pendientes */}
+                {pendientes > 0 && (
+                  <div onClick={()=>setSoloSinPick(v=>!v)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:soloSinPick?"rgba(232,160,32,.15)":"rgba(232,160,32,.08)",border:`1px solid ${soloSinPick?"rgba(232,160,32,.5)":"rgba(232,160,32,.25)"}`,borderRadius:12,padding:"10px 14px",marginBottom:12,cursor:"pointer",transition:"all .2s"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <span style={{fontSize:16}}>⚠️</span>
+                      <div>
+                        <div style={{fontSize:12,fontWeight:700,color:"#e8a020"}}>{pendientes} pronóstico{pendientes!==1?"s":""} sin completar</div>
+                        <div style={{fontSize:10,color:"rgba(232,160,32,.7)"}}>{soloSinPick?"Mostrando solo pendientes":"Tocá para verlos"}</div>
+                      </div>
+                    </div>
+                    <div style={{fontSize:10,fontWeight:800,color:"#e8a020",background:"rgba(232,160,32,.15)",border:"1px solid rgba(232,160,32,.3)",borderRadius:8,padding:"4px 10px"}}>{soloSinPick?"Ver todos":"Filtrar →"}</div>
+                  </div>
+                )}
+                {pendientes === 0 && (
+                  <div style={{display:"flex",alignItems:"center",gap:8,background:"rgba(46,158,107,.08)",border:"1px solid rgba(46,158,107,.2)",borderRadius:12,padding:"10px 14px",marginBottom:12}}>
+                    <span style={{fontSize:16}}>✅</span>
+                    <div style={{fontSize:12,fontWeight:700,color:"#2e9e6b"}}>¡Todos los pronósticos completados!</div>
+                  </div>
+                )}
+
+                <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#123952",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
+                  {esHoyFecha ? "🔴 Hoy" : "📅"} · {fmtFechaLarga(fechaProxima)}
+                  <span style={{flex:1,height:1,background:"#dde4ec"}}/>
+                </div>
+
+                {partidosDia.length === 0 && soloSinPick && (
+                  <div className="empty"><em>✅</em>No quedan pendientes para este día</div>
+                )}
+
                 {partidosDia.map((p,i)=>{
                   const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
                   const pred=predicciones[p.id];
