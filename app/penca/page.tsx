@@ -890,51 +890,6 @@ const enviarPick = async (
 
           {/* ── PRÓXIMOS ── */}
           {tab==="proximos"&&(()=>{
-            // Encontrar el día más cercano con partidos no finalizados
-            const todosOrdenados = TODOS_PARTIDOS
-              .sort((a,b)=>new Date(`${a.fecha}T${a.hora}:00`).getTime()-new Date(`${b.fecha}T${b.hora}:00`).getTime());
-
-            // Buscar el primer día que tenga al menos un partido no finalizado
-            const fechasUnicas = Array.from(new Set(todosOrdenados.map(p=>p.fecha)));
-            const fechaProxima = fechasUnicas.find(fecha =>
-              todosOrdenados.filter(p=>p.fecha===fecha).some(p=>getEstadoPartido(p.fecha,p.hora,!!resultados[p.id])!=="finalizado")
-            );
-
-            if (!fechaProxima) return (
-              <div className="empty"><em>🏆</em>¡El Mundial terminó! Todos los partidos finalizaron</div>
-            );
-
-            // Solo los partidos de ese día (con filtro opcional de sin pick)
-            const partidosDia = todosOrdenados
-              .filter(p=>p.fecha===fechaProxima)
-              .filter(p=> soloSinPick ? !predicciones[p.id] && !esBloqueado(p.fecha,p.hora) : true);
-            const esHoyFecha = fechaProxima === fechaHoy;
-
-            return (
-              <div style={{marginBottom:20}}>
-
-                <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#123952",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
-                  {esHoyFecha ? "🔴 Hoy" : "📅"} · {fmtFechaLarga(fechaProxima)}
-                  <span style={{flex:1,height:1,background:"#dde4ec"}}/>
-                </div>
-                {partidosDia.map((p,i)=>{
-                  const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
-                  const pred=predicciones[p.id];
-                  const res=resultados[p.id];
-                  const bloq=esBloqueado(p.fecha,p.hora)||!!res;
-                  const puntos=res&&pred?calcularPuntos(pred,res,config):null;
-                  return(
-                    <div key={p.id} style={{marginBottom:i<partidosDia.length-1?14:0}}>
-                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)} liveInfo={liveData[p.id]} aplicarSiempre={getAplicar(p.id)} onToggleAplicar={()=>toggleAplicarSiempre(p.id)}/>
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })()}
-
-          {/* ── PRÓXIMOS ── */}
-          {tab==="proximos"&&(()=>{
             const todosOrdenados = TODOS_PARTIDOS
               .sort((a,b)=>new Date(`${a.fecha}T${a.hora}:00`).getTime()-new Date(`${b.fecha}T${b.hora}:00`).getTime());
             const fechasUnicas = Array.from(new Set(todosOrdenados.map(p=>p.fecha)));
