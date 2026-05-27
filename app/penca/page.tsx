@@ -858,9 +858,25 @@ const enviarPick = async (
               <div className="logo-div"/>
               <div className="logo-txt">Penca<br/><span>Mundial 2026</span></div>
             </div>
-            <div className="user-pill" onClick={logout}>
-              <div className="user-av">{inicial}</div>
-              <div><div className="user-name">{user?.nombre}</div><div className="user-pts">{myPos>0?`#${myPos} · `:""}{myPts} pts · salir</div></div>
+            <div style={{display:"flex",alignItems:"center",gap:6,overflow:"hidden"}}>
+              {/* Chips de grupos */}
+              <div style={{display:"flex",gap:5,overflowX:"auto",scrollbarWidth:"none",maxWidth:200}}>
+                {gruposUser.length > 0 ? gruposUser.map(g=>(
+                  <div key={g.id} onClick={()=>{setGrupoActivo(g.id);setNombreGrupo(g.nombre);window.history.replaceState(null,"",`/penca?grupo=${g.id}`);}} style={{flexShrink:0,display:"flex",alignItems:"center",gap:5,background:grupoActivo===g.id?"rgba(245,200,66,.15)":"rgba(255,255,255,.07)",border:`1px solid ${grupoActivo===g.id?"rgba(245,200,66,.4)":"rgba(255,255,255,.1)"}`,borderRadius:20,padding:"4px 10px",cursor:"pointer",transition:"all .2s"}}>
+                    <div style={{textAlign:"center"}}>
+                      <div style={{fontSize:10,fontWeight:700,color:grupoActivo===g.id?"#f5c842":"rgba(255,255,255,.7)",whiteSpace:"nowrap",maxWidth:70,overflow:"hidden",textOverflow:"ellipsis"}}>{g.nombre}</div>
+                      <div style={{fontSize:9,color:grupoActivo===g.id?"rgba(245,200,66,.7)":"rgba(255,255,255,.35)",fontWeight:600}}>{g.miPos>0?`#${g.miPos} · `:""}{g.miPts} pts</div>
+                    </div>
+                  </div>
+                )) : (
+                  <div style={{display:"flex",alignItems:"center",gap:6,background:"rgba(255,255,255,.07)",border:"1px solid rgba(255,255,255,.1)",borderRadius:20,padding:"4px 10px"}}>
+                    <div className="user-av">{inicial}</div>
+                    <div><div className="user-name">{user?.nombre}</div><div className="user-pts">{myPos>0?`#${myPos} · `:""}{myPts} pts</div></div>
+                  </div>
+                )}
+              </div>
+              {/* Botón salir */}
+              <div onClick={logout} style={{flexShrink:0,background:"rgba(255,255,255,.06)",border:"1px solid rgba(255,255,255,.08)",borderRadius:20,padding:"5px 9px",cursor:"pointer",fontSize:9,color:"rgba(255,255,255,.35)",fontWeight:600}}>salir</div>
             </div>
           </div>
           <div className="hero">
@@ -953,17 +969,7 @@ const enviarPick = async (
                 </div>
               );
             })()}
-            <div className="prog-card">
-              <div>
-                <div className="prog-lbl">Tu progreso</div>
-                <div className="prog-bar"><div className="prog-fill" style={{width:`${(totalPicks/TODOS_PARTIDOS.length)*100}%`}}/></div>
-                <div className="prog-sub">{totalPicks} de {TODOS_PARTIDOS.length} pronósticos</div>
-              </div>
-              <div style={{textAlign:"right"}}>
-                <div className="prog-num">{myPts}</div>
-                <div className="prog-pts">puntos</div>
-              </div>
-            </div>
+
             {ultimaSync&&<div className="sync"><div className="sync-dot"/>Resultados actualizados a las {ultimaSync}</div>}
             {/* Carrusel de fases */}
             <div className="fase-carrusel">
