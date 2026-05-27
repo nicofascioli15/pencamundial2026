@@ -882,11 +882,17 @@ const enviarPick = async (
           </div>
           {/* ── BARRA DE GRUPOS ── */}
           {gruposUser.length > 0 && (
-            <div style={{background:"rgba(6,14,24,.95)",borderBottom:"1px solid rgba(255,255,255,.05)",padding:"8px 14px",overflowX:"auto",display:"flex",gap:7,scrollbarWidth:"none" as any}}>
+            <div style={{background:"rgba(6,13,26,.98)",borderBottom:"1px solid rgba(255,255,255,.06)",padding:"10px 12px",overflowX:"auto",display:"flex",gap:8,scrollbarWidth:"none" as any}}>
               {gruposUser.map(g=>(
-                <div key={g.id} onClick={()=>{setGrupoActivo(g.id);setNombreGrupo(g.nombre);window.history.replaceState(null,"",`/penca?grupo=${g.id}`);}} style={{flexShrink:0,display:"flex",flexDirection:"column",background:grupoActivo===g.id?"rgba(245,200,66,.12)":"rgba(255,255,255,.05)",border:`1.5px solid ${grupoActivo===g.id?"rgba(245,200,66,.45)":"rgba(255,255,255,.08)"}`,borderRadius:20,padding:"5px 12px",cursor:"pointer",transition:"all .2s"}}>
-                  <div style={{fontSize:10,fontWeight:700,color:grupoActivo===g.id?"#f5c842":"rgba(255,255,255,.65)",whiteSpace:"nowrap",maxWidth:90,overflow:"hidden",textOverflow:"ellipsis"}}>{g.nombre}</div>
-                  <div style={{fontSize:9,color:grupoActivo===g.id?"rgba(245,200,66,.65)":"rgba(255,255,255,.3)",fontWeight:600}}>{g.miPos>0?`#${g.miPos} · `:""}{g.miPts} pts</div>
+                <div key={g.id} onClick={()=>{setGrupoActivo(g.id);setNombreGrupo(g.nombre);window.history.replaceState(null,"",`/penca?grupo=${g.id}`);}} style={{flexShrink:0,display:"flex",alignItems:"center",gap:10,background:grupoActivo===g.id?"rgba(245,200,66,.1)":"rgba(255,255,255,.05)",border:`1.5px solid ${grupoActivo===g.id?"rgba(245,200,66,.4)":"rgba(255,255,255,.08)"}`,borderRadius:14,padding:"8px 14px",cursor:"pointer",transition:"all .2s"}}>
+                  <div>
+                    <div style={{fontSize:11,fontWeight:700,color:grupoActivo===g.id?"#f5c842":"rgba(255,255,255,.6)",whiteSpace:"nowrap",maxWidth:90,overflow:"hidden",textOverflow:"ellipsis"}}>{g.nombre}</div>
+                    <div style={{fontSize:9,color:grupoActivo===g.id?"rgba(245,200,66,.6)":"rgba(255,255,255,.3)",fontWeight:700,marginTop:1}}>{g.miPos>0?`#${g.miPos} · `:""}{g.id==="fascioli"?"Global":`${g.miembros} jugadores`}</div>
+                  </div>
+                  <div style={{textAlign:"right",flexShrink:0}}>
+                    <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:22,color:grupoActivo===g.id?"#f5c842":"rgba(255,255,255,.25)",lineHeight:1}}>{g.miPts}</div>
+                    <div style={{fontSize:8,color:grupoActivo===g.id?"rgba(245,200,66,.5)":"rgba(255,255,255,.2)",fontWeight:600}}>pts</div>
+                  </div>
                 </div>
               ))}
             </div>
