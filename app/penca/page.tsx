@@ -638,6 +638,7 @@ export default function PencaPage() {
       setUser(me.user);
       await cargarDatos();
       await sincronizar();
+      await cargarGrupos();
       setCargando(false);
     })();
   }, [router,cargarDatos,sincronizar]);
@@ -858,25 +859,9 @@ const enviarPick = async (
               <div className="logo-div"/>
               <div className="logo-txt">Penca<br/><span>Mundial 2026</span></div>
             </div>
-            <div style={{display:"flex",alignItems:"center",gap:6,overflow:"hidden"}}>
-              {/* Chips de grupos */}
-              <div style={{display:"flex",gap:5,overflowX:"auto",scrollbarWidth:"none",maxWidth:200}}>
-                {gruposUser.length > 0 ? gruposUser.map(g=>(
-                  <div key={g.id} onClick={()=>{setGrupoActivo(g.id);setNombreGrupo(g.nombre);window.history.replaceState(null,"",`/penca?grupo=${g.id}`);}} style={{flexShrink:0,display:"flex",alignItems:"center",gap:5,background:grupoActivo===g.id?"rgba(245,200,66,.15)":"rgba(255,255,255,.07)",border:`1px solid ${grupoActivo===g.id?"rgba(245,200,66,.4)":"rgba(255,255,255,.1)"}`,borderRadius:20,padding:"4px 10px",cursor:"pointer",transition:"all .2s"}}>
-                    <div style={{textAlign:"center"}}>
-                      <div style={{fontSize:10,fontWeight:700,color:grupoActivo===g.id?"#f5c842":"rgba(255,255,255,.7)",whiteSpace:"nowrap",maxWidth:70,overflow:"hidden",textOverflow:"ellipsis"}}>{g.nombre}</div>
-                      <div style={{fontSize:9,color:grupoActivo===g.id?"rgba(245,200,66,.7)":"rgba(255,255,255,.35)",fontWeight:600}}>{g.miPos>0?`#${g.miPos} · `:""}{g.miPts} pts</div>
-                    </div>
-                  </div>
-                )) : (
-                  <div style={{display:"flex",alignItems:"center",gap:6,background:"rgba(255,255,255,.07)",border:"1px solid rgba(255,255,255,.1)",borderRadius:20,padding:"4px 10px"}}>
-                    <div className="user-av">{inicial}</div>
-                    <div><div className="user-name">{user?.nombre}</div><div className="user-pts">{myPos>0?`#${myPos} · `:""}{myPts} pts</div></div>
-                  </div>
-                )}
-              </div>
-              {/* Botón salir */}
-              <div onClick={logout} style={{flexShrink:0,background:"rgba(255,255,255,.06)",border:"1px solid rgba(255,255,255,.08)",borderRadius:20,padding:"5px 9px",cursor:"pointer",fontSize:9,color:"rgba(255,255,255,.35)",fontWeight:600}}>salir</div>
+            <div className="user-pill" onClick={logout}>
+              <div className="user-av">{inicial}</div>
+              <div><div className="user-name">{user?.nombre}</div><div className="user-pts">{myPos>0?`#${myPos} · `:""}{myPts} pts · salir</div></div>
             </div>
           </div>
           <div className="hero">
@@ -895,6 +880,18 @@ const enviarPick = async (
             </div>
             <div className="hero-trophy" style={{userSelect:"none",lineHeight:1}}>🏆</div>
           </div>
+          {/* ── BARRA DE GRUPOS ── */}
+          {gruposUser.length > 0 && (
+            <div style={{background:"rgba(6,14,24,.95)",borderBottom:"1px solid rgba(255,255,255,.05)",padding:"8px 14px",overflowX:"auto",display:"flex",gap:7,scrollbarWidth:"none" as any}}>
+              {gruposUser.map(g=>(
+                <div key={g.id} onClick={()=>{setGrupoActivo(g.id);setNombreGrupo(g.nombre);window.history.replaceState(null,"",`/penca?grupo=${g.id}`);}} style={{flexShrink:0,display:"flex",flexDirection:"column",background:grupoActivo===g.id?"rgba(245,200,66,.12)":"rgba(255,255,255,.05)",border:`1.5px solid ${grupoActivo===g.id?"rgba(245,200,66,.45)":"rgba(255,255,255,.08)"}`,borderRadius:20,padding:"5px 12px",cursor:"pointer",transition:"all .2s"}}>
+                  <div style={{fontSize:10,fontWeight:700,color:grupoActivo===g.id?"#f5c842":"rgba(255,255,255,.65)",whiteSpace:"nowrap",maxWidth:90,overflow:"hidden",textOverflow:"ellipsis"}}>{g.nombre}</div>
+                  <div style={{fontSize:9,color:grupoActivo===g.id?"rgba(245,200,66,.65)":"rgba(255,255,255,.3)",fontWeight:600}}>{g.miPos>0?`#${g.miPos} · `:""}{g.miPts} pts</div>
+                </div>
+              ))}
+            </div>
+          )}
+
           <nav className="nav">
             {([["proximos","📅","Próximos"],["picks","🎯","Pronósticos"],["tabla","🏆","Tabla"],["grupos","📊","Grupos"],["misgrupos","🏘️","Mis grupos"]] as [string,string,string][]).map(([id,ic,lb])=>(
               <button key={id} className={`nb ${tab===id?"on":""}`} onClick={()=>{ if(id==="misgrupos"){ cargarGrupos(); setTab("misgrupos"); return; } setTab(id as any); }}><em>{ic}</em>{lb}</button>
