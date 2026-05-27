@@ -903,45 +903,15 @@ const enviarPick = async (
 
             const esHoyFecha = fechaProxima === fechaHoy;
 
-            // Calcular pendientes (sin pick, no bloqueados, no finalizados)
-            const pendientes = TODOS_PARTIDOS.filter(p=>
-              !resultados[p.id] && !esBloqueado(p.fecha,p.hora) && !predicciones[p.id]
-            ).length;
-
             const partidosDia = todosOrdenados
-              .filter(p=>p.fecha===fechaProxima)
-              .filter(p=> soloSinPick ? !predicciones[p.id] && !esBloqueado(p.fecha,p.hora) : true);
+              .filter(p=>p.fecha===fechaProxima);
 
             return (
               <div style={{marginBottom:20}}>
-                {/* Banner pendientes */}
-                {pendientes > 0 && (
-                  <div onClick={()=>setSoloSinPick(v=>!v)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:soloSinPick?"rgba(232,160,32,.15)":"rgba(232,160,32,.08)",border:`1px solid ${soloSinPick?"rgba(232,160,32,.5)":"rgba(232,160,32,.25)"}`,borderRadius:12,padding:"10px 14px",marginBottom:12,cursor:"pointer",transition:"all .2s"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8}}>
-                      <span style={{fontSize:16}}>⚠️</span>
-                      <div>
-                        <div style={{fontSize:12,fontWeight:700,color:"#e8a020"}}>{pendientes} pronóstico{pendientes!==1?"s":""} sin completar</div>
-                        <div style={{fontSize:10,color:"rgba(232,160,32,.7)"}}>{soloSinPick?"Mostrando solo pendientes":"Tocá para verlos"}</div>
-                      </div>
-                    </div>
-                    <div style={{fontSize:10,fontWeight:800,color:"#e8a020",background:"rgba(232,160,32,.15)",border:"1px solid rgba(232,160,32,.3)",borderRadius:8,padding:"4px 10px"}}>{soloSinPick?"Ver todos":"Filtrar →"}</div>
-                  </div>
-                )}
-                {pendientes === 0 && (
-                  <div style={{display:"flex",alignItems:"center",gap:8,background:"rgba(46,158,107,.08)",border:"1px solid rgba(46,158,107,.2)",borderRadius:12,padding:"10px 14px",marginBottom:12}}>
-                    <span style={{fontSize:16}}>✅</span>
-                    <div style={{fontSize:12,fontWeight:700,color:"#2e9e6b"}}>¡Todos los pronósticos completados!</div>
-                  </div>
-                )}
-
                 <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:"uppercase",color:"#123952",marginBottom:12,display:"flex",alignItems:"center",gap:8}}>
                   {esHoyFecha ? "🔴 Hoy" : "📅"} · {fmtFechaLarga(fechaProxima)}
                   <span style={{flex:1,height:1,background:"#dde4ec"}}/>
                 </div>
-
-                {partidosDia.length === 0 && soloSinPick && (
-                  <div className="empty"><em>✅</em>No quedan pendientes para este día</div>
-                )}
 
                 {partidosDia.map((p,i)=>{
                   const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
@@ -961,6 +931,28 @@ const enviarPick = async (
 
           {/* ── PRONÓSTICOS ── */}
           {tab==="picks"&&<>
+            {(()=>{
+              const pendientes = TODOS_PARTIDOS.filter(p=>
+                !resultados[p.id] && !esBloqueado(p.fecha,p.hora) && !predicciones[p.id]
+              ).length;
+              return pendientes > 0 ? (
+                <div onClick={()=>setSoloSinPick(v=>!v)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:soloSinPick?"rgba(232,160,32,.15)":"rgba(232,160,32,.08)",border:`1px solid ${soloSinPick?"rgba(232,160,32,.5)":"rgba(232,160,32,.25)"}`,borderRadius:12,padding:"10px 14px",marginBottom:12,cursor:"pointer"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <span style={{fontSize:16}}>⚠️</span>
+                    <div>
+                      <div style={{fontSize:12,fontWeight:700,color:"#e8a020"}}>{pendientes} pronóstico{pendientes!==1?"s":""} sin completar</div>
+                      <div style={{fontSize:10,color:"rgba(232,160,32,.7)"}}>{soloSinPick?"Mostrando solo pendientes · Tocá para ver todos":"Tocá para filtrarlos"}</div>
+                    </div>
+                  </div>
+                  <div style={{fontSize:10,fontWeight:800,color:"#e8a020",background:"rgba(232,160,32,.15)",border:"1px solid rgba(232,160,32,.3)",borderRadius:8,padding:"4px 10px"}}>{soloSinPick?"Ver todos":"Filtrar →"}</div>
+                </div>
+              ) : (
+                <div style={{display:"flex",alignItems:"center",gap:8,background:"rgba(46,158,107,.08)",border:"1px solid rgba(46,158,107,.2)",borderRadius:12,padding:"10px 14px",marginBottom:12}}>
+                  <span>✅</span>
+                  <div style={{fontSize:12,fontWeight:700,color:"#2e9e6b"}}>¡Todos los pronósticos completados!</div>
+                </div>
+              );
+            })()}
             <div className="prog-card">
               <div>
                 <div className="prog-lbl">Tu progreso</div>
@@ -999,6 +991,7 @@ const enviarPick = async (
                 .filter(p=>{
                   if (p.fase!==filtroFase) return false;
                   if (filtroFase==="Grupos"&&filtroGrupo!=="Todos"&&p.grupo!==filtroGrupo) return false;
+                  if (soloSinPick && (predicciones[p.id] || resultados[p.id] || esBloqueado(p.fecha,p.hora))) return false;
                   return true;
                 })
                 .sort((a,b)=>new Date(`${a.fecha}T${a.hora}:00`).getTime()-new Date(`${b.fecha}T${b.hora}:00`).getTime());
