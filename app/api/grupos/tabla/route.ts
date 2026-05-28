@@ -30,19 +30,23 @@ export async function GET(req: NextRequest) {
       getUsuario(username),
       getAllPrediccionesGrupoUsuario(grupoId, username),
     ]);
-    let pts = 0, exactos = 0, ganadores = 0, jugados = 0;
+    let pts = 0, exactos = 0, ganadores = 0, jugados = 0, sinPronos = 0;
     TODOS_PARTIDOS.forEach(p => {
       const res = resultados[p.id];
       const pred = predicciones[p.id];
-      if (res && pred) {
-        jugados++;
-        const puntos = calcularPuntos(pred, res, config);
-        pts += puntos;
-        if (puntos === config.resultado_exacto) exactos++;
-        else if (puntos > 0) ganadores++;
+      if (res) {
+        if (pred) {
+          jugados++;
+          const puntos = calcularPuntos(pred, res, config);
+          pts += puntos;
+          if (puntos === config.resultado_exacto) exactos++;
+          else if (puntos > 0) ganadores++;
+        } else {
+          sinPronos++;
+        }
       }
     });
-    return { username, nombre: user?.nombre ?? username, pts, exactos, ganadores, jugados };
+    return { username, nombre: user?.nombre ?? username, pts, exactos, ganadores, jugados, sinPronos };
   }));
 
   tabla.sort((a, b) => b.pts - a.pts || b.exactos - a.exactos);

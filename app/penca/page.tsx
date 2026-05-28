@@ -396,7 +396,7 @@ const css = `
 `;
 
 interface User { username: string; nombre: string; isAdmin: boolean; }
-interface TablaRow { username: string; nombre: string; pts: number; exactos: number; ganadores: number; jugados: number; totalPicks: number; }
+interface TablaRow { username: string; nombre: string; pts: number; exactos: number; ganadores: number; jugados: number; totalPicks: number; sinPronos?: number; }
 interface FilaGrupo { equipo: string; pj: number; g: number; e: number; p: number; gf: number; ga: number; dg: number; pts: number; }
 
 const FASES = ["Grupos","Octavos","Cuartos","Semis","Final"];
@@ -1111,7 +1111,7 @@ const enviarPick = async (
                 <div className="t-pos">{i+1}</div>
                 <div className="t-user">
                   <div className="t-name">{u.nombre}{u.username===user?.username?" 👤":""}</div>
-                  <div className="t-stats">✅ {u.exactos} exactos · 👍 {u.ganadores} ganadores · {u.jugados} jugados</div>
+                  <div className="t-stats">✅ {u.exactos} exactos · 👍 {u.ganadores} ganados · ⚽ {u.jugados} jugados{u.sinPronos?` · ❌ ${u.sinPronos} sin pronóstico`:""}</div>
                 </div>
                 <div className="t-pts">{u.pts}</div>
                 <div className="t-medal">{["🥇","🥈","🥉"][i]??""}</div>
