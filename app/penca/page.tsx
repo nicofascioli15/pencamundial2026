@@ -7,10 +7,11 @@ import { LOGO_SVG } from "@/lib/logo";
 const css = `
   .app{max-width:430px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#ffffff 0%,#f6f9fc 100%);box-shadow:0 0 60px rgba(18,57,82,.1);display:flex;flex-direction:column;width:100%}
   @media(max-width:430px){.app{max-width:100%;box-shadow:none;margin:0}}
-  .header{position:sticky;top:0;z-index:100;overflow:hidden;background:#060e18}
-  .header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 180px 140px at 105% -10%,rgba(60,172,59,.5) 0%,transparent 60%),radial-gradient(ellipse 140px 100px at -5% 105%,rgba(230,29,37,.3) 0%,transparent 55%),radial-gradient(ellipse 160px 130px at 105% 105%,rgba(42,57,141,.4) 0%,transparent 60%);pointer-events:none}
-  .header-tribar{height:3px;background:linear-gradient(90deg,#E61D25 33%,#3CAC3B 33% 66%,#2A398D 66%);position:relative;z-index:2}
-  .header-top{display:flex;justify-content:space-between;align-items:center;padding:11px 16px 8px;position:relative;z-index:2}
+  .header{position:sticky;top:0;z-index:100;overflow:hidden;background:#090a0d}
+  .header::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:280px;height:160px;background:radial-gradient(ellipse,rgba(201,168,76,.07) 0%,transparent 70%);pointer-events:none}
+  .header-tribar{display:none}
+  .header-gold-line{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(201,168,76,.6) 30%,rgba(232,200,106,.8) 50%,rgba(201,168,76,.6) 70%,transparent 100%);position:relative;z-index:3}
+  .header-top{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px 10px;position:relative;z-index:2}
   .logo-wrap{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
   .logo-svg{flex-shrink:0}
   .logo-div{width:1px;height:22px;background:rgba(255,255,255,.15);flex-shrink:0}
@@ -20,18 +21,20 @@ const css = `
   .user-av{width:24px;height:24px;background:linear-gradient(135deg,#e8a020,#f5c842);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#060e18;flex-shrink:0;box-shadow:0 2px 8px rgba(232,160,32,.4)}
   .user-name{font-size:11px;font-weight:700;color:#fff}
   .user-pts{font-size:9px;color:rgba(255,255,255,.4)}
-  .hero{padding:2px 16px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;z-index:2}
-  .hero-title{font-family:'Bebas Neue',sans-serif;font-size:42px;line-height:.92;color:#fff}
-  .hero-title .rc{color:#E61D25}.hero-title .gc{color:#3CAC3B}.hero-title .bc{color:#6b8fff}.hero-title .yc{color:#f5c842}
-  .hero-date{font-size:9px;color:rgba(255,255,255,.4);margin-top:5px;font-weight:600;letter-spacing:.5px;display:flex;align-items:center;gap:4px}
-  .hero-trophy{font-size:58px;filter:drop-shadow(0 4px 16px rgba(232,160,32,.45));animation:trophy-float 3s ease-in-out infinite;flex-shrink:0}
-  @keyframes trophy-float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-7px) rotate(3deg)}}
-  .hero-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(230,29,37,.5),rgba(60,172,59,.5),rgba(42,57,141,.5),transparent);position:relative;z-index:2}
-  .nav{display:flex;background:#0a1420;border-top:1px solid rgba(255,255,255,.05)}
-  .nb{flex:1;padding:10px 2px 9px;border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:8.5px;font-weight:700;color:rgba(255,255,255,.28);display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;transition:color .2s;letter-spacing:.3px;text-transform:uppercase}
-  .nb em{font-style:normal;font-size:15px}
-  .nb.on{color:#f5c842}
-  .nb.on::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:linear-gradient(90deg,#E61D25,#f5c842,#3CAC3B);border-radius:2px 2px 0 0}
+  .hero{padding:6px 16px 16px;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;position:relative;z-index:2}
+  .hero-penca-lbl{font-size:8px;font-weight:700;letter-spacing:3.5px;text-transform:uppercase;color:rgba(255,255,255,.2);margin-bottom:5px}
+  .hero-title{font-family:'Bebas Neue',sans-serif;font-size:50px;line-height:.88;color:#fff;letter-spacing:1px}
+  .hero-title .year{color:#c9a84c;text-shadow:0 0 30px rgba(201,168,76,.3)}
+  .hero-date{font-size:9px;color:rgba(255,255,255,.2);margin-top:7px;font-weight:500;letter-spacing:.3px;display:flex;align-items:center;gap:5px}
+  .hero-trophy{font-size:58px;filter:drop-shadow(0 4px 20px rgba(201,168,76,.5));animation:trophy-float 4s ease-in-out infinite;flex-shrink:0}
+  .hero-trophy-lbl{font-size:7.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#c9a84c;opacity:.7;text-align:center;margin-top:3px}
+  @keyframes trophy-float{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(1.5deg)}}
+  .hero-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.25),transparent);position:relative;z-index:2;margin:0 16px}
+  .nav{display:flex;background:#0d0e11;border-top:1px solid rgba(255,255,255,.06)}
+  .nb{flex:1;padding:9px 2px 8px;border:none;background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:7.5px;font-weight:700;color:rgba(255,255,255,.22);display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;transition:color .2s;letter-spacing:.3px;text-transform:uppercase}
+  .nb em{font-style:normal;font-size:14px}
+  .nb.on{color:#c9a84c}
+  .nb.on::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:1.5px;background:#c9a84c;border-radius:2px 2px 0 0;opacity:.8}
   .content{padding:14px 14px 80px;flex:1;animation:softIn .22s ease-out}@keyframes softIn{from{opacity:.0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
   /* ── HOY SECTION ── */
@@ -1066,6 +1069,36 @@ const enviarPick = async (
           {/* ── TABLA ── */}
           {tab==="tabla"&&<>
             <div className="sec-title">Clasificación penca</div>
+
+            {/* Acordeón puntos y reglas */}
+            <div style={{background:"#fff",border:"1px solid #dde4ec",borderRadius:14,marginBottom:14,overflow:"hidden",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
+              <div onClick={()=>setInfoAbierta(v=>!v)} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",cursor:"pointer",userSelect:"none"}}>
+                <div style={{display:"flex",alignItems:"center",gap:8}}>
+                  <span style={{fontSize:16}}>📋</span>
+                  <div>
+                    <div style={{fontSize:12,fontWeight:700,color:"#123952"}}>Puntos y reglas</div>
+                    <div style={{fontSize:10,color:"#6b7280"}}>Sistema de puntuación y condiciones</div>
+                  </div>
+                </div>
+                <span style={{fontSize:16,color:"#6b7280",display:"inline-block",transform:infoAbierta?"rotate(180deg)":"rotate(0deg)",transition:"transform .2s"}}>▾</span>
+              </div>
+              {infoAbierta&&(
+                <div style={{borderTop:"1px solid #f0f0f0",padding:"12px 14px"}}>
+                  <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:"uppercase",color:"#123952",marginBottom:8}}>Sistema de puntos</div>
+                  <div className="pts-row"><div><div className="pts-lbl">🎯 Resultado exacto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás los goles exactos de ambos equipos</div></div><div className="pts-val">{config.resultado_exacto} pts</div></div>
+                  <div className="pts-row"><div><div className="pts-lbl">🎯 Ganador + diferencia</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás el ganador y la diferencia de goles</div></div><div className="pts-val">{config.ganador_diferencia} pts</div></div>
+                  <div className="pts-row"><div><div className="pts-lbl">👍 Ganador correcto</div><div style={{fontSize:11,color:"#6b7280"}}>Acertás el ganador o que hay empate</div></div><div className="pts-val">{config.ganador_correcto} pts</div></div>
+                  <div className="pts-row"><div><div className="pts-lbl">❌ Sin puntos</div><div style={{fontSize:11,color:"#6b7280"}}>No acertás ni el ganador ni el empate</div></div><div className="pts-val" style={{color:"#dc2626"}}>0 pts</div></div>
+                  <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:"uppercase",color:"#123952",margin:"12px 0 8px"}}>Reglas</div>
+                  <p style={{fontSize:12,color:"#6b7280",lineHeight:1.7}}>
+                    🔒 Pronósticos se bloquean <strong style={{color:"#123952"}}>10 min antes</strong> del partido.<br/>
+                    ⏱️ Solo se cuentan los <strong style={{color:"#123952"}}>90 min reglamentarios</strong>.<br/>
+                    🔄 Resultados en tiempo real desde football-data.org.<br/>
+                    🕐 Horarios en <strong style={{color:"#123952"}}>hora Uruguay (UTC-3)</strong>.
+                  </p>
+                </div>
+              )}
+            </div>
 
             {tabla.length===0&&<div className="empty"><em>👥</em>Aún no hay participantes</div>}
 
