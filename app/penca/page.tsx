@@ -565,11 +565,16 @@ export default function PencaPage() {
       navigator.serviceWorker.ready.then(reg => {
         reg.pushManager.getSubscription().then(sub => {
           setNotifActiva(!!sub);
+          // Si es PWA, no tiene notif activas y no lo cerró antes → mostrar modal
+          if (!sub && esPWA() && !localStorage.getItem("notif_modal_cerrado")) {
+            setTimeout(() => setShowNotifModal(true), 2000);
+          }
         });
       });
     }
   }, []);
   const [showInstallModal, setShowInstallModal] = useState(false);
+  const [showNotifModal, setShowNotifModal] = useState(false);
   const [pickPendiente, setPickPendiente] = useState<any>(null);
   const [aplicarTodosGrupos, setAplicarTodosGrupos] = useState(false);
   // Por partido: true = aplicar a todos, false = solo este grupo
@@ -1397,6 +1402,33 @@ const enviarPick = async (
         </div>
       )}
 
+
+        {showNotifModal&&(
+          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center",padding:"0 0 20px"}}>
+            <div style={{background:"#fff",borderRadius:"20px 20px 20px 20px",width:"100%",maxWidth:430,padding:"24px 20px 28px",boxShadow:"0 -8px 40px rgba(0,0,0,.2)"}}>
+              <div style={{width:40,height:4,background:"#dde4ec",borderRadius:4,margin:"0 auto 20px"}}/>
+              <div style={{textAlign:"center",marginBottom:20}}>
+                <div style={{fontSize:48,marginBottom:12}}>🔔</div>
+                <div style={{fontSize:18,fontWeight:800,color:"#123952",marginBottom:8}}>Activá las notificaciones</div>
+                <div style={{fontSize:13,color:"#6b7280",lineHeight:1.6}}>
+                  Así te avisamos cuando hay un resultado nuevo y cuando está por arrancar un partido. ¡No te perdás nada del Mundial!
+                </div>
+              </div>
+              <button
+                onClick={async ()=>{ setShowNotifModal(false); await toggleNotif(); }}
+                style={{width:"100%",padding:14,border:"none",borderRadius:12,background:"linear-gradient(135deg,#123952,#1d5278)",color:"#fff",fontWeight:700,fontSize:15,cursor:"pointer",marginBottom:10,boxShadow:"0 4px 16px rgba(18,57,82,.3)"}}
+              >
+                🔔 Activar notificaciones
+              </button>
+              <button
+                onClick={()=>{ setShowNotifModal(false); localStorage.setItem("notif_modal_cerrado","1"); }}
+                style={{width:"100%",padding:11,border:"none",background:"transparent",color:"#6b7280",fontSize:13,cursor:"pointer"}}
+              >
+                Ahora no
+              </button>
+            </div>
+          </div>
+        )}
 
         {showInstallModal&&(
           <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center"}} onClick={()=>setShowInstallModal(false)}>
