@@ -573,6 +573,24 @@ export default function PencaPage() {
       });
     }
   }, []);
+  // Polling en vivo cada 20 segundos
+  useEffect(() => {
+    const pollLive = async () => {
+      try {
+        const r = await fetch("/api/live").then(r=>r.json());
+        if (r.enVivo) {
+          const map: Record<string, any> = {};
+          for (const d of r.enVivo) map[d.partidoId] = d;
+          setLiveData(map);
+        }
+        if (r.nuevosFinalizados > 0) cargarDatos();
+      } catch {}
+    };
+    pollLive();
+    const interval = setInterval(pollLive, 20000);
+    return () => clearInterval(interval);
+  }, []);
+
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showNotifModal, setShowNotifModal] = useState(false);
   const [pickPendiente, setPickPendiente] = useState<any>(null);
@@ -1520,7 +1538,8 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
         {estado==="jugando"
           ? (() => {
               const min = getMinutoPartido(partido.fecha, partido.hora);
-              return <span className="live-badge"><span className="live-dot"/> EN VIVO {min ? `· ${min.minuto}' (${min.tiempo})` : ""}</span>;
+              const minReal = liveInfo?.minuto;
+              return <span className="live-badge"><span className="live-dot"/> EN VIVO {minReal ? `· ${minReal}'` : ""}</span>;
             })()
           : estado==="entretiempo"
             ? <span className="estado-badge estado-entretiempo">⏸ Entretiempo</span>
@@ -1563,7 +1582,7 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
         const min = getMinutoPartido(partido.fecha, partido.hora);
         return (
           <div style={{fontSize:11,fontWeight:700,color:"#dc2626",textAlign:"center",margin:"6px 0 8px",letterSpacing:.3}}>
-            ⚡ {min ? `Min ${min.minuto}' · ${min.tiempo === "1T" ? "Primer tiempo" : "Segundo tiempo"}` : "Partido en vivo"}
+            ⚡ {liveInfo?.minuto ? `${liveInfo.minuto}' · ${liveInfo.minuto <= 45 ? "Primer tiempo" : "Segundo tiempo"}` : "Partido en vivo"}
           </div>
         );
       })()}
