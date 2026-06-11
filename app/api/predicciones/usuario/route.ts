@@ -14,7 +14,8 @@ export async function GET(req: NextRequest) {
   const predsBloqueadas: Record<string, { local: number; visitante: number }> = {};
   for (const p of TODOS_PARTIDOS) {
     const [h, m] = p.hora.split(":").map(Number);
-    const bloqueoMs = new Date(`${p.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime()+3*60*60*1000-10*60*1000;
+    const [y,mo,d] = p.fecha.split("-").map(Number);
+    const bloqueoMs = Date.UTC(y, mo-1, d, h+3, m, 0) - 10*60*1000;
     if (ahora >= bloqueoMs && todas[p.id]) predsBloqueadas[p.id] = todas[p.id];
   }
   return NextResponse.json({ username, nombre: user?.nombre??username, predicciones: predsBloqueadas });
