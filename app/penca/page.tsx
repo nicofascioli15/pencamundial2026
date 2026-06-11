@@ -828,7 +828,7 @@ const enviarPick = async (
     setNotifActiva(true);
   };
   const cargarPerfil = async (username: string, nombre: string) => {
-    const r = await fetch(`/api/predicciones/usuario?username=${encodeURIComponent(username)}`).then(r=>r.json());
+    const r = await fetch(`/api/predicciones/usuario?username=${encodeURIComponent(username)}&grupoId=${encodeURIComponent(grupoActivo)}`).then(r=>r.json());
     setPerfilUsuario({username, nombre, predicciones: r.predicciones??{}});
   };
   const logout = async () => { await fetch("/api/auth/logout",{method:"POST"}); router.push("/login"); };
