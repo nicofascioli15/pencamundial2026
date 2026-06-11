@@ -1489,7 +1489,7 @@ const enviarPick = async (
           </div>
         )}
         <button onClick={toggleNotif} style={{position:"fixed",bottom:24,right:16,background:notifActiva?"#2e9e6b":"#123952",color:"#fff",border:"none",borderRadius:50,width:48,height:48,fontSize:20,cursor:"pointer",boxShadow:"0 4px 16px rgba(0,0,0,.25)",zIndex:100}}>{notifActiva?"🔔":"🔕"}</button>
-        {perfilUsuario&&<PerfilModal perfil={perfilUsuario} resultados={resultados} config={config} onClose={()=>setPerfilUsuario(null)}/>}
+        {perfilUsuario&&<PerfilModal perfil={perfilUsuario} resultados={resultados} liveData={liveData} config={config} onClose={()=>setPerfilUsuario(null)}/>}
       </div>
     </>
   );
@@ -1746,9 +1746,10 @@ function CountdownBloqueo({ fecha, hora }: { fecha: string; hora: string }) {
   return <span className={`countdown ${urgente?"urgente":""}`}>🔒 {texto}</span>;
 }
 
-function PerfilModal({ perfil, resultados, config, onClose }: {
+function PerfilModal({ perfil, resultados, liveData, config, onClose }: {
   perfil: {username:string;nombre:string;predicciones:Record<string,Resultado>};
   resultados: Record<string,Resultado>;
+  liveData: Record<string,{estado:string;minuto:number|null;local:number;visitante:number}>;
   config: PuntosConfig;
   onClose: ()=>void;
 }) {
@@ -1774,7 +1775,11 @@ function PerfilModal({ perfil, resultados, config, onClose }: {
         {conPick.map(p=>{
           const pred=perfil.predicciones[p.id];
           const res=resultados[p.id];
-          const pts=res&&pred?calcularPuntos(pred,res,config):null;
+          const live=liveData[p.id];
+          // Usar resultado final, o parcial si está en vivo
+          const resEfectivo = res ?? (live ? {local:live.local, visitante:live.visitante} : null);
+          const esParcial = !res && !!live;
+          const pts=resEfectivo&&pred?calcularPuntos(pred,resEfectivo,config):null;
           const chipCls=pts===null?"":pts===config.resultado_exacto?"chip-ex":pts>0?"chip-ok":"chip-no";
           return (
             <div key={p.id} className="modal-pick-row">
@@ -1783,9 +1788,14 @@ function PerfilModal({ perfil, resultados, config, onClose }: {
                 <div style={{fontSize:10,color:"#6b7280",marginTop:2}}>{fmtF(p.fecha)} · {p.hora} hs</div>
               </div>
               <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-                {res&&<div style={{fontSize:13,color:"#6b7280"}}>{res.local}-{res.visitante}</div>}
+                {resEfectivo&&(
+                  <div style={{fontSize:13,color:esParcial?"#dc2626":"#6b7280",fontWeight:esParcial?700:400}}>
+                    {resEfectivo.local}-{resEfectivo.visitante}
+                    {esParcial&&<span style={{fontSize:9,marginLeft:3}}>🔴</span>}
+                  </div>
+                )}
                 <div style={{fontSize:16,fontWeight:900,color:"#123952",background:"#e8f0f6",padding:"3px 10px",borderRadius:8}}>{pred.local}-{pred.visitante}</div>
-                {pts!==null&&<span className={`chip ${chipCls}`}>{pts>0?`+${pts}`:0}p</span>}
+                {pts!==null&&<span className={`chip ${chipCls}`} style={{opacity:esParcial?0.7:1}}>{pts>0?`+${pts}`:0}p{esParcial?"*":""}</span>}
               </div>
             </div>
           );
