@@ -396,7 +396,7 @@ const css = `
 `;
 
 interface User { username: string; nombre: string; isAdmin: boolean; }
-interface TablaRow { username: string; nombre: string; pts: number; exactos: number; ganadores: number; jugados: number; totalPicks: number; sinPronos?: number; }
+interface TablaRow { username: string; nombre: string; pts: number; ptsParciales?: number; exactos: number; ganadores: number; jugados: number; totalPicks: number; sinPronos?: number; }
 interface FilaGrupo { equipo: string; pj: number; g: number; e: number; p: number; gf: number; ga: number; dg: number; pts: number; }
 
 const FASES = ["Grupos","Octavos","Cuartos","Semis","Final"];
@@ -583,6 +583,11 @@ export default function PencaPage() {
           const map: Record<string, any> = {};
           for (const d of r.enVivo) map[d.partidoId] = d;
           setLiveData(map);
+          // Si hay partido en vivo, recargar tabla para puntos parciales
+          if (r.enVivo.length > 0) {
+            const tablaRes = await fetch(`/api/grupos/tabla?grupoId=${grupoActivo}`).then(r=>r.json());
+            if (tablaRes.tabla) setTabla(tablaRes.tabla);
+          }
         }
         if (r.nuevosFinalizados > 0) cargarDatos();
       } catch {}
@@ -1189,7 +1194,10 @@ const enviarPick = async (
                   <div className="t-name">{u.nombre}{u.username===user?.username?" 👤":""}</div>
                   <div className="t-stats">✅ {u.exactos} exactos · 👍 {u.ganadores} ganados · ⚽ {u.jugados} jugados{u.sinPronos?` · ❌ ${u.sinPronos} sin pronóstico`:""}</div>
                 </div>
-                <div className="t-pts">{u.pts}</div>
+                <div className="t-pts">
+                  {u.pts}
+                  {u.ptsParciales && u.ptsParciales > 0 ? <span style={{fontSize:10,color:"#e8a020",fontWeight:700,marginLeft:3}}>+{u.ptsParciales}*</span> : null}
+                </div>
                 <div className="t-medal">{["🥇","🥈","🥉"][i]??""}</div>
               </div>
             ))}

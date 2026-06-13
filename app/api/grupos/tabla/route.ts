@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { getMiembrosGrupo, getUsuario, getAllPrediccionesGrupoUsuario, getResultado, getPuntosConfig, GRUPO_GLOBAL, getAllUsernames } from "@/lib/kv";
+import { getMiembrosGrupo, getUsuario, getAllPrediccionesGrupoUsuario, getResultado, getLiveScore, getPuntosConfig, GRUPO_GLOBAL, getAllUsernames } from "@/lib/kv";
 import { TODOS_PARTIDOS, calcularPuntos } from "@/lib/mundial";
 
 export const dynamic = "force-dynamic";
@@ -30,8 +30,8 @@ export async function GET(req: NextRequest) {
       getUsuario(username),
       getAllPrediccionesGrupoUsuario(grupoId, username),
     ]);
-    let pts = 0, exactos = 0, ganadores = 0, jugados = 0, sinPronos = 0;
-    TODOS_PARTIDOS.forEach(p => {
+    let pts = 0, exactos = 0, ganadores = 0, jugados = 0, sinPronos = 0, ptsParciales = 0;
+    await Promise.all(TODOS_PARTIDOS.map(async p => {
       const res = resultados[p.id];
       const pred = predicciones[p.id];
       if (res) {
@@ -44,9 +44,15 @@ export async function GET(req: NextRequest) {
         } else {
           sinPronos++;
         }
+      } else {
+        // Partido en vivo — sumar puntos provisionales
+        const liveScore = await getLiveScore(p.id);
+        if (liveScore && pred) {
+          ptsParciales += calcularPuntos(pred, liveScore, config);
+        }
       }
-    });
-    return { username, nombre: user?.nombre ?? username, pts, exactos, ganadores, jugados, sinPronos };
+    }));
+    return { username, nombre: user?.nombre ?? username, pts, ptsParciales, exactos, ganadores, jugados, sinPronos };
   }));
 
   tabla.sort((a, b) => b.pts - a.pts || b.exactos - a.exactos);

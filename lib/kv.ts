@@ -95,6 +95,15 @@ export async function setResultado(partidoId: string, res: Resultado): Promise<v
   await set(`result:${partidoId}`, res);
   await sadd("results:all", partidoId);
 }
+export async function getLiveScore(partidoId: string): Promise<Resultado | null> {
+  return get<Resultado>(`live:score:${partidoId}`);
+}
+export async function setLiveScore(partidoId: string, res: Resultado): Promise<void> {
+  await set(`live:score:${partidoId}`, res);
+}
+export async function delLiveScore(partidoId: string): Promise<void> {
+  await getClient().del(`live:score:${partidoId}`);
+}
 export async function getAllResultados(): Promise<Record<string, Resultado>> {
   const ids = await smembers("results:all");
   if (!ids?.length) return {};

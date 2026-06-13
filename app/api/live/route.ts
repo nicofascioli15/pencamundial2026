@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { setResultado, getResultado } from "@/lib/kv";
+import { setResultado, getResultado, setLiveScore, delLiveScore } from "@/lib/kv";
 import { TODOS_PARTIDOS, getFlag } from "@/lib/mundial";
 import { enviarPushATodos } from "@/lib/push";
 
@@ -103,12 +103,14 @@ export async function GET() {
           }
         } catch {}
 
+        const liveScore = { local: score?.home ?? 0, visitante: score?.away ?? 0 };
+        await setLiveScore(partido.id, liveScore);
         enVivo.push({
           partidoId: partido.id,
           estado: status === "HT" ? "entretiempo" : "jugando",
           minuto: status === "HT" ? null : minuto,
-          local: score?.home ?? 0,
-          visitante: score?.away ?? 0,
+          local: liveScore.local,
+          visitante: liveScore.visitante,
           goles,
         });
 
@@ -117,6 +119,7 @@ export async function GET() {
         if (!score) continue;
         const yaExistia = await getResultado(partido.id);
         await setResultado(partido.id, { local: score.home, visitante: score.away });
+        await delLiveScore(partido.id);
         if (!yaExistia) nuevos.push({ partido, local: score.home, visitante: score.away });
       }
     }
