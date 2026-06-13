@@ -1001,6 +1001,55 @@ const enviarPick = async (
               );
             })()}
 
+
+            {/* ── ACORDEÓN FINALIZADOS ── */}
+            {(()=>{
+              const finalizados = TODOS_PARTIDOS
+                .filter(p => !!resultados[p.id])
+                .sort((a,b)=>new Date(`${b.fecha}T${b.hora}`).getTime()-new Date(`${a.fecha}T${a.hora}`).getTime());
+              if (!finalizados.length) return null;
+              return (
+                <div style={{marginTop:16,background:"#fff",border:"1px solid #dde4ec",borderRadius:14,overflow:"hidden",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
+                  <div onClick={()=>setFinalizadosAbierto(v=>!v)} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",cursor:"pointer",userSelect:"none"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8}}>
+                      <span style={{fontSize:16}}>✅</span>
+                      <div>
+                        <div style={{fontSize:12,fontWeight:700,color:"#123952"}}>Partidos finalizados</div>
+                        <div style={{fontSize:10,color:"#6b7280"}}>{finalizados.length} partido{finalizados.length!==1?"s":""} jugados</div>
+                      </div>
+                    </div>
+                    <span style={{fontSize:16,color:"#6b7280",display:"inline-block",transform:finalizadosAbierto?"rotate(180deg)":"rotate(0deg)",transition:"transform .2s"}}>▾</span>
+                  </div>
+                  {finalizadosAbierto&&(
+                    <div style={{borderTop:"1px solid #f0f0f0"}}>
+                      {finalizados.map(p=>{
+                        const pred=predicciones[p.id];
+                        const res=resultados[p.id];
+                        const pts=res&&pred?calcularPuntos(pred,res,config):null;
+                        const chipCls=pts===null?"":pts===config.resultado_exacto?"chip-ex":pts>0?"chip-ok":"chip-no";
+                        return (
+                          <div key={p.id} style={{padding:"10px 14px",borderBottom:"1px solid #f5f5f5",display:"flex",alignItems:"center",gap:10}}>
+                            <div style={{flex:1}}>
+                              <div style={{fontSize:11,fontWeight:600,color:"#1a1f24"}}>{getFlag(p.local)} {p.local} vs {p.visitante} {getFlag(p.visitante)}</div>
+                              <div style={{fontSize:10,color:"#6b7280",marginTop:2}}>{p.fecha} · {p.hora} hs</div>
+                            </div>
+                            <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
+                              {res&&<div style={{fontSize:12,color:"#6b7280",fontWeight:600}}>{res.local}-{res.visitante}</div>}
+                              {pred
+                                ? <div style={{fontSize:14,fontWeight:900,color:"#123952",background:"#e8f0f6",padding:"3px 10px",borderRadius:8}}>{pred.local}-{pred.visitante}</div>
+                                : <div style={{fontSize:11,color:"#9ca3af",fontStyle:"italic"}}>Sin pick</div>
+                              }
+                              {pts!==null&&<span className={`chip ${chipCls}`}>{pts>0?`+${pts}`:0}p</span>}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             {ultimaSync&&<div className="sync"><div className="sync-dot"/>Resultados actualizados a las {ultimaSync}</div>}
             {/* Carrusel de fases */}
             <div className="fase-carrusel">
@@ -1059,53 +1108,6 @@ const enviarPick = async (
               });
             })()}
 
-            {/* ── ACORDEÓN FINALIZADOS ── */}
-            {(()=>{
-              const finalizados = TODOS_PARTIDOS
-                .filter(p => !!resultados[p.id])
-                .sort((a,b)=>new Date(`${b.fecha}T${b.hora}`).getTime()-new Date(`${a.fecha}T${a.hora}`).getTime());
-              if (!finalizados.length) return null;
-              return (
-                <div style={{marginTop:16,background:"#fff",border:"1px solid #dde4ec",borderRadius:14,overflow:"hidden",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
-                  <div onClick={()=>setFinalizadosAbierto(v=>!v)} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 14px",cursor:"pointer",userSelect:"none"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8}}>
-                      <span style={{fontSize:16}}>✅</span>
-                      <div>
-                        <div style={{fontSize:12,fontWeight:700,color:"#123952"}}>Partidos finalizados</div>
-                        <div style={{fontSize:10,color:"#6b7280"}}>{finalizados.length} partido{finalizados.length!==1?"s":""} jugados</div>
-                      </div>
-                    </div>
-                    <span style={{fontSize:16,color:"#6b7280",display:"inline-block",transform:finalizadosAbierto?"rotate(180deg)":"rotate(0deg)",transition:"transform .2s"}}>▾</span>
-                  </div>
-                  {finalizadosAbierto&&(
-                    <div style={{borderTop:"1px solid #f0f0f0"}}>
-                      {finalizados.map(p=>{
-                        const pred=predicciones[p.id];
-                        const res=resultados[p.id];
-                        const pts=res&&pred?calcularPuntos(pred,res,config):null;
-                        const chipCls=pts===null?"":pts===config.resultado_exacto?"chip-ex":pts>0?"chip-ok":"chip-no";
-                        return (
-                          <div key={p.id} style={{padding:"10px 14px",borderBottom:"1px solid #f5f5f5",display:"flex",alignItems:"center",gap:10}}>
-                            <div style={{flex:1}}>
-                              <div style={{fontSize:11,fontWeight:600,color:"#1a1f24"}}>{getFlag(p.local)} {p.local} vs {p.visitante} {getFlag(p.visitante)}</div>
-                              <div style={{fontSize:10,color:"#6b7280",marginTop:2}}>{p.fecha} · {p.hora} hs</div>
-                            </div>
-                            <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
-                              {res&&<div style={{fontSize:12,color:"#6b7280",fontWeight:600}}>{res.local}-{res.visitante}</div>}
-                              {pred
-                                ? <div style={{fontSize:14,fontWeight:900,color:"#123952",background:"#e8f0f6",padding:"3px 10px",borderRadius:8}}>{pred.local}-{pred.visitante}</div>
-                                : <div style={{fontSize:11,color:"#9ca3af",fontStyle:"italic"}}>Sin pick</div>
-                              }
-                              {pts!==null&&<span className={`chip ${chipCls}`}>{pts>0?`+${pts}`:0}p</span>}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
           </>}
 
           {/* ── GRUPOS ── */}
@@ -1671,6 +1673,11 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
         {puntos !== null && (
           <span className={`hoy-pick-pts ${ptsClass}`}>{puntos>0?`+${puntos}`:0} pts</span>
         )}
+        {puntos === null && pred && liveInfo && (estado==="jugando"||estado==="entretiempo") && (()=>{
+          const ptsParcial = calcularPuntos(pred, {local:liveInfo.local, visitante:liveInfo.visitante}, config);
+          const cls = ptsParcial===config.resultado_exacto?"pts-ex":ptsParcial>0?"pts-ok":"pts-no";
+          return <span className={`hoy-pick-pts ${cls}`} style={{opacity:.8}}>{ptsParcial>0?`+${ptsParcial}`:0} pts*</span>;
+        })()}
         {bloqueado ? (
           pred
             ? <span className="hoy-pick-val">{pred.local} - {pred.visitante}</span>
