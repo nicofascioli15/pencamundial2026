@@ -956,7 +956,7 @@ const enviarPick = async (
 
             const partidosDia = todosOrdenados
               .filter(p=>p.fecha===fechaProxima)
-              .filter(p=>getEstadoPartido(p.fecha,p.hora,!!resultados[p.id])!=="finalizado");
+              .filter(p=>!resultados[p.id] || !!liveData[p.id]);
 
             return (
               <div style={{marginBottom:20}}>
