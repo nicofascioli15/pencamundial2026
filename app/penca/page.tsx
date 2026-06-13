@@ -967,7 +967,7 @@ const enviarPick = async (
 
                 {partidosDia.map((p,i)=>{
                   const estadoCalc=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
-                  const estadoLive=liveData[p.id]?.estado;
+                  const estadoLive=liveData[p.id]?.estado as "jugando"|"entretiempo"|undefined;
                   const estado = estadoLive ?? estadoCalc;
                   const pred=predicciones[p.id];
                   const res=resultados[p.id];
