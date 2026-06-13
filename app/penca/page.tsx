@@ -1026,7 +1026,7 @@ const enviarPick = async (
                     <span style={{fontSize:16,color:"#6b7280",display:"inline-block",transform:finalizadosAbierto?"rotate(180deg)":"rotate(0deg)",transition:"transform .2s"}}>▾</span>
                   </div>
                   {finalizadosAbierto&&(
-                    <div style={{borderTop:"1px solid #f0f0f0"}}>
+                    <div style={{borderTop:"1px solid #f0f0f0",maxHeight:320,overflowY:"auto"}}>
                       {finalizados.map(p=>{
                         const pred=predicciones[p.id];
                         const res=resultados[p.id];
