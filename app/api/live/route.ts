@@ -3,24 +3,34 @@ import { setResultado, getResultado } from "@/lib/kv";
 import { TODOS_PARTIDOS, getFlag } from "@/lib/mundial";
 import { enviarPushATodos } from "@/lib/push";
 
-const API_KEY = process.env.FOOTBALL_API_KEY ?? "";
-const BASE_URL = "https://api.football-data.org/v4";
+const LS_KEY = process.env.LIVESCORE_KEY ?? "";
+const LS_SECRET = process.env.LIVESCORE_SECRET ?? "";
+const COMPETITION_ID = "362";
 
 const TEAM_MAP: Record<string, string> = {
   "Mexico": "México", "Korea Republic": "Corea del Sur", "South Africa": "Sudáfrica",
   "Czech Republic": "República Checa", "Czechia": "República Checa",
   "Canada": "Canadá", "Bosnia and Herzegovina": "Bosnia y Herzegovina",
+  "Bosnia & Herzegovina": "Bosnia y Herzegovina", "Bosnia-Herzegovina": "Bosnia y Herzegovina",
   "Switzerland": "Suiza", "Brazil": "Brasil", "Morocco": "Marruecos",
   "Scotland": "Escocia", "Haiti": "Haití", "USA": "Estados Unidos",
-  "United States": "Estados Unidos", "Turkey": "Turquía", "Germany": "Alemania",
-  "Ivory Coast": "Costa de Marfil", "Curaçao": "Curazao", "Curacao": "Curazao",
-  "Netherlands": "Países Bajos", "Japan": "Japón", "Tunisia": "Túnez", "Sweden": "Suecia",
-  "Belgium": "Bélgica", "Iran": "Irán", "Egypt": "Egipto", "New Zealand": "Nueva Zelanda",
-  "Spain": "España", "Saudi Arabia": "Arabia Saudita", "Cape Verde": "Cabo Verde",
-  "France": "Francia", "Iraq": "Irak", "Norway": "Noruega", "Algeria": "Argelia",
-  "Jordan": "Jordania", "Portugal": "Portugal", "Colombia": "Colombia",
-  "Uzbekistan": "Uzbekistán", "DR Congo": "RD Congo", "Congo DR": "RD Congo",
-  "England": "Inglaterra", "Croatia": "Croacia", "Ghana": "Ghana", "Panama": "Panamá",
+  "United States": "Estados Unidos", "Turkey": "Turquía", "Türkiye": "Turquía",
+  "Germany": "Alemania", "Ivory Coast": "Costa de Marfil",
+  "Côte d'Ivoire": "Costa de Marfil", "Cote d'Ivoire": "Costa de Marfil",
+  "Curaçao": "Curazao", "Curacao": "Curazao",
+  "Netherlands": "Países Bajos", "Japan": "Japón", "Tunisia": "Túnez",
+  "Sweden": "Suecia", "Belgium": "Bélgica", "Iran": "Irán",
+  "Egypt": "Egipto", "New Zealand": "Nueva Zelanda", "Spain": "España",
+  "Saudi Arabia": "Arabia Saudita", "Cape Verde": "Cabo Verde",
+  "France": "Francia", "Iraq": "Irak", "Norway": "Noruega",
+  "Algeria": "Argelia", "Jordan": "Jordania", "Portugal": "Portugal",
+  "Colombia": "Colombia", "Uzbekistan": "Uzbekistán",
+  "DR Congo": "RD Congo", "Congo DR": "RD Congo", "Democratic Republic of Congo": "RD Congo",
+  "England": "Inglaterra", "Croatia": "Croacia", "Ghana": "Ghana",
+  "Panama": "Panamá", "Australia": "Australia", "Serbia": "Serbia",
+  "Ecuador": "Ecuador", "Senegal": "Senegal", "Austria": "Austria",
+  "Paraguay": "Paraguay", "Uruguay": "Uruguay", "Argentina": "Argentina",
+  "Qatar": "Katar", "Peru": "Perú",
 };
 
 function mapTeam(name: string): string { return TEAM_MAP[name] ?? name; }
@@ -31,52 +41,65 @@ function findPartido(homeTeam: string, awayTeam: string) {
   return TODOS_PARTIDOS.find(p => p.local === home && p.visitante === away) ?? null;
 }
 
+function parseScore(scoreStr: string): { home: number; away: number } | null {
+  if (!scoreStr?.trim()) return null;
+  const parts = scoreStr.split("-").map(s => s.trim());
+  if (parts.length !== 2) return null;
+  const home = parseInt(parts[0]);
+  const away = parseInt(parts[1]);
+  if (isNaN(home) || isNaN(away)) return null;
+  return { home, away };
+}
+
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  if (!API_KEY) return NextResponse.json({ error: "API key no configurada" }, { status: 500 });
+  if (!LS_KEY || !LS_SECRET) {
+    return NextResponse.json({ error: "LIVESCORE_KEY o LIVESCORE_SECRET no configurados" }, { status: 500 });
+  }
 
   try {
-    const [liveRes, finRes] = await Promise.all([
-      fetch(`${BASE_URL}/competitions/WC/matches?status=IN_PLAY,PAUSED`, {
-        headers: { "X-Auth-Token": API_KEY }
-      }),
-      fetch(`${BASE_URL}/competitions/WC/matches?status=FINISHED`, {
-        headers: { "X-Auth-Token": API_KEY }
-      })
-    ]);
+    const res = await fetch(
+      `https://livescore-api.com/api-client/matches/live.json?key=${LS_KEY}&secret=${LS_SECRET}&competition_id=${COMPETITION_ID}`,
+      { cache: "no-store" }
+    );
 
-    const liveData = liveRes.ok ? await liveRes.json() : { matches: [] };
-    const finData = finRes.ok ? await finRes.json() : { matches: [] };
+    if (!res.ok) return NextResponse.json({ error: `API error: ${res.status}` }, { status: 500 });
 
-    const liveMatches = liveData.matches ?? [];
-    const finMatches = finData.matches ?? [];
+    const data = await res.json();
+    if (!data.success) return NextResponse.json({ error: data.error ?? "API error" }, { status: 500 });
 
+    const matches = data.data?.match ?? [];
     const enVivo: any[] = [];
-    for (const match of liveMatches) {
-      const partido = findPartido(match.homeTeam.name, match.awayTeam.name);
-      if (!partido) continue;
-      const scoreHome = match.score?.fullTime?.home ?? match.score?.halfTime?.home ?? 0;
-      const scoreAway = match.score?.fullTime?.away ?? match.score?.halfTime?.away ?? 0;
-      enVivo.push({
-        partidoId: partido.id,
-        estado: match.status === "PAUSED" ? "entretiempo" : "jugando",
-        minuto: match.minute ?? null,
-        local: scoreHome,
-        visitante: scoreAway,
-      });
-    }
-
     const nuevos: any[] = [];
-    for (const match of finMatches) {
-      if (match.status !== "FINISHED") continue;
-      const { home, away } = match.score.fullTime;
-      if (home === null || away === null) continue;
-      const partido = findPartido(match.homeTeam.name, match.awayTeam.name);
+
+    for (const match of matches) {
+      const partido = findPartido(match.home?.name ?? "", match.away?.name ?? "");
       if (!partido) continue;
-      const yaExistia = await getResultado(partido.id);
-      await setResultado(partido.id, { local: home, visitante: away });
-      if (!yaExistia) nuevos.push({ partido, local: home, visitante: away });
+
+      const status = match.status;
+      const minuto = parseInt(match.time ?? "0") || null;
+
+      if (status === "IN PLAY" || status === "HT") {
+        const yaFinalizado = await getResultado(partido.id);
+        if (yaFinalizado) continue;
+
+        const score = parseScore(match.scores?.score ?? "");
+        enVivo.push({
+          partidoId: partido.id,
+          estado: status === "HT" ? "entretiempo" : "jugando",
+          minuto: status === "HT" ? null : minuto,
+          local: score?.home ?? 0,
+          visitante: score?.away ?? 0,
+        });
+
+      } else if (status === "FT") {
+        const score = parseScore(match.scores?.ft_score ?? match.scores?.score ?? "");
+        if (!score) continue;
+        const yaExistia = await getResultado(partido.id);
+        await setResultado(partido.id, { local: score.home, visitante: score.away });
+        if (!yaExistia) nuevos.push({ partido, local: score.home, visitante: score.away });
+      }
     }
 
     for (const { partido, local, visitante } of nuevos) {
@@ -86,7 +109,10 @@ export async function GET() {
       await enviarPushATodos(titulo, `Resultado final. ¡Mirá cómo quedaste!`, "/penca?tab=tabla");
     }
 
-    return NextResponse.json({ ok: true, enVivo, nuevosFinalizados: nuevos.length });
+    return NextResponse.json(
+      { ok: true, enVivo, nuevosFinalizados: nuevos.length },
+      { headers: { "Cache-Control": "no-store, max-age=0" } }
+    );
 
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
