@@ -114,12 +114,16 @@ export async function GET() {
         });
 
       } else if (status === "FT") {
-        const score = parseScore(match.scores?.ft_score ?? match.scores?.score ?? "");
+        const ftScore = match.scores?.ft_score ?? "";
+        const score = parseScore(ftScore) ?? parseScore(match.scores?.score ?? "");
         if (!score) continue;
         const yaExistia = await getResultado(partido.id);
-        await setResultado(partido.id, { local: score.home, visitante: score.away });
+        // Solo guardar si no existe ya — no pisar resultado manual
+        if (!yaExistia) {
+          await setResultado(partido.id, { local: score.home, visitante: score.away });
+          nuevos.push({ partido, local: score.home, visitante: score.away });
+        }
         await delLiveScore(partido.id);
-        if (!yaExistia) nuevos.push({ partido, local: score.home, visitante: score.away });
       }
     }
 
