@@ -76,7 +76,7 @@ export async function GET() {
       const status = match.status;
       const minuto = parseInt(match.time ?? "0") || null;
 
-      if (status === "IN PLAY" || status === "HT") {
+      if (status === "IN PLAY" || status === "HT" || status === "HALF TIME BREAK") {
         const score = parseScore(match.scores?.score ?? "");
 
         // Traer eventos (goles y tarjetas)
@@ -106,7 +106,7 @@ export async function GET() {
         await setLiveScore(partido.id, liveScore);
         enVivo.push({
           partidoId: partido.id,
-          estado: status === "HT" ? "entretiempo" : "jugando",
+          estado: (status === "HT" || status === "HALF TIME BREAK") ? "entretiempo" : "jugando",
           minuto: status === "HT" ? null : minuto,
           local: liveScore.local,
           visitante: liveScore.visitante,
