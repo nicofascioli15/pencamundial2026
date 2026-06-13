@@ -90,12 +90,14 @@ export async function GET() {
             const evData = await evRes.json();
             const events = evData.data?.event ?? [];
             goles = events
-              .filter((e: any) => e.event === "GOAL" || e.event === "OWN_GOAL")
+              .filter((e: any) => ["GOAL","OWN_GOAL","GOAL_PENALTY","YELLOW_CARD"].includes(e.event))
               .map((e: any) => ({
                 minuto: e.time,
                 jugador: e.player,
                 esPropio: e.event === "OWN_GOAL",
-                equipo: e.home_away, // "h" o "a"
+                esPenal: e.event === "GOAL_PENALTY",
+                esAmarilla: e.event === "YELLOW_CARD",
+                equipo: e.home_away,
               }));
           }
         } catch {}

@@ -1563,7 +1563,7 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
   puntos: number|null; config: PuntosConfig;
   guardado?: boolean; ciudad?: string; onGuardar: (l: number, v: number) => void;
   oddData?: {home:number;draw:number;away:number};
-  liveInfo?: {estado:string;minuto:number|null;local:number;visitante:number;goles?:{minuto:string;jugador:string;esPropio:boolean;equipo:string}[]};
+  liveInfo?: {estado:string;minuto:number|null;local:number;visitante:number;goles?:{minuto:string;jugador:string;esPropio:boolean;esPenal?:boolean;esAmarilla?:boolean;equipo:string}[]};
   aplicarSiempre?: boolean;
   onToggleAplicar?: () => void;
 }) {
@@ -1650,12 +1650,16 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
         <div style={{display:"flex",justifyContent:"space-between",margin:"4px 0 8px",gap:8}}>
           <div style={{flex:1,fontSize:10,color:"#494d4f",lineHeight:1.9}}>
             {liveInfo.goles.filter(g=>g.equipo==="h").map((g,i)=>(
-              <div key={i}>⚽ {g.minuto}' <span style={{fontWeight:700}}>{g.jugador}</span>{g.esPropio?" (AG)":""}</div>
+              <div key={i}>
+                {g.esAmarilla?"🟨":"⚽"} {g.minuto}' <span style={{fontWeight:700}}>{g.jugador}</span>{g.esPropio?" (AG)":g.esPenal?" (P)":""}
+              </div>
             ))}
           </div>
           <div style={{flex:1,fontSize:10,color:"#494d4f",lineHeight:1.9,textAlign:"right"}}>
             {liveInfo.goles.filter(g=>g.equipo==="a").map((g,i)=>(
-              <div key={i}><span style={{fontWeight:700}}>{g.jugador}</span>{g.esPropio?" (AG)":""} {g.minuto}' ⚽</div>
+              <div key={i}>
+                <span style={{fontWeight:700}}>{g.jugador}</span>{g.esPropio?" (AG)":g.esPenal?" (P)":""} {g.minuto}' {g.esAmarilla?"🟨":"⚽"}
+              </div>
             ))}
           </div>
         </div>
@@ -1709,7 +1713,7 @@ function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloquead
   config: PuntosConfig; guardado?: boolean; bloqueado: boolean;
   onGuardar: (id: string, l: number, v: number) => void;
   oddData?: {home:number;draw:number;away:number};
-  liveInfo?: {estado:string;minuto:number|null;local:number;visitante:number;goles?:{minuto:string;jugador:string;esPropio:boolean;equipo:string}[]};
+  liveInfo?: {estado:string;minuto:number|null;local:number;visitante:number;goles?:{minuto:string;jugador:string;esPropio:boolean;esPenal?:boolean;esAmarilla?:boolean;equipo:string}[]};
   aplicarSiempre?: boolean;
   onToggleAplicar?: () => void;
 }) {
