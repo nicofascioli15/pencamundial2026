@@ -950,7 +950,8 @@ const enviarPick = async (
             const esHoyFecha = fechaProxima === fechaHoy;
 
             const partidosDia = todosOrdenados
-              .filter(p=>p.fecha===fechaProxima);
+              .filter(p=>p.fecha===fechaProxima)
+              .filter(p=>getEstadoPartido(p.fecha,p.hora,!!resultados[p.id])!=="finalizado");
 
             return (
               <div style={{marginBottom:20}}>
@@ -1027,7 +1028,8 @@ const enviarPick = async (
                 .filter(p=>{
                   if (p.fase!==filtroFase) return false;
                   if (filtroFase==="Grupos"&&filtroGrupo!=="Todos"&&p.grupo!==filtroGrupo) return false;
-                  if (soloSinPick && (predicciones[p.id] || resultados[p.id] || esBloqueado(p.fecha,p.hora))) return false;
+                  if (resultados[p.id]) return false;
+                  if (soloSinPick && (predicciones[p.id] || esBloqueado(p.fecha,p.hora))) return false;
                   return true;
                 })
                 .sort((a,b)=>new Date(`${a.fecha}T${a.hora}:00`).getTime()-new Date(`${b.fecha}T${b.hora}:00`).getTime());
@@ -1635,12 +1637,17 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
         );
       })()}
       {liveInfo?.goles && liveInfo.goles.length > 0 && (
-        <div style={{fontSize:10,color:"#494d4f",margin:"2px 0 8px",lineHeight:1.9,textAlign:"center"}}>
-          {liveInfo.goles.map((g,i)=>(
-            <span key={i} style={{marginRight:10,whiteSpace:"nowrap"}}>
-              ⚽ {g.minuto}' <span style={{fontWeight:700}}>{g.jugador}</span>{g.esPropio?" (AG)":""}
-            </span>
-          ))}
+        <div style={{display:"flex",justifyContent:"space-between",margin:"4px 0 8px",gap:8}}>
+          <div style={{flex:1,fontSize:10,color:"#494d4f",lineHeight:1.9}}>
+            {liveInfo.goles.filter(g=>g.equipo==="h").map((g,i)=>(
+              <div key={i}>⚽ {g.minuto}' <span style={{fontWeight:700}}>{g.jugador}</span>{g.esPropio?" (AG)":""}</div>
+            ))}
+          </div>
+          <div style={{flex:1,fontSize:10,color:"#494d4f",lineHeight:1.9,textAlign:"right"}}>
+            {liveInfo.goles.filter(g=>g.equipo==="a").map((g,i)=>(
+              <div key={i}><span style={{fontWeight:700}}>{g.jugador}</span>{g.esPropio?" (AG)":""} {g.minuto}' ⚽</div>
+            ))}
+          </div>
         </div>
       )}
       {estado==="entretiempo"&&(
