@@ -30,7 +30,7 @@ const TEAM_MAP: Record<string, string> = {
   "Panama": "Panamá", "Australia": "Australia", "Serbia": "Serbia",
   "Ecuador": "Ecuador", "Senegal": "Senegal", "Austria": "Austria",
   "Paraguay": "Paraguay", "Uruguay": "Uruguay", "Argentina": "Argentina",
-  "Qatar": "Katar",
+
 };
 
 function mapTeam(name: string): string { return TEAM_MAP[name] ?? name; }
