@@ -956,7 +956,7 @@ const enviarPick = async (
 
             const partidosDia = todosOrdenados
               .filter(p=>p.fecha===fechaProxima)
-              .filter(p=>!resultados[p.id] || !!liveData[p.id]);
+              .filter(p=>!resultados[p.id] || !!liveData[p.id] || liveData[p.id]?.estado==="jugando" || liveData[p.id]?.estado==="entretiempo");
 
             return (
               <div style={{marginBottom:20}}>
@@ -966,7 +966,9 @@ const enviarPick = async (
                 </div>
 
                 {partidosDia.map((p,i)=>{
-                  const estado=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
+                  const estadoCalc=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id]);
+                  const estadoLive=liveData[p.id]?.estado;
+                  const estado = estadoLive ?? estadoCalc;
                   const pred=predicciones[p.id];
                   const res=resultados[p.id];
                   const bloq=esBloqueado(p.fecha,p.hora)||!!res;
