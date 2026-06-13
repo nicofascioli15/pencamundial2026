@@ -30,17 +30,15 @@ const TEAM_MAP: Record<string, string> = {
   "Panama": "Panamá", "Australia": "Australia", "Serbia": "Serbia",
   "Ecuador": "Ecuador", "Senegal": "Senegal", "Austria": "Austria",
   "Paraguay": "Paraguay", "Uruguay": "Uruguay", "Argentina": "Argentina",
-  "Qatar": "Katar", "Peru": "Perú",
+  "Qatar": "Katar",
 };
 
 function mapTeam(name: string): string { return TEAM_MAP[name] ?? name; }
-
 function findPartido(homeTeam: string, awayTeam: string) {
   const home = mapTeam(homeTeam);
   const away = mapTeam(awayTeam);
   return TODOS_PARTIDOS.find(p => p.local === home && p.visitante === away) ?? null;
 }
-
 function parseScore(scoreStr: string): { home: number; away: number } | null {
   if (!scoreStr?.trim()) return null;
   const parts = scoreStr.split("-").map(s => s.trim());
@@ -63,9 +61,7 @@ export async function GET() {
       `https://livescore-api.com/api-client/matches/live.json?key=${LS_KEY}&secret=${LS_SECRET}&competition_id=${COMPETITION_ID}`,
       { cache: "no-store" }
     );
-
     if (!res.ok) return NextResponse.json({ error: `API error: ${res.status}` }, { status: 500 });
-
     const data = await res.json();
     if (!data.success) return NextResponse.json({ error: data.error ?? "API error" }, { status: 500 });
 
@@ -85,12 +81,35 @@ export async function GET() {
         if (yaFinalizado) continue;
 
         const score = parseScore(match.scores?.score ?? "");
+
+        // Traer eventos (goles y tarjetas)
+        let goles: any[] = [];
+        try {
+          const evRes = await fetch(
+            `https://livescore-api.com/api-client/scores/events.json?id=${match.id}&key=${LS_KEY}&secret=${LS_SECRET}`,
+            { cache: "no-store" }
+          );
+          if (evRes.ok) {
+            const evData = await evRes.json();
+            const events = evData.data?.event ?? [];
+            goles = events
+              .filter((e: any) => e.event === "GOAL" || e.event === "OWN_GOAL")
+              .map((e: any) => ({
+                minuto: e.time,
+                jugador: e.player,
+                esPropio: e.event === "OWN_GOAL",
+                equipo: e.home_away, // "h" o "a"
+              }));
+          }
+        } catch {}
+
         enVivo.push({
           partidoId: partido.id,
           estado: status === "HT" ? "entretiempo" : "jugando",
           minuto: status === "HT" ? null : minuto,
           local: score?.home ?? 0,
           visitante: score?.away ?? 0,
+          goles,
         });
 
       } else if (status === "FT") {
