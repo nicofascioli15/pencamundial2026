@@ -36,9 +36,8 @@ function findPartidoId(homeTeam: string, awayTeam: string): string | null {
 }
 
 export async function GET() {
-  if (!API_KEY) {
-    return NextResponse.json({ error: "FOOTBALL_API_KEY no configurada" }, { status: 500 });
-  }
+  return NextResponse.json({ ok: true, actualizados: 0, total: 0 });
+}
 
   try {
     const res = await fetch(

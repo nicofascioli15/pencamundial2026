@@ -77,9 +77,6 @@ export async function GET() {
       const minuto = parseInt(match.time ?? "0") || null;
 
       if (status === "IN PLAY" || status === "HT") {
-        const yaFinalizado = await getResultado(partido.id);
-        if (yaFinalizado) continue;
-
         const score = parseScore(match.scores?.score ?? "");
 
         // Traer eventos (goles y tarjetas)
