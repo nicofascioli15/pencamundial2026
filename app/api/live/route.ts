@@ -57,13 +57,35 @@ export async function GET() {
   }
 
   try {
-    const res = await fetch(
-      `https://livescore-api.com/api-client/matches/live.json?key=${LS_KEY}&secret=${LS_SECRET}&competition_id=${COMPETITION_ID}`,
-      { cache: "no-store" }
-    );
-    if (!res.ok) return NextResponse.json({ error: `API error: ${res.status}` }, { status: 500 });
-    const data = await res.json();
+    const today = new Date().toISOString().split("T")[0];
+
+    const [liveRes, histRes] = await Promise.all([
+      fetch(`https://livescore-api.com/api-client/matches/live.json?key=${LS_KEY}&secret=${LS_SECRET}&competition_id=${COMPETITION_ID}`, { cache: "no-store" }),
+      fetch(`https://livescore-api.com/api-client/matches/history.json?key=${LS_KEY}&secret=${LS_SECRET}&competition_id=${COMPETITION_ID}&from=${today}&to=${today}`, { cache: "no-store" }),
+    ]);
+
+    if (!liveRes.ok) return NextResponse.json({ error: `API error: ${liveRes.status}` }, { status: 500 });
+    const data = await liveRes.json();
     if (!data.success) return NextResponse.json({ error: data.error ?? "API error" }, { status: 500 });
+
+    // Procesar partidos finalizados del historial de hoy
+    if (histRes.ok) {
+      const histData = await histRes.json();
+      const histMatches = histData.data?.match ?? [];
+      for (const match of histMatches) {
+        if (match.status !== "FINISHED") continue;
+        const score = parseScore(match.scores?.ft_score ?? "");
+        if (!score) continue;
+        const partido = findPartido(match.home?.name ?? "", match.away?.name ?? "");
+        if (!partido) continue;
+        const yaExistia = await getResultado(partido.id);
+        if (!yaExistia) {
+          await setResultado(partido.id, { local: score.home, visitante: score.away });
+          await delLiveScore(partido.id);
+          nuevos.push({ partido, local: score.home, visitante: score.away });
+        }
+      }
+    }
 
     const matches = data.data?.match ?? [];
     const enVivo: any[] = [];
