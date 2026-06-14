@@ -68,6 +68,8 @@ export async function GET() {
     const data = await liveRes.json();
     if (!data.success) return NextResponse.json({ error: data.error ?? "API error" }, { status: 500 });
 
+    const nuevos: any[] = [];
+
     // Procesar partidos finalizados del historial de hoy
     if (histRes.ok) {
       const histData = await histRes.json();
@@ -89,7 +91,6 @@ export async function GET() {
 
     const matches = data.data?.match ?? [];
     const enVivo: any[] = [];
-    const nuevos: any[] = [];
 
     for (const match of matches) {
       const partido = findPartido(match.home?.name ?? "", match.away?.name ?? "");
