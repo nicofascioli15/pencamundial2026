@@ -1126,6 +1126,64 @@ const enviarPick = async (
 
           {/* ── GRUPOS ── */}
           {tab==="grupos"&&<>
+
+            {/* ── GOLEADORES ARRIBA ── */}
+            {goleadores.length > 0 && (
+              <div style={{marginBottom:14,background:"#fff",border:"1px solid #dde4ec",borderRadius:14,overflow:"hidden",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
+                {/* Top 3 siempre visibles */}
+                <div style={{padding:"10px 14px 6px",borderBottom:"1px solid #f0f0f0"}}>
+                  <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:"uppercase",color:"#123952",marginBottom:8}}>⚽ Goleadores del torneo</div>
+                  {goleadores.slice(0,3).map((s,i)=>(
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"6px 0",borderBottom:i<2?"1px solid #f5f5f5":"none"}}>
+                      <div style={{width:22,textAlign:"center",fontFamily:"'Bebas Neue',sans-serif",fontSize:18,color:i===0?"#e8a020":i===1?"#9ca3af":"#c97c2e",flexShrink:0}}>{i+1}</div>
+                      {s.foto&&<img src={s.foto} alt={s.nombre} style={{width:26,height:26,borderRadius:"50%",objectFit:"cover",flexShrink:0}} onError={(e:any)=>e.target.style.display="none"}/>}
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:12,fontWeight:700,color:"#1a1f24",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.nombre}</div>
+                        <div style={{fontSize:10,color:"#6b7280"}}>{s.equipo}</div>
+                      </div>
+                      <div style={{display:"flex",gap:12,flexShrink:0}}>
+                        <div style={{textAlign:"center"}}>
+                          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:20,color:"#123952",lineHeight:1}}>{s.goles}</div>
+                          <div style={{fontSize:7,color:"#6b7280",fontWeight:700,letterSpacing:.5}}>GOLES</div>
+                        </div>
+                        {s.asistencias>0&&<div style={{textAlign:"center"}}>
+                          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:16,color:"#6b7280",lineHeight:1}}>{s.asistencias}</div>
+                          <div style={{fontSize:7,color:"#6b7280",fontWeight:700,letterSpacing:.5}}>ASIST</div>
+                        </div>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Resto en acordeón */}
+                {goleadores.length > 3 && (
+                  <div onClick={()=>setFinalizadosAbierto(v=>!v)} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 14px",cursor:"pointer",userSelect:"none"}}>
+                    <span style={{fontSize:11,color:"#6b7280",fontWeight:600}}>Ver todos ({goleadores.length})</span>
+                    <span style={{fontSize:14,color:"#6b7280",transform:finalizadosAbierto?"rotate(180deg)":"rotate(0deg)",transition:"transform .2s",display:"inline-block"}}>▾</span>
+                  </div>
+                )}
+                {finalizadosAbierto&&goleadores.slice(3).map((s,i)=>(
+                  <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 14px",borderTop:"1px solid #f5f5f5"}}>
+                    <div style={{width:22,textAlign:"center",fontFamily:"'Bebas Neue',sans-serif",fontSize:14,color:"#6b7280",flexShrink:0}}>{i+4}</div>
+                    {s.foto&&<img src={s.foto} alt={s.nombre} style={{width:24,height:24,borderRadius:"50%",objectFit:"cover",flexShrink:0}} onError={(e:any)=>e.target.style.display="none"}/>}
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:11,fontWeight:700,color:"#1a1f24",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.nombre}</div>
+                      <div style={{fontSize:10,color:"#6b7280"}}>{s.equipo}</div>
+                    </div>
+                    <div style={{display:"flex",gap:12,flexShrink:0}}>
+                      <div style={{textAlign:"center"}}>
+                        <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:18,color:"#123952",lineHeight:1}}>{s.goles}</div>
+                        <div style={{fontSize:7,color:"#6b7280",fontWeight:700,letterSpacing:.5}}>GOLES</div>
+                      </div>
+                      {s.asistencias>0&&<div style={{textAlign:"center"}}>
+                        <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:14,color:"#6b7280",lineHeight:1}}>{s.asistencias}</div>
+                        <div style={{fontSize:7,color:"#6b7280",fontWeight:700,letterSpacing:.5}}>ASIST</div>
+                      </div>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="sec-title">Posiciones por grupo</div>
             {ultimaSync&&<div className="sync" style={{marginBottom:12}}><div className="sync-dot"/>Actualizado a las {ultimaSync}</div>}
             {GRUPOS_KEYS.map(g=>{
@@ -1155,36 +1213,6 @@ const enviarPick = async (
             })}
             <p style={{fontSize:11,color:"#6b7280",textAlign:"center",marginTop:4}}>🟦 Clasifican los 2 primeros de cada grupo + mejores 8 terceros</p>
 
-            {goleadores.length > 0 && (
-              <div style={{marginTop:16}}>
-                <div className="sec-title" style={{marginBottom:10}}>⚽ Tabla de goleadores</div>
-                <div style={{background:"#fff",border:"1px solid #dde4ec",borderRadius:14,overflow:"hidden",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
-                  {goleadores.map((s,i)=>(
-                    <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 14px",borderBottom:i<goleadores.length-1?"1px solid #f5f5f5":"none"}}>
-                      <div style={{width:22,textAlign:"center",fontFamily:"'Bebas Neue',sans-serif",fontSize:16,color:i===0?"#e8a020":i===1?"#9ca3af":i===2?"#c97c2e":"#6b7280",flexShrink:0}}>{i+1}</div>
-                      {s.foto&&<img src={s.foto} alt={s.nombre} style={{width:28,height:28,borderRadius:"50%",objectFit:"cover",flexShrink:0}} onError={(e:any)=>e.target.style.display="none"}/>}
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontSize:12,fontWeight:700,color:"#1a1f24",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.nombre}</div>
-                        <div style={{fontSize:10,color:"#6b7280",display:"flex",alignItems:"center",gap:4}}>
-                          {s.logo&&<img src={s.logo} alt={s.equipo} style={{width:14,height:14,objectFit:"contain"}} onError={(e:any)=>e.target.style.display="none"}/>}
-                          {s.equipo}
-                        </div>
-                      </div>
-                      <div style={{display:"flex",gap:14,flexShrink:0,alignItems:"center"}}>
-                        <div style={{textAlign:"center"}}>
-                          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:20,color:"#123952",lineHeight:1}}>{s.goles}</div>
-                          <div style={{fontSize:8,color:"#6b7280",fontWeight:600,letterSpacing:.5}}>GOLES</div>
-                        </div>
-                        <div style={{textAlign:"center"}}>
-                          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:16,color:"#6b7280",lineHeight:1}}>{s.asistencias}</div>
-                          <div style={{fontSize:8,color:"#6b7280",fontWeight:600,letterSpacing:.5}}>ASIST</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </>}
 
           {/* ── TABLA ── */}
