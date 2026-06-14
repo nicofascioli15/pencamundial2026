@@ -78,7 +78,8 @@ export async function GET() {
         if (match.status !== "FINISHED") continue;
         const score = parseScore(match.scores?.ft_score ?? "");
         if (!score) continue;
-        const partido = findPartido(match.home?.name ?? "", match.away?.name ?? "");
+        let partido = findPartido(match.home?.name ?? "", match.away?.name ?? "");
+        if (!partido) partido = findPartido(match.away?.name ?? "", match.home?.name ?? "");
         if (!partido) continue;
         const yaExistia = await getResultado(partido.id);
         if (!yaExistia) {
