@@ -1146,10 +1146,6 @@ const enviarPick = async (
                           <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:20,color:"#123952",lineHeight:1}}>{s.goles}</div>
                           <div style={{fontSize:7,color:"#6b7280",fontWeight:700,letterSpacing:.5}}>GOLES</div>
                         </div>
-                        {s.asistencias>0&&<div style={{textAlign:"center"}}>
-                          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:16,color:"#6b7280",lineHeight:1}}>{s.asistencias}</div>
-                          <div style={{fontSize:7,color:"#6b7280",fontWeight:700,letterSpacing:.5}}>ASIST</div>
-                        </div>}
                       </div>
                     </div>
                   ))}
@@ -1174,10 +1170,6 @@ const enviarPick = async (
                         <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:18,color:"#123952",lineHeight:1}}>{s.goles}</div>
                         <div style={{fontSize:7,color:"#6b7280",fontWeight:700,letterSpacing:.5}}>GOLES</div>
                       </div>
-                      {s.asistencias>0&&<div style={{textAlign:"center"}}>
-                        <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:14,color:"#6b7280",lineHeight:1}}>{s.asistencias}</div>
-                        <div style={{fontSize:7,color:"#6b7280",fontWeight:700,letterSpacing:.5}}>ASIST</div>
-                      </div>}
                     </div>
                   </div>
                 ))}
