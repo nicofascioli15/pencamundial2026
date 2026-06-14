@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { setResultado, getResultado, setLiveScore, delLiveScore } from "@/lib/kv";
+import { setResultado, getResultado, setLiveScore, delLiveScore, getClient } from "@/lib/kv";
 import { TODOS_PARTIDOS, getFlag } from "@/lib/mundial";
 import { enviarPushATodos } from "@/lib/push";
 
@@ -155,6 +155,26 @@ export async function GET() {
       const flagV = getFlag(partido.visitante);
       const titulo = `${flagL} ${partido.local} ${local} - ${visitante} ${partido.visitante} ${flagV}`;
       await enviarPushATodos(titulo, `Resultado final. ¡Mirá cómo quedaste!`, "/penca?tab=tabla");
+    }
+
+    // Notificación 30 min antes del partido
+    const ahora = Date.now();
+    const kv = getClient();
+    for (const p of TODOS_PARTIDOS) {
+      const [h, m] = p.hora.split(":").map(Number);
+      const kickoffUTC = new Date(`${p.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() + 3*60*60*1000;
+      const diff = kickoffUTC - ahora;
+      const yaNotificado = await kv.get(`push:prepartido:${p.id}`);
+      if (diff > 0 && diff <= 30*60*1000 && !yaNotificado) {
+        const flagL = getFlag(p.local);
+        const flagV = getFlag(p.visitante);
+        await enviarPushATodos(
+          `${flagL} ${p.local} vs ${p.visitante} ${flagV}`,
+          `⏰ El partido arranca en 30 minutos. ¡Cerrá tu pronóstico!`,
+          "/penca?tab=proximos"
+        );
+        await kv.set(`push:prepartido:${p.id}`, "1", "EX", 3600);
+      }
     }
 
     return NextResponse.json(
