@@ -543,6 +543,7 @@ export default function PencaPage() {
   const [resultados, setResultados] = useState<Record<string,Resultado>>({});
   const [tabla, setTabla] = useState<TablaRow[]>([]);
   const [tablaGrupos, setTablaGrupos] = useState<Record<string,FilaGrupo[]>>({});
+  const [goleadores, setGoleadores] = useState<any[]>([]);
   const [config, setConfig] = useState<PuntosConfig>(PUNTOS_DEFAULT);
   const [filtroFase, setFiltroFase] = useState("Grupos");
   const [filtroGrupo, setFiltroGrupo] = useState("Todos");
@@ -642,6 +643,12 @@ export default function PencaPage() {
     setTabla(tRes.tabla??[]);
     setConfig(cRes.config??PUNTOS_DEFAULT);
     setTablaGrupos(gRes.tablaGrupos??{});
+    fetch("/api/standings").then(r=>r.json()).then(d=>{
+      if (d.ok && d.grupos) setTablaGrupos(d.grupos);
+    }).catch(()=>{});
+    fetch("/api/goleadores").then(r=>r.json()).then(d=>{
+      if (d.ok && d.scorers) setGoleadores(d.scorers);
+    }).catch(()=>{});
     setPartidosHoy(hRes.partidos??[]);
     setProximaFecha(hRes.proximaFecha??null);
     setSiguientesDias(hRes.siguientesDias??[]);
@@ -1147,6 +1154,37 @@ const enviarPick = async (
               );
             })}
             <p style={{fontSize:11,color:"#6b7280",textAlign:"center",marginTop:4}}>🟦 Clasifican los 2 primeros de cada grupo + mejores 8 terceros</p>
+
+            {goleadores.length > 0 && (
+              <div style={{marginTop:16}}>
+                <div className="sec-title" style={{marginBottom:10}}>⚽ Tabla de goleadores</div>
+                <div style={{background:"#fff",border:"1px solid #dde4ec",borderRadius:14,overflow:"hidden",boxShadow:"0 2px 8px rgba(18,57,82,.05)"}}>
+                  {goleadores.map((s,i)=>(
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 14px",borderBottom:i<goleadores.length-1?"1px solid #f5f5f5":"none"}}>
+                      <div style={{width:22,textAlign:"center",fontFamily:"'Bebas Neue',sans-serif",fontSize:16,color:i===0?"#e8a020":i===1?"#9ca3af":i===2?"#c97c2e":"#6b7280",flexShrink:0}}>{i+1}</div>
+                      {s.foto&&<img src={s.foto} alt={s.nombre} style={{width:28,height:28,borderRadius:"50%",objectFit:"cover",flexShrink:0}} onError={(e:any)=>e.target.style.display="none"}/>}
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontSize:12,fontWeight:700,color:"#1a1f24",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.nombre}</div>
+                        <div style={{fontSize:10,color:"#6b7280",display:"flex",alignItems:"center",gap:4}}>
+                          {s.logo&&<img src={s.logo} alt={s.equipo} style={{width:14,height:14,objectFit:"contain"}} onError={(e:any)=>e.target.style.display="none"}/>}
+                          {s.equipo}
+                        </div>
+                      </div>
+                      <div style={{display:"flex",gap:14,flexShrink:0,alignItems:"center"}}>
+                        <div style={{textAlign:"center"}}>
+                          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:20,color:"#123952",lineHeight:1}}>{s.goles}</div>
+                          <div style={{fontSize:8,color:"#6b7280",fontWeight:600,letterSpacing:.5}}>GOLES</div>
+                        </div>
+                        <div style={{textAlign:"center"}}>
+                          <div style={{fontFamily:"'Bebas Neue',sans-serif",fontSize:16,color:"#6b7280",lineHeight:1}}>{s.asistencias}</div>
+                          <div style={{fontSize:8,color:"#6b7280",fontWeight:600,letterSpacing:.5}}>ASIST</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </>}
 
           {/* ── TABLA ── */}
