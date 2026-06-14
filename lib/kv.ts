@@ -206,3 +206,19 @@ export async function countPrediccionesGrupoUsuario(grupoId: string, username: s
   const ids = await smembers(`pred:grupo:${grupoId}:${username}`);
   return ids?.length ?? 0;
 }
+
+export async function getGoleadores(): Promise<any[]> {
+  const keys = await smembers("goleadores:all");
+  if (!keys.length) return [];
+  const result: any[] = [];
+  await Promise.all(keys.map(async (k) => {
+    const g = await get<any>(`goleador:${k}`);
+    if (g) result.push(g);
+  }));
+  return result;
+}
+
+export async function actualizarGoleador(playerKey: string, data: {nombre:string;equipo:string;goles:number;asistencias:number}): Promise<void> {
+  await set(`goleador:${playerKey}`, data);
+  await sadd("goleadores:all", playerKey);
+}

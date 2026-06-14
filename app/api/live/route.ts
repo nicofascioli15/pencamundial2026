@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { setResultado, getResultado, setLiveScore, delLiveScore, getClient } from "@/lib/kv";
+import { setResultado, getResultado, setLiveScore, delLiveScore, getClient, actualizarGoleador } from "@/lib/kv";
 import { TODOS_PARTIDOS, getFlag } from "@/lib/mundial";
 import { enviarPushATodos } from "@/lib/push";
 
@@ -145,6 +145,42 @@ export async function GET() {
         if (!yaExistia) {
           await setResultado(partido.id, { local: score.home, visitante: score.away });
           nuevos.push({ partido, local: score.home, visitante: score.away });
+
+          // Guardar goleadores del partido
+          try {
+            const kv = getClient();
+            const yaProc = await kv.sismember("goleadores:partidos", match.id?.toString() ?? "");
+            if (!yaProc) {
+              const evRes = await fetch(
+                `https://livescore-api.com/api-client/scores/events.json?id=${match.id}&key=${LS_KEY}&secret=${LS_SECRET}`,
+                { cache: "no-store" }
+              );
+              if (evRes.ok) {
+                const evData = await evRes.json();
+                const events = evData.data?.event ?? [];
+                const kv2 = getClient();
+                for (const e of events) {
+                  if (e.event !== "GOAL" && e.event !== "GOAL_PENALTY") continue;
+                  const teamName = e.home_away === "h" ? match.home?.name : match.away?.name;
+                  const equipo = mapTeam(teamName ?? "");
+                  const playerKey = `${e.player}:${equipo}`.replace(/[^a-zA-Z0-9:_áéíóúÁÉÍÓÚñÑüÜ]/g, "_");
+                  const existing = await kv2.get(`goleador:${playerKey}`);
+                  const prev = existing ? JSON.parse(existing) : { nombre: e.player, equipo, goles: 0, asistencias: 0 };
+                  prev.goles += 1;
+                  // Asistencia va al jugador en el campo "info"
+                  if (e.info) {
+                    const assistKey = `${e.info}:${equipo}`.replace(/[^a-zA-Z0-9:_áéíóúÁÉÍÓÚñÑüÜ]/g, "_");
+                    const existingA = await kv2.get(`goleador:${assistKey}`);
+                    const prevA = existingA ? JSON.parse(existingA) : { nombre: e.info, equipo, goles: 0, asistencias: 0 };
+                    prevA.asistencias += 1;
+                    await actualizarGoleador(assistKey, prevA);
+                  }
+                  await actualizarGoleador(playerKey, prev);
+                }
+                await kv.sadd("goleadores:partidos", match.id?.toString() ?? "");
+              }
+            }
+          } catch {}
         }
         await delLiveScore(partido.id);
       }
