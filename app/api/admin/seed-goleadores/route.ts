@@ -32,6 +32,15 @@ export async function GET(req: NextRequest) {
   const kv = getClient();
   let procesados = 0;
 
+  // Si reset=true, limpiar todo y reprocesar
+  const reset = req.nextUrl.searchParams.get("reset");
+  if (reset === "true") {
+    await kv.del("goleadores:partidos");
+    const keys = await kv.smembers("goleadores:all");
+    for (const k of keys) await kv.del(`goleador:${k}`);
+    await kv.del("goleadores:all");
+  }
+
   // Procesar historial desde el inicio del torneo
   const fechaInicio = new Date("2026-06-11");
   const hoy = new Date();
