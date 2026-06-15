@@ -9,7 +9,7 @@ export async function GET() {
     const scorers = todos
       .filter(s => s.goles > 0)
       .sort((a, b) => b.goles - a.goles || b.asistencias - a.asistencias)
-      .slice(0, 15);
+      .slice(0, 20);
     return NextResponse.json({ ok: true, scorers }, { headers: { "Cache-Control": "no-store, max-age=0" } });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
