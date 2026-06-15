@@ -28,7 +28,7 @@ const TEAM_MAP: Record<string, string> = {
   "DR Congo": "RD Congo", "Congo DR": "RD Congo", "Democratic Republic of Congo": "RD Congo",
   "England": "Inglaterra", "Croatia": "Croacia", "Ghana": "Ghana",
   "Panama": "Panamá", "Australia": "Australia", "Serbia": "Serbia",
-  "Ecuador": "Ecuador", "Senegal": "Senegal", "Austria": "Austria", "Ivory Coast": "Costa de Marfil", "Cote d'Ivoire": "Costa de Marfil", "Côte d'Ivoire": "Costa de Marfil",
+  "Ecuador": "Ecuador", "Senegal": "Senegal", "Austria": "Austria",
   "Paraguay": "Paraguay", "Uruguay": "Uruguay", "Argentina": "Argentina",
 
 };
