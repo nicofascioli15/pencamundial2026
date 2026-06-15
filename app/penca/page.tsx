@@ -921,7 +921,7 @@ const enviarPick = async (
           </div>
           {/* ── BARRA DE GRUPOS ── */}
           {gruposUser.length > 0 && (
-            <div style={{background:"rgba(6,13,26,.98)",borderBottom:"1px solid rgba(255,255,255,.06)",padding:"10px 12px",overflowX:"auto",display:"flex",gap:8,scrollbarWidth:"none" as any}}>
+            <div style={{background:"#090a0d",borderBottom:"1px solid rgba(255,255,255,.06)",padding:"10px 12px",overflowX:"auto",display:"flex",gap:8,scrollbarWidth:"none" as any}}>
               {gruposUser.map(g=>(
                 <div key={g.id} onClick={()=>{window.history.replaceState(null,"",`/penca?grupo=${g.id}`);setGrupoActivo(g.id);setNombreGrupo(g.nombre);}} style={{flexShrink:0,display:"flex",alignItems:"center",gap:10,background:grupoActivo===g.id?"rgba(245,200,66,.1)":"rgba(255,255,255,.05)",border:`1.5px solid ${grupoActivo===g.id?"rgba(245,200,66,.4)":"rgba(255,255,255,.08)"}`,borderRadius:14,padding:"8px 14px",cursor:"pointer",transition:"all .2s"}}>
                   <div>
