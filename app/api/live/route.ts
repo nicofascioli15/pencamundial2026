@@ -133,8 +133,11 @@ export async function GET() {
 
         const liveScore = { local: score?.home ?? 0, visitante: score?.away ?? 0 };
         await setLiveScore(partido.id, liveScore);
-        // Guardar el match ID de live-score-api para consultarlo después
         await getClient().set(`live:matchid:${partido.id}`, match.id?.toString() ?? "");
+        // Guardar último score visto con timestamp
+        await getClient().set(`live:lastseen:${partido.id}`, JSON.stringify({
+          ...liveScore, ts: Date.now()
+        }));
         enVivo.push({
           partidoId: partido.id,
           estado: (status === "HT" || status === "HALF TIME BREAK") ? "entretiempo" : "jugando",
@@ -201,13 +204,32 @@ export async function GET() {
       await enviarPushATodos(titulo, `Resultado final. ¡Mirá cómo quedaste!`, "/penca?tab=tabla");
     }
 
+    // Detectar partidos que desaparecieron del live usando último score visto
+    for (const p of TODOS_PARTIDOS) {
+      const yaResult = await getResultado(p.id);
+      if (yaResult) continue;
+      const lastSeenRaw = await getClient().get(`live:lastseen:${p.id}`);
+      if (!lastSeenRaw) continue;
+      const lastSeen = JSON.parse(lastSeenRaw);
+      const sigueEnVivo = enVivo.some(e => e.partidoId === p.id);
+      if (sigueEnVivo) continue;
+      // Si desapareció del live y pasaron más de 15 minutos → asumir FT
+      if (Date.now() - lastSeen.ts > 15 * 60 * 1000) {
+        await setResultado(p.id, { local: lastSeen.local, visitante: lastSeen.visitante });
+        await delLiveScore(p.id);
+        await getClient().del(`live:lastseen:${p.id}`);
+        await getClient().del(`live:matchid:${p.id}`);
+        nuevos.push({ partido: p, local: lastSeen.local, visitante: lastSeen.visitante });
+        continue;
+      }
+    }
+
     // Chequear partidos que estaban en vivo pero ya no aparecen (pueden haber terminado)
     for (const p of TODOS_PARTIDOS) {
       const yaResult = await getResultado(p.id);
       if (yaResult) continue;
       const matchId = await getClient().get(`live:matchid:${p.id}`);
       if (!matchId) continue;
-      // Verificar si sigue en vivo
       const sigueEnVivo = enVivo.some(e => e.partidoId === p.id);
       if (sigueEnVivo) continue;
       // No está en vivo ni tiene resultado — buscar directamente
