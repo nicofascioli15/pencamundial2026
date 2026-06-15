@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getClient, actualizarGoleador, setResultado, getResultado } from "@/lib/kv";
+import { TODOS_PARTIDOS } from "@/lib/mundial";
 
 const LS_KEY = process.env.LIVESCORE_KEY ?? "";
 const LS_SECRET = process.env.LIVESCORE_SECRET ?? "";
@@ -23,6 +24,11 @@ const TEAM_MAP: Record<string, string> = {
 };
 
 function mapTeam(name: string): string { return TEAM_MAP[name] ?? name; }
+function findPartido(homeTeam: string, awayTeam: string) {
+  const home = mapTeam(homeTeam);
+  const away = mapTeam(awayTeam);
+  return TODOS_PARTIDOS.find(p => p.local === home && p.visitante === away) ?? null;
+}
 
 export const dynamic = "force-dynamic";
 
@@ -92,12 +98,16 @@ export async function GET(req: NextRequest) {
         }
       }
       // Guardar resultado si no existe
-      const yaResult = await getResultado(partido.id);
-      if (!yaResult) {
-        const ftScore = match.scores?.ft_score ?? match.scores?.score ?? "";
-        const parts = ftScore.split("-").map((s: string) => parseInt(s.trim()));
-        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-          await setResultado(partido.id, { local: parts[0], visitante: parts[1] });
+      const partidoResult = findPartido(match.home?.name ?? "", match.away?.name ?? "")
+        ?? findPartido(match.away?.name ?? "", match.home?.name ?? "");
+      if (partidoResult) {
+        const yaResult = await getResultado(partidoResult.id);
+        if (!yaResult) {
+          const ftScore = match.scores?.ft_score ?? match.scores?.score ?? "";
+          const parts = ftScore.split("-").map((s: string) => parseInt(s.trim()));
+          if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+            await setResultado(partidoResult.id, { local: parts[0], visitante: parts[1] });
+          }
         }
       }
       await kv.sadd("goleadores:partidos", matchId);
