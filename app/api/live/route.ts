@@ -58,10 +58,12 @@ export async function GET() {
 
   try {
     const today = new Date().toISOString().split("T")[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+    const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
 
     const [liveRes, histRes] = await Promise.all([
       fetch(`https://livescore-api.com/api-client/matches/live.json?key=${LS_KEY}&secret=${LS_SECRET}&competition_id=${COMPETITION_ID}`, { cache: "no-store" }),
-      fetch(`https://livescore-api.com/api-client/matches/history.json?key=${LS_KEY}&secret=${LS_SECRET}&competition_id=${COMPETITION_ID}&from=${today}&to=${today}`, { cache: "no-store" }),
+      fetch(`https://livescore-api.com/api-client/matches/history.json?key=${LS_KEY}&secret=${LS_SECRET}&competition_id=${COMPETITION_ID}&from=${yesterday}&to=${tomorrow}`, { cache: "no-store" }),
     ]);
 
     if (!liveRes.ok) return NextResponse.json({ error: `API error: ${liveRes.status}` }, { status: 500 });
