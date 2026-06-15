@@ -511,6 +511,8 @@ export default function PencaPage() {
   const [tablaGrupoSeleccionado, setTablaGrupoSeleccionado] = useState<string>("fascioli");
   const [infoAbierta, setInfoAbierta] = useState(false);
   const [finalizadosAbierto, setFinalizadosAbierto] = useState(false);
+  const [lineupModal, setLineupModal] = useState<{local:any;visitante:any;equipoLocal:string;equipoVisitante:string}|null>(null);
+  const [loadingLineup, setLoadingLineup] = useState<string|null>(null);
   const [nombreTablaSeleccionada, setNombreTablaSeleccionada] = useState<string>("PencaFascioli");
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -1544,6 +1546,43 @@ const enviarPick = async (
       )}
 
 
+        {/* ── MODAL ALINEACIONES ── */}
+        {lineupModal&&(
+          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center",padding:"0 0 0px"}} onClick={()=>setLineupModal(null)}>
+            <div style={{background:"#fff",borderRadius:"20px 20px 0 0",width:"100%",maxWidth:430,padding:"20px 16px 36px",boxShadow:"0 -8px 40px rgba(0,0,0,.2)",maxHeight:"80vh",overflowY:"auto"}} onClick={e=>e.stopPropagation()}>
+              <div style={{width:36,height:4,background:"#dde4ec",borderRadius:4,margin:"0 auto 16px"}}/>
+              <div style={{fontSize:14,fontWeight:800,color:"#123952",textAlign:"center",marginBottom:16}}>📋 Alineaciones</div>
+              <div style={{display:"flex",gap:8}}>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:11,fontWeight:800,color:"#123952",marginBottom:8,textAlign:"center"}}>{lineupModal.equipoLocal}</div>
+                  {lineupModal.local.map((j:any,i:number)=>(
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:6,padding:"5px 0",borderBottom:"1px solid #f5f5f5"}}>
+                      <div style={{width:20,height:20,borderRadius:"50%",background:"#123952",color:"#fff",fontSize:9,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{j.numero}</div>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:10,fontWeight:600,color:"#1a1f24"}}>{j.nombre}</div>
+                        <div style={{fontSize:8,color:"#6b7280"}}>{j.posicion}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{width:1,background:"#f0f0f0",flexShrink:0}}/>
+                <div style={{flex:1}}>
+                  <div style={{fontSize:11,fontWeight:800,color:"#123952",marginBottom:8,textAlign:"center"}}>{lineupModal.equipoVisitante}</div>
+                  {lineupModal.visitante.map((j:any,i:number)=>(
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:6,padding:"5px 0",borderBottom:"1px solid #f5f5f5",flexDirection:"row-reverse"}}>
+                      <div style={{width:20,height:20,borderRadius:"50%",background:"#e8a020",color:"#fff",fontSize:9,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{j.numero}</div>
+                      <div style={{flex:1,textAlign:"right"}}>
+                        <div style={{fontSize:10,fontWeight:600,color:"#1a1f24"}}>{j.nombre}</div>
+                        <div style={{fontSize:8,color:"#6b7280"}}>{j.posicion}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {showNotifModal&&(
           <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:300,display:"flex",alignItems:"flex-end",justifyContent:"center",padding:"0 0 20px"}}>
             <div style={{background:"#fff",borderRadius:"20px 20px 20px 20px",width:"100%",maxWidth:430,padding:"24px 20px 28px",boxShadow:"0 -8px 40px rgba(0,0,0,.2)"}}>
@@ -1740,6 +1779,19 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
           <span style={{fontSize:10,color:aplicarSiempre?"#123952":"#9ca3af",fontWeight:600}}>
             {aplicarSiempre?"Aplicar a todos mis grupos":"Solo este grupo"}
           </span>
+        </div>
+      )}
+      {bloqueado && liveData && (
+        <div
+          onClick={async ()=>{
+            setLoadingLineup(partido.id);
+            const r = await fetch(`/api/lineups?partidoId=${partido.id}`).then(r=>r.json());
+            setLoadingLineup(null);
+            if (r.ok) setLineupModal({local:r.local.jugadores,visitante:r.visitante.jugadores,equipoLocal:partido.local,equipoVisitante:partido.visitante});
+          }}
+          style={{fontSize:10,color:"#6b7280",textAlign:"center",padding:"6px 0",cursor:"pointer",textDecoration:"underline"}}
+        >
+          {loadingLineup===partido.id ? "Cargando..." : "📋 Ver alineaciones"}
         </div>
       )}
       <div className="hoy-pick">
