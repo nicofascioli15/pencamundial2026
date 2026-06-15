@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getClient, actualizarGoleador } from "@/lib/kv";
+import { getClient, actualizarGoleador, setResultado, getResultado } from "@/lib/kv";
 
 const LS_KEY = process.env.LIVESCORE_KEY ?? "";
 const LS_SECRET = process.env.LIVESCORE_SECRET ?? "";
@@ -89,6 +89,15 @@ export async function GET(req: NextRequest) {
           const prevA = existingA ? JSON.parse(existingA) : { nombre: e.info, equipo, goles: 0, asistencias: 0 };
           prevA.asistencias += 1;
           await actualizarGoleador(assistKey, prevA);
+        }
+      }
+      // Guardar resultado si no existe
+      const yaResult = await getResultado(partido.id);
+      if (!yaResult) {
+        const ftScore = match.scores?.ft_score ?? match.scores?.score ?? "";
+        const parts = ftScore.split("-").map((s: string) => parseInt(s.trim()));
+        if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+          await setResultado(partido.id, { local: parts[0], visitante: parts[1] });
         }
       }
       await kv.sadd("goleadores:partidos", matchId);
