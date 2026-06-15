@@ -179,9 +179,9 @@ const css = `
   .save-btn.saved{background:#f2f7fb;color:#2e9e6b;border:1.5px solid #2e9e6b}
   .locked-btn{padding:9px 12px;border:1.5px solid #dde4ec;border-radius:9px;background:transparent;color:#6b7280;font-size:11px;font-weight:600;white-space:nowrap}
   .chip{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
-  .chip-ex{background:rgba(232,160,32,.12);color:#e8a020;border:1px solid rgba(232,160,32,.3)}
-  .chip-ok{background:rgba(46,158,107,.1);color:#2e9e6b;border:1px solid rgba(46,158,107,.2)}
-  .chip-no{background:rgba(220,38,38,.06);color:#dc2626;border:1px solid rgba(220,38,38,.15)}
+  .chip-ex{background:rgba(46,158,107,.12);color:#2e9e6b;border:1px solid rgba(46,158,107,.3)}
+  .chip-ok{background:rgba(232,160,32,.12);color:#e8a020;border:1px solid rgba(232,160,32,.3)}
+  .chip-no{background:rgba(220,38,38,.08);color:#dc2626;border:1px solid rgba(220,38,38,.2)}
   .sec-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#123952;margin:4px 0 12px;display:flex;align-items:center;gap:8px}
   .sec-title::after{content:'';flex:1;height:1px;background:#dde4ec}
   .tr{
