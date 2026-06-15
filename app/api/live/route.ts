@@ -259,7 +259,8 @@ export async function GET() {
     const kv = getClient();
     for (const p of TODOS_PARTIDOS) {
       const [h, m] = p.hora.split(":").map(Number);
-      const kickoffUTC = new Date(`${p.fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime() + 3*60*60*1000;
+      const [y, mo, d] = p.fecha.split("-").map(Number);
+      const kickoffUTC = Date.UTC(y, mo-1, d, h+3, m, 0);
       const diff = kickoffUTC - ahora;
       const yaNotificado = await kv.get(`push:prepartido:${p.id}`);
       if (diff > 0 && diff <= 30*60*1000 && !yaNotificado) {
