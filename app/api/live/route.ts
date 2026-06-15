@@ -28,7 +28,7 @@ const TEAM_MAP: Record<string, string> = {
   "DR Congo": "RD Congo", "Congo DR": "RD Congo", "Democratic Republic of Congo": "RD Congo",
   "England": "Inglaterra", "Croatia": "Croacia", "Ghana": "Ghana",
   "Panama": "Panamá", "Australia": "Australia", "Serbia": "Serbia",
-  "Ecuador": "Ecuador", "Senegal": "Senegal", "Austria": "Austria",
+  "Ecuador": "Ecuador", "Senegal": "Senegal", "Austria": "Austria", "Ivory Coast": "Costa de Marfil", "Cote d'Ivoire": "Costa de Marfil", "Côte d'Ivoire": "Costa de Marfil",
   "Paraguay": "Paraguay", "Uruguay": "Uruguay", "Argentina": "Argentina",
 
 };
@@ -80,7 +80,10 @@ export async function GET() {
         if (!score) continue;
         let partido = findPartido(match.home?.name ?? "", match.away?.name ?? "");
         if (!partido) partido = findPartido(match.away?.name ?? "", match.home?.name ?? "");
-        if (!partido) continue;
+        if (!partido) {
+          console.log("NO MATCH HIST:", match.home?.name, "vs", match.away?.name);
+          continue;
+        }
         const yaExistia = await getResultado(partido.id);
         if (!yaExistia) {
           await setResultado(partido.id, { local: score.home, visitante: score.away });
