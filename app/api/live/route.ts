@@ -131,6 +131,8 @@ export async function GET() {
 
         const liveScore = { local: score?.home ?? 0, visitante: score?.away ?? 0 };
         await setLiveScore(partido.id, liveScore);
+        // Guardar el match ID de live-score-api para consultarlo después
+        await getClient().set(`live:matchid:${partido.id}`, match.id?.toString() ?? "");
         enVivo.push({
           partidoId: partido.id,
           estado: (status === "HT" || status === "HALF TIME BREAK") ? "entretiempo" : "jugando",
@@ -195,6 +197,37 @@ export async function GET() {
       const flagV = getFlag(partido.visitante);
       const titulo = `${flagL} ${partido.local} ${local} - ${visitante} ${partido.visitante} ${flagV}`;
       await enviarPushATodos(titulo, `Resultado final. ¡Mirá cómo quedaste!`, "/penca?tab=tabla");
+    }
+
+    // Chequear partidos que estaban en vivo pero ya no aparecen (pueden haber terminado)
+    for (const p of TODOS_PARTIDOS) {
+      const yaResult = await getResultado(p.id);
+      if (yaResult) continue;
+      const matchId = await getClient().get(`live:matchid:${p.id}`);
+      if (!matchId) continue;
+      // Verificar si sigue en vivo
+      const sigueEnVivo = enVivo.some(e => e.partidoId === p.id);
+      if (sigueEnVivo) continue;
+      // No está en vivo ni tiene resultado — buscar directamente
+      try {
+        const mRes = await fetch(
+          `https://livescore-api.com/api-client/scores/history.json?id=${matchId}&key=${LS_KEY}&secret=${LS_SECRET}`,
+          { cache: "no-store" }
+        );
+        if (mRes.ok) {
+          const mData = await mRes.json();
+          const match = mData.data?.match;
+          if (match?.status === "FINISHED" || match?.time === "FT") {
+            const ftScore = parseScore(match.scores?.ft_score ?? match.scores?.score ?? "");
+            if (ftScore) {
+              await setResultado(p.id, { local: ftScore.home, visitante: ftScore.away });
+              await delLiveScore(p.id);
+              await getClient().del(`live:matchid:${p.id}`);
+              nuevos.push({ partido: p, local: ftScore.home, visitante: ftScore.away });
+            }
+          }
+        }
+      } catch {}
     }
 
     // Notificación 30 min antes del partido
