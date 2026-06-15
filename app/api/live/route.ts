@@ -200,8 +200,18 @@ export async function GET() {
     for (const { partido, local, visitante } of nuevos) {
       const flagL = getFlag(partido.local);
       const flagV = getFlag(partido.visitante);
-      const titulo = `${flagL} ${partido.local} ${local} - ${visitante} ${partido.visitante} ${flagV}`;
-      await enviarPushATodos(titulo, `Resultado final. ¡Mirá cómo quedaste!`, "/penca?tab=tabla");
+      const esUru = partido.local === "Uruguay" || partido.visitante === "Uruguay";
+      const titulo = esUru
+        ? `🇺🇾 ${flagL} ${partido.local} ${local} - ${visitante} ${partido.visitante} ${flagV} 🇺🇾`
+        : `${flagL} ${partido.local} ${local} - ${visitante} ${partido.visitante} ${flagV}`;
+      const ganoUruguay = (partido.local === "Uruguay" && local > visitante) || (partido.visitante === "Uruguay" && visitante > local);
+      const perdioUruguay = (partido.local === "Uruguay" && local < visitante) || (partido.visitante === "Uruguay" && visitante < local);
+      const cuerpoFinal = esUru
+        ? ganoUruguay ? `🎉 ¡GANÓ URUGUAY! ¡Mirá cómo te fue!`
+          : perdioUruguay ? `😢 Perdió Uruguay... ¡A ver cómo quedaste igual!`
+          : `🤝 Uruguay empató. ¡Mirá cómo quedaste!`
+        : `Resultado final. ¡Mirá cómo quedaste!`;
+      await enviarPushATodos(titulo, cuerpoFinal, "/penca?tab=tabla");
     }
 
     // Detectar partidos que desaparecieron del live usando último score visto
@@ -266,11 +276,14 @@ export async function GET() {
       if (diff > 0 && diff <= 30*60*1000 && !yaNotificado) {
         const flagL = getFlag(p.local);
         const flagV = getFlag(p.visitante);
-        await enviarPushATodos(
-          `${flagL} ${p.local} vs ${p.visitante} ${flagV}`,
-          `⏰ El partido arranca en 30 minutos. ¡Cerrá tu pronóstico!`,
-          "/penca?tab=proximos"
-        );
+        const esUruguay = p.local === "Uruguay" || p.visitante === "Uruguay";
+        const tituloPrePartido = esUruguay
+          ? `🇺🇾 ¡ARRANCA URUGUAY! ${flagL} ${p.local} vs ${p.visitante} ${flagV} 🇺🇾`
+          : `${flagL} ${p.local} vs ${p.visitante} ${flagV}`;
+        const cuerpoPrePartido = esUruguay
+          ? `⚡ ¡En 30 minutos juega la Celeste! ¡Poné tu pronóstico antes que cierre!`
+          : `⏰ El partido arranca en 30 minutos. ¡Cerrá tu pronóstico!`;
+        await enviarPushATodos(tituloPrePartido, cuerpoPrePartido, "/penca?tab=proximos");
         await kv.set(`push:prepartido:${p.id}`, "1", "EX", 3600);
       }
     }
