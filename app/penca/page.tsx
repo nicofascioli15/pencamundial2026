@@ -1945,7 +1945,6 @@ function PerfilModal({ perfil, resultados, liveData, config, onClose }: {
   onClose: ()=>void;
 }) {
   const bloqueados = TODOS_PARTIDOS.filter(p => {
-    const [h, m] = p.hora.split(":").map(Number);
     const bloqueoMs = partidoUYMs(p.fecha, p.hora) - 10*60*1000;
     return Date.now() >= bloqueoMs;
   });
@@ -1958,16 +1957,15 @@ function PerfilModal({ perfil, resultados, liveData, config, onClose }: {
         <div className="modal-header">
           <div>
             <div style={{fontWeight:700,fontSize:18}}>{perfil.nombre}</div>
-            <div style={{fontSize:12,color:"#6b7280",marginTop:2}}>Pronósticos bloqueados · {conPick.length} registrados</div>
+            <div style={{fontSize:12,color:"#6b7280",marginTop:2}}>{conPick.length} pronósticos · {bloqueados.length - conPick.length} sin completar</div>
           </div>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
-        {conPick.length===0&&<div style={{textAlign:"center",color:"#6b7280",padding:24}}>Sin pronósticos registrados aún</div>}
-        {conPick.map(p=>{
+        {bloqueados.length===0&&<div style={{textAlign:"center",color:"#6b7280",padding:24}}>Sin partidos bloqueados aún</div>}
+        {bloqueados.map(p=>{
           const pred=perfil.predicciones[p.id];
           const res=resultados[p.id];
           const live=liveData[p.id];
-          // Usar resultado final, o parcial si está en vivo
           const resEfectivo = res ?? (live ? {local:live.local, visitante:live.visitante} : null);
           const esParcial = !res && !!live;
           const pts=resEfectivo&&pred?calcularPuntos(pred,resEfectivo,config):null;
@@ -1985,7 +1983,10 @@ function PerfilModal({ perfil, resultados, liveData, config, onClose }: {
                     {esParcial&&<span style={{fontSize:9,marginLeft:3}}>🔴</span>}
                   </div>
                 )}
-                <div style={{fontSize:16,fontWeight:900,color:"#123952",background:"#e8f0f6",padding:"3px 10px",borderRadius:8}}>{pred.local}-{pred.visitante}</div>
+                {pred
+                  ? <div style={{fontSize:16,fontWeight:900,color:"#123952",background:"#e8f0f6",padding:"3px 10px",borderRadius:8}}>{pred.local}-{pred.visitante}</div>
+                  : <div style={{fontSize:11,color:"#9ca3af",fontStyle:"italic",padding:"3px 10px"}}>Sin pronóstico</div>
+                }
                 {pts!==null&&<span className={`chip ${chipCls}`} style={{opacity:esParcial?0.7:1}}>{pts>0?`+${pts}`:0}p{esParcial?"*":""}</span>}
               </div>
             </div>
