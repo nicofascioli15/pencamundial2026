@@ -590,7 +590,7 @@ export default function PencaPage() {
           setLiveData(map);
           // Si hay partido en vivo, recargar tabla para puntos parciales
           if (r.enVivo.length > 0) {
-            const tablaRes = await fetch(`/api/grupos/tabla?grupoId=${grupoActivo}`).then(r=>r.json());
+            const tablaRes = await fetch(`/api/grupos/tabla?grupoId=${grupoActivoRef.current}`).then(r=>r.json());
             if (tablaRes.tabla) setTabla(tablaRes.tabla);
           }
         }
