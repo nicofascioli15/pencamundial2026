@@ -504,6 +504,8 @@ function esBloqueado(fecha: string, hora: string): boolean {
 export default function PencaPage() {
   const router = useRouter();
   const [grupoActivo, setGrupoActivo] = useState<string>("fascioli");
+  const grupoActivoRef = useRef<string>("fascioli");
+  const setGrupoActivoSync = (id: string) => { grupoActivoRef.current = id; setGrupoActivo(id); };
   const [nombreGrupo, setNombreGrupo] = useState<string>("PencaFascioli");
   const [gruposTabla, setGruposTabla] = useState<{id:string;nombre:string}[]>([{id:"fascioli",nombre:"PencaFascioli"}]);
   const [tablaGrupoSeleccionado, setTablaGrupoSeleccionado] = useState<string>("fascioli");
@@ -628,7 +630,7 @@ export default function PencaPage() {
   const [grupoLoading, setGrupoLoading] = useState(false);
 
   const cargarDatos = useCallback(async (grupoIdParam?: string) => {
-    const gId = grupoIdParam ?? new URLSearchParams(window.location.search).get("grupo") ?? "fascioli";
+    const gId = grupoIdParam ?? grupoActivoRef.current ?? new URLSearchParams(window.location.search).get("grupo") ?? "fascioli";
     const [pRes,rRes,tRes,cRes,gRes,oRes,hRes] = await Promise.all([
       fetch(`/api/grupos/predicciones?grupoId=${gId}`).then(r=>r.json()),
       fetch("/api/resultados").then(r=>r.json()),
@@ -923,7 +925,7 @@ const enviarPick = async (
           {gruposUser.length > 0 && (
             <div style={{background:"#090a0d",borderBottom:"1px solid rgba(255,255,255,.06)",padding:"10px 12px",overflowX:"auto",display:"flex",gap:8,scrollbarWidth:"none" as any}}>
               {gruposUser.map(g=>(
-                <div key={g.id} onClick={()=>{window.history.replaceState(null,"",`/penca?grupo=${g.id}`);setGrupoActivo(g.id);setNombreGrupo(g.nombre);}} style={{flexShrink:0,display:"flex",alignItems:"center",gap:10,background:grupoActivo===g.id?"rgba(245,200,66,.1)":"rgba(255,255,255,.05)",border:`1.5px solid ${grupoActivo===g.id?"rgba(245,200,66,.4)":"rgba(255,255,255,.08)"}`,borderRadius:14,padding:"8px 14px",cursor:"pointer",transition:"all .2s"}}>
+                <div key={g.id} onClick={()=>{window.history.replaceState(null,"",`/penca?grupo=${g.id}`);setGrupoActivoSync(g.id);setNombreGrupo(g.nombre);}} style={{flexShrink:0,display:"flex",alignItems:"center",gap:10,background:grupoActivo===g.id?"rgba(245,200,66,.1)":"rgba(255,255,255,.05)",border:`1.5px solid ${grupoActivo===g.id?"rgba(245,200,66,.4)":"rgba(255,255,255,.08)"}`,borderRadius:14,padding:"8px 14px",cursor:"pointer",transition:"all .2s"}}>
                   <div>
                     <div style={{fontSize:11,fontWeight:700,color:grupoActivo===g.id?"#f5c842":"rgba(255,255,255,.6)",whiteSpace:"nowrap",maxWidth:90,overflow:"hidden",textOverflow:"ellipsis"}}>{g.nombre}</div>
                     <div style={{fontSize:9,color:grupoActivo===g.id?"rgba(245,200,66,.6)":"rgba(255,255,255,.3)",fontWeight:700,marginTop:1}}>{g.miPos>0?`#${g.miPos} · `:""}{g.id==="fascioli"?"Global":`${g.miembros} jugadores`}</div>
