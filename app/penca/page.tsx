@@ -569,11 +569,20 @@ export default function PencaPage() {
   useEffect(() => {
     if ("serviceWorker" in navigator && "PushManager" in window) {
       navigator.serviceWorker.ready.then(reg => {
-        reg.pushManager.getSubscription().then(sub => {
+        reg.pushManager.getSubscription().then(async sub => {
           setNotifActiva(!!sub);
-          // Si es PWA, no tiene notif activas y no lo cerró antes → mostrar modal
           if (!sub && esPWA() && !localStorage.getItem("notif_modal_cerrado")) {
             setTimeout(() => setShowNotifModal(true), 2000);
+          }
+          // Si tiene suscripción activa en el dispositivo, re-registrarla en el servidor
+          if (sub) {
+            try {
+              await fetch("/api/push", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(sub),
+              });
+            } catch {}
           }
         });
       });
