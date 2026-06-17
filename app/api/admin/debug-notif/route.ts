@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const kv = getClient();
   const ahora = Date.now();
-  const subs = await kv.smembers("push:subs");
+  const subs = await kv.smembers("push:all");
   
   const proximos = [];
   for (const p of TODOS_PARTIDOS) {
