@@ -214,7 +214,7 @@ export async function GET() {
       await enviarPushATodos(titulo, cuerpoFinal, "/penca?tab=tabla");
     }
 
-    // Detectar partidos que desaparecieron del live usando último score visto
+    // Detectar partidos que desaparecieron del live — usar eventos para score real
     for (const p of TODOS_PARTIDOS) {
       const yaResult = await getResultado(p.id);
       if (yaResult) continue;
@@ -223,15 +223,53 @@ export async function GET() {
       const lastSeen = JSON.parse(lastSeenRaw);
       const sigueEnVivo = enVivo.some(e => e.partidoId === p.id);
       if (sigueEnVivo) continue;
-      // Si desapareció del live y pasaron más de 15 minutos → asumir FT
-      if (Date.now() - lastSeen.ts > 15 * 60 * 1000) {
-        await setResultado(p.id, { local: lastSeen.local, visitante: lastSeen.visitante });
-        await delLiveScore(p.id);
-        await getClient().del(`live:lastseen:${p.id}`);
-        await getClient().del(`live:matchid:${p.id}`);
-        nuevos.push({ partido: p, local: lastSeen.local, visitante: lastSeen.visitante });
-        continue;
-      }
+      // Esperar 20 minutos para cubrir minutos de adición
+      if (Date.now() - lastSeen.ts < 20 * 60 * 1000) continue;
+      const matchId = await getClient().get(`live:matchid:${p.id}`);
+      try {
+        if (matchId) {
+          const evRes = await fetch(
+            `https://livescore-api.com/api-client/scores/events.json?id=${matchId}&key=${LS_KEY}&secret=${LS_SECRET}`,
+            { cache: "no-store" }
+          );
+          if (evRes.ok) {
+            const evData = await evRes.json();
+            const events = evData.data?.event ?? [];
+            let localGoles = 0, visitanteGoles = 0;
+            for (const e of events) {
+              if (e.event === "GOAL" || e.event === "GOAL_PENALTY") {
+                if (e.home_away === "h") localGoles++; else visitanteGoles++;
+              } else if (e.event === "OWN_GOAL") {
+                if (e.home_away === "h") visitanteGoles++; else localGoles++;
+              }
+            }
+            // Guardar goleadores
+            for (const e of events) {
+              if (e.event !== "GOAL" && e.event !== "GOAL_PENALTY") continue;
+              const teamName = e.home_away === "h" ? p.local : p.visitante;
+              const playerKey = `${e.player}:${teamName}`.replace(/[^a-zA-Z0-9:_áéíóúÁÉÍÓÚñÑüÜ]/g, "_");
+              const existing = await getClient().get(`goleador:${playerKey}`);
+              const prev = existing ? JSON.parse(existing) : { nombre: e.player, equipo: teamName, goles: 0, asistencias: 0 };
+              prev.goles += 1;
+              await actualizarGoleador(playerKey, prev);
+            }
+            await getClient().sadd("goleadores:partidos", matchId);
+            const scoreReal = { local: localGoles, visitante: visitanteGoles };
+            await setResultado(p.id, scoreReal);
+            await delLiveScore(p.id);
+            await getClient().del(`live:lastseen:${p.id}`);
+            await getClient().del(`live:matchid:${p.id}`);
+            nuevos.push({ partido: p, local: scoreReal.local, visitante: scoreReal.visitante });
+            continue;
+          }
+        }
+      } catch {}
+      // Fallback: usar lastseen si no pudimos obtener eventos
+      await setResultado(p.id, { local: lastSeen.local, visitante: lastSeen.visitante });
+      await delLiveScore(p.id);
+      await getClient().del(`live:lastseen:${p.id}`);
+      if (matchId) await getClient().del(`live:matchid:${p.id}`);
+      nuevos.push({ partido: p, local: lastSeen.local, visitante: lastSeen.visitante });
     }
 
     // Chequear partidos que estaban en vivo pero ya no aparecen (pueden haber terminado)
