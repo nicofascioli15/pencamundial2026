@@ -1792,7 +1792,7 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
           </span>
         </div>
       )}
-      {bloqueado && liveInfo && onVerLineup && (
+      {bloqueado && !res && onVerLineup && (
         <div onClick={onVerLineup} style={{fontSize:10,color:"#6b7280",textAlign:"center",padding:"6px 0",cursor:"pointer",textDecoration:"underline"}}>
           {loadingLineup ? "Cargando..." : "📋 Ver alineaciones"}
         </div>
