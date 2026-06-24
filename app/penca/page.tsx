@@ -399,7 +399,7 @@ interface User { username: string; nombre: string; isAdmin: boolean; }
 interface TablaRow { username: string; nombre: string; pts: number; ptsParciales?: number; exactos: number; ganadores: number; jugados: number; totalPicks: number; sinPronos?: number; }
 interface FilaGrupo { equipo: string; pj: number; g: number; e: number; p: number; gf: number; ga: number; dg: number; pts: number; }
 
-const FASES = ["Grupos","Dieciseisavos","Cuartos","Semis","Final"];
+const FASES = ["Grupos","Dieciseisavos","Octavos","Cuartos","Semis","Final"];
 const GRUPOS_KEYS = Object.keys(GRUPOS);
 
 // Determinar estado de un partido basado en hora Montevideo
@@ -513,6 +513,7 @@ export default function PencaPage() {
   const [finalizadosAbierto, setFinalizadosAbierto] = useState(false);
   const [lineupModal, setLineupModal] = useState<{local:any;visitante:any;equipoLocal:string;equipoVisitante:string}|null>(null);
   const [loadingLineup, setLoadingLineup] = useState<string|null>(null);
+  const [lineupDisponible, setLineupDisponible] = useState<Record<string,boolean>>({});
   const [nombreTablaSeleccionada, setNombreTablaSeleccionada] = useState<string>("PencaFascioli");
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -995,7 +996,7 @@ const enviarPick = async (
                   const puntos=res&&pred?calcularPuntos(pred,res,config):null;
                   return(
                     <div key={p.id} style={{marginBottom:i<partidosDia.length-1?14:0}}>
-                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)} liveInfo={liveData[p.id]} aplicarSiempre={getAplicar(p.id)} onToggleAplicar={()=>toggleAplicarSiempre(p.id)} loadingLineup={loadingLineup===p.id} onVerLineup={async()=>{setLoadingLineup(p.id);const r=await fetch(`/api/lineups?partidoId=${p.id}`).then(r=>r.json());setLoadingLineup(null);if(r.ok)setLineupModal({local:r.local.jugadores,visitante:r.visitante.jugadores,equipoLocal:p.local,equipoVisitante:p.visitante});}}/>
+                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)} liveInfo={liveData[p.id]} aplicarSiempre={getAplicar(p.id)} onToggleAplicar={()=>toggleAplicarSiempre(p.id)} loadingLineup={loadingLineup===p.id} onVerLineup={async()=>{setLoadingLineup(p.id);const r=await fetch(`/api/lineups?partidoId=${p.id}`).then(r=>r.json());setLoadingLineup(null);if(r.ok){setLineupDisponible(prev=>({...prev,[p.id]:true}));setLineupModal({local:r.local.jugadores,visitante:r.visitante.jugadores,equipoLocal:p.local,equipoVisitante:p.visitante});}else{setLineupDisponible(prev=>({...prev,[p.id]:false}));}}}/>
                     </div>
                   );
                 })}
@@ -1792,7 +1793,7 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
           </span>
         </div>
       )}
-      {bloqueado && liveInfo && onVerLineup && (
+      {bloqueado && !res && onVerLineup && liveInfo && (
         <div onClick={onVerLineup} style={{fontSize:10,color:"#6b7280",textAlign:"center",padding:"6px 0",cursor:"pointer",textDecoration:"underline"}}>
           {loadingLineup ? "Cargando..." : "📋 Ver alineaciones"}
         </div>

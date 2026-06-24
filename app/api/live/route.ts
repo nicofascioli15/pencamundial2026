@@ -8,7 +8,7 @@ const LS_SECRET = process.env.LIVESCORE_SECRET ?? "";
 const COMPETITION_ID = "362";
 
 const TEAM_MAP: Record<string, string> = {
-  "Mexico": "México", "Korea Republic": "Corea del Sur", "South Africa": "Sudáfrica",
+  "Mexico": "México", "Korea Republic": "Corea del Sur", "South Korea": "Corea del Sur", "South Africa": "Sudáfrica",
   "Czech Republic": "República Checa", "Czechia": "República Checa",
   "Canada": "Canadá", "Bosnia and Herzegovina": "Bosnia y Herzegovina",
   "Bosnia & Herzegovina": "Bosnia y Herzegovina", "Bosnia-Herzegovina": "Bosnia y Herzegovina",

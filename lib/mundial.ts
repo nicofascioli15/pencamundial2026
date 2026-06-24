@@ -35,7 +35,7 @@ export const getFlag = (equipo: string) => FLAGS[equipo] ?? "🏳️";
 
 export interface Partido {
   id: string;
-  fase: "Grupos" | "Dieciseisavos" | "Cuartos" | "Semis" | "Final";
+  fase: "Grupos" | "Dieciseisavos" | "Octavos" | "Cuartos" | "Semis" | "Final";
   grupo?: string;
   local: string;
   visitante: string;
@@ -145,10 +145,20 @@ const ELIMINATORIAS: Partido[] = [
   { id:"R32_14", fase:"Dieciseisavos", local:"Mejor 3° I/J/K/L", visitante:"Mejor 3° resto",   fecha:"2026-07-04", hora:"20:00" },
   { id:"R32_15", fase:"Dieciseisavos", local:"Por definir", visitante:"Por definir", fecha:"2026-07-05", hora:"16:00" },
   { id:"R32_16", fase:"Dieciseisavos", local:"Por definir", visitante:"Por definir", fecha:"2026-07-05", hora:"20:00" },
-  { id:"QF_1",   fase:"Cuartos", local:"Gan. R32_01", visitante:"Gan. R32_02", fecha:"2026-07-09", hora:"16:00" },
-  { id:"QF_2",   fase:"Cuartos", local:"Gan. R32_03", visitante:"Gan. R32_04", fecha:"2026-07-09", hora:"20:00" },
-  { id:"QF_3",   fase:"Cuartos", local:"Gan. R32_05", visitante:"Gan. R32_06", fecha:"2026-07-10", hora:"16:00" },
-  { id:"QF_4",   fase:"Cuartos", local:"Gan. R32_07", visitante:"Gan. R32_08", fecha:"2026-07-10", hora:"20:00" },
+  // ── OCTAVOS DE FINAL (Round of 16) ──
+  { id:"R16_1",  fase:"Octavos", local:"Gan. R16_1", visitante:"Gan. R16_2", fecha:"2026-07-05", hora:"16:00" },
+  { id:"R16_2",  fase:"Octavos", local:"Gan. R16_3", visitante:"Gan. R16_4", fecha:"2026-07-05", hora:"20:00" },
+  { id:"R16_3",  fase:"Octavos", local:"Gan. R16_5", visitante:"Gan. R16_6", fecha:"2026-07-06", hora:"16:00" },
+  { id:"R16_4",  fase:"Octavos", local:"Gan. R16_7", visitante:"Gan. R16_8", fecha:"2026-07-06", hora:"20:00" },
+  { id:"R16_5",  fase:"Octavos", local:"Gan. R32_09", visitante:"Gan. R32_10", fecha:"2026-07-07", hora:"16:00" },
+  { id:"R16_6",  fase:"Octavos", local:"Gan. R32_11", visitante:"Gan. R32_12", fecha:"2026-07-07", hora:"20:00" },
+  { id:"R16_7",  fase:"Octavos", local:"Gan. R32_13", visitante:"Gan. R32_14", fecha:"2026-07-08", hora:"16:00" },
+  { id:"R16_8",  fase:"Octavos", local:"Gan. R32_15", visitante:"Gan. R32_16", fecha:"2026-07-08", hora:"20:00" },
+
+  { id:"QF_1",   fase:"Cuartos", local:"Gan. R16_1", visitante:"Gan. R16_2", fecha:"2026-07-09", hora:"16:00" },
+  { id:"QF_2",   fase:"Cuartos", local:"Gan. R16_3", visitante:"Gan. R16_4", fecha:"2026-07-09", hora:"20:00" },
+  { id:"QF_3",   fase:"Cuartos", local:"Gan. R16_5", visitante:"Gan. R16_6", fecha:"2026-07-10", hora:"16:00" },
+  { id:"QF_4",   fase:"Cuartos", local:"Gan. R16_7", visitante:"Gan. R16_8", fecha:"2026-07-10", hora:"20:00" },
   { id:"QF_5",   fase:"Cuartos", local:"Gan. R32_09", visitante:"Gan. R32_10", fecha:"2026-07-11", hora:"16:00" },
   { id:"QF_6",   fase:"Cuartos", local:"Gan. R32_11", visitante:"Gan. R32_12", fecha:"2026-07-11", hora:"20:00" },
   { id:"QF_7",   fase:"Cuartos", local:"Gan. R32_13", visitante:"Gan. R32_14", fecha:"2026-07-12", hora:"16:00" },
