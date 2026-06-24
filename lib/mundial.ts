@@ -159,16 +159,10 @@ const ELIMINATORIAS: Partido[] = [
   { id:"QF_2",   fase:"Cuartos", local:"Gan. R16_3", visitante:"Gan. R16_4", fecha:"2026-07-09", hora:"20:00" },
   { id:"QF_3",   fase:"Cuartos", local:"Gan. R16_5", visitante:"Gan. R16_6", fecha:"2026-07-10", hora:"16:00" },
   { id:"QF_4",   fase:"Cuartos", local:"Gan. R16_7", visitante:"Gan. R16_8", fecha:"2026-07-10", hora:"20:00" },
-  { id:"QF_5",   fase:"Cuartos", local:"Gan. R32_09", visitante:"Gan. R32_10", fecha:"2026-07-11", hora:"16:00" },
-  { id:"QF_6",   fase:"Cuartos", local:"Gan. R32_11", visitante:"Gan. R32_12", fecha:"2026-07-11", hora:"20:00" },
-  { id:"QF_7",   fase:"Cuartos", local:"Gan. R32_13", visitante:"Gan. R32_14", fecha:"2026-07-12", hora:"16:00" },
-  { id:"QF_8",   fase:"Cuartos", local:"Gan. R32_15", visitante:"Gan. R32_16", fecha:"2026-07-12", hora:"20:00" },
   { id:"SF_1",   fase:"Semis",   local:"Gan. QF_1",   visitante:"Gan. QF_2",   fecha:"2026-07-14", hora:"21:00" },
   { id:"SF_2",   fase:"Semis",   local:"Gan. QF_3",   visitante:"Gan. QF_4",   fecha:"2026-07-15", hora:"21:00" },
-  { id:"SF_3",   fase:"Semis",   local:"Gan. QF_5",   visitante:"Gan. QF_6",   fecha:"2026-07-14", hora:"17:00" },
-  { id:"SF_4",   fase:"Semis",   local:"Gan. QF_7",   visitante:"Gan. QF_8",   fecha:"2026-07-15", hora:"17:00" },
-  { id:"3RO",    fase:"Final",   local:"Perdedor SF_1/SF_3", visitante:"Perdedor SF_2/SF_4", fecha:"2026-07-18", hora:"17:00" },
-  { id:"FINAL",  fase:"Final",   local:"Gan. SF_1/SF_3", visitante:"Gan. SF_2/SF_4", fecha:"2026-07-19", hora:"17:00" },
+  { id:"3RO",    fase:"Final",   local:"Perdedor SF_1", visitante:"Perdedor SF_2", fecha:"2026-07-18", hora:"17:00" },
+  { id:"FINAL",  fase:"Final",   local:"Gan. SF_1", visitante:"Gan. SF_2", fecha:"2026-07-19", hora:"17:00" },
 ];
 
 export const TODOS_PARTIDOS: Partido[] = [...PARTIDOS_GRUPOS, ...ELIMINATORIAS];
@@ -252,11 +246,8 @@ export const CIUDADES: Record<string, string> = {
   // Cuartos
   "QF_1": "Los Ángeles", "QF_2": "Dallas",
   "QF_3": "Houston",     "QF_4": "Atlanta",
-  "QF_5": "Kansas City", "QF_6": "Nueva York",
-  "QF_7": "Philadelphia","QF_8": "Seattle",
   // Semis
   "SF_1": "Atlanta",     "SF_2": "Los Ángeles",
-  "SF_3": "Nueva York",  "SF_4": "Dallas",
   // Final
   "3RO": "Miami", "FINAL": "Nueva York",
 };
