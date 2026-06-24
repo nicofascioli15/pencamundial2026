@@ -399,7 +399,7 @@ interface User { username: string; nombre: string; isAdmin: boolean; }
 interface TablaRow { username: string; nombre: string; pts: number; ptsParciales?: number; exactos: number; ganadores: number; jugados: number; totalPicks: number; sinPronos?: number; }
 interface FilaGrupo { equipo: string; pj: number; g: number; e: number; p: number; gf: number; ga: number; dg: number; pts: number; }
 
-const FASES = ["Grupos","Octavos","Cuartos","Semis","Final"];
+const FASES = ["Grupos","Dieciseisavos","Cuartos","Semis","Final"];
 const GRUPOS_KEYS = Object.keys(GRUPOS);
 
 // Determinar estado de un partido basado en hora Montevideo
