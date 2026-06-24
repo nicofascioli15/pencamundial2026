@@ -129,125 +129,62 @@ const PARTIDOS_GRUPOS: Partido[] = [
 ];
 
 const ELIMINATORIAS: Partido[] = [
-  { id:"R32_01", fase:"Dieciseisavos", local:"1° Gr. A",    visitante:"2° Gr. B",    fecha:"2026-06-28", hora:"16:00" },
-  { id:"R32_02", fase:"Dieciseisavos", local:"1° Gr. C",    visitante:"2° Gr. D",    fecha:"2026-06-28", hora:"20:00" },
-  { id:"R32_03", fase:"Dieciseisavos", local:"1° Gr. E",    visitante:"2° Gr. F",    fecha:"2026-06-29", hora:"16:00" },
-  { id:"R32_04", fase:"Dieciseisavos", local:"1° Gr. G",    visitante:"2° Gr. H",    fecha:"2026-06-29", hora:"20:00" },
-  { id:"R32_05", fase:"Dieciseisavos", local:"1° Gr. I",    visitante:"2° Gr. J",    fecha:"2026-06-30", hora:"16:00" },
-  { id:"R32_06", fase:"Dieciseisavos", local:"1° Gr. K",    visitante:"2° Gr. L",    fecha:"2026-06-30", hora:"20:00" },
-  { id:"R32_07", fase:"Dieciseisavos", local:"1° Gr. B",    visitante:"2° Gr. A",    fecha:"2026-07-01", hora:"16:00" },
-  { id:"R32_08", fase:"Dieciseisavos", local:"1° Gr. D",    visitante:"2° Gr. C",    fecha:"2026-07-01", hora:"20:00" },
-  { id:"R32_09", fase:"Dieciseisavos", local:"1° Gr. F",    visitante:"2° Gr. E",    fecha:"2026-07-02", hora:"16:00" },
-  { id:"R32_10", fase:"Dieciseisavos", local:"1° Gr. H",    visitante:"2° Gr. G",    fecha:"2026-07-02", hora:"20:00" },
-  { id:"R32_11", fase:"Dieciseisavos", local:"1° Gr. J",    visitante:"2° Gr. I",    fecha:"2026-07-03", hora:"16:00" },
-  { id:"R32_12", fase:"Dieciseisavos", local:"1° Gr. L",    visitante:"2° Gr. K",    fecha:"2026-07-03", hora:"20:00" },
-  { id:"R32_13", fase:"Dieciseisavos", local:"Mejor 3° A/B/C/D", visitante:"Mejor 3° E/F/G/H", fecha:"2026-07-04", hora:"16:00" },
-  { id:"R32_14", fase:"Dieciseisavos", local:"Mejor 3° I/J/K/L", visitante:"Mejor 3° resto",   fecha:"2026-07-04", hora:"20:00" },
-  { id:"R32_15", fase:"Dieciseisavos", local:"Por definir", visitante:"Por definir", fecha:"2026-07-05", hora:"16:00" },
-  { id:"R32_16", fase:"Dieciseisavos", local:"Por definir", visitante:"Por definir", fecha:"2026-07-05", hora:"20:00" },
-  // ── OCTAVOS DE FINAL (Round of 16) ──
-  { id:"R16_1",  fase:"Octavos", local:"Gan. R16_1", visitante:"Gan. R16_2", fecha:"2026-07-05", hora:"16:00" },
-  { id:"R16_2",  fase:"Octavos", local:"Gan. R16_3", visitante:"Gan. R16_4", fecha:"2026-07-05", hora:"20:00" },
-  { id:"R16_3",  fase:"Octavos", local:"Gan. R16_5", visitante:"Gan. R16_6", fecha:"2026-07-06", hora:"16:00" },
-  { id:"R16_4",  fase:"Octavos", local:"Gan. R16_7", visitante:"Gan. R16_8", fecha:"2026-07-06", hora:"20:00" },
-  { id:"R16_5",  fase:"Octavos", local:"Gan. R32_09", visitante:"Gan. R32_10", fecha:"2026-07-07", hora:"16:00" },
-  { id:"R16_6",  fase:"Octavos", local:"Gan. R32_11", visitante:"Gan. R32_12", fecha:"2026-07-07", hora:"20:00" },
-  { id:"R16_7",  fase:"Octavos", local:"Gan. R32_13", visitante:"Gan. R32_14", fecha:"2026-07-08", hora:"16:00" },
-  { id:"R16_8",  fase:"Octavos", local:"Gan. R32_15", visitante:"Gan. R32_16", fecha:"2026-07-08", hora:"20:00" },
+  // ── DIECISEISAVOS (Round of 32) ── June 28 - July 3
+  { id:"R32_01", fase:"Dieciseisavos", local:"2° Gr. A",              visitante:"2° Gr. B",              fecha:"2026-06-28", hora:"16:00" },
+  { id:"R32_02", fase:"Dieciseisavos", local:"1° Gr. C",              visitante:"2° Gr. F",              fecha:"2026-06-29", hora:"14:00" },
+  { id:"R32_03", fase:"Dieciseisavos", local:"1° Gr. E",              visitante:"Mejor 3° A/B/C/D/F",   fecha:"2026-06-29", hora:"17:30" },
+  { id:"R32_04", fase:"Dieciseisavos", local:"1° Gr. F",              visitante:"2° Gr. C",              fecha:"2026-06-29", hora:"22:00" },
+  { id:"R32_05", fase:"Dieciseisavos", local:"2° Gr. E",              visitante:"2° Gr. I",              fecha:"2026-06-30", hora:"14:00" },
+  { id:"R32_06", fase:"Dieciseisavos", local:"1° Gr. I",              visitante:"Mejor 3° C/D/F/G/H",   fecha:"2026-06-30", hora:"18:00" },
+  { id:"R32_07", fase:"Dieciseisavos", local:"1° Gr. A",              visitante:"Mejor 3° C/E/F/H/I",   fecha:"2026-06-30", hora:"22:00" },
+  { id:"R32_08", fase:"Dieciseisavos", local:"1° Gr. L",              visitante:"Mejor 3° E/H/I/J/K",   fecha:"2026-07-01", hora:"13:00" },
+  { id:"R32_09", fase:"Dieciseisavos", local:"1° Gr. G",              visitante:"Mejor 3° A/E/H/I/J",   fecha:"2026-07-01", hora:"17:00" },
+  { id:"R32_10", fase:"Dieciseisavos", local:"1° Gr. D",              visitante:"Mejor 3° B/E/F/I/J",   fecha:"2026-07-01", hora:"21:00" },
+  { id:"R32_11", fase:"Dieciseisavos", local:"1° Gr. H",              visitante:"2° Gr. J",              fecha:"2026-07-02", hora:"16:00" },
+  { id:"R32_12", fase:"Dieciseisavos", local:"2° Gr. K",              visitante:"2° Gr. L",              fecha:"2026-07-02", hora:"20:00" },
+  { id:"R32_13", fase:"Dieciseisavos", local:"1° Gr. B",              visitante:"Mejor 3° E/F/G/I/J",   fecha:"2026-07-03", hora:"00:00" },
+  { id:"R32_14", fase:"Dieciseisavos", local:"2° Gr. D",              visitante:"2° Gr. G",              fecha:"2026-07-03", hora:"15:00" },
+  { id:"R32_15", fase:"Dieciseisavos", local:"1° Gr. J",              visitante:"2° Gr. H",              fecha:"2026-07-03", hora:"19:00" },
+  { id:"R32_16", fase:"Dieciseisavos", local:"1° Gr. K",              visitante:"Mejor 3° D/E/I/J/L",   fecha:"2026-07-03", hora:"22:30" },
 
-  { id:"QF_1",   fase:"Cuartos", local:"Gan. R16_1", visitante:"Gan. R16_2", fecha:"2026-07-09", hora:"16:00" },
-  { id:"QF_2",   fase:"Cuartos", local:"Gan. R16_3", visitante:"Gan. R16_4", fecha:"2026-07-09", hora:"20:00" },
-  { id:"QF_3",   fase:"Cuartos", local:"Gan. R16_5", visitante:"Gan. R16_6", fecha:"2026-07-10", hora:"16:00" },
-  { id:"QF_4",   fase:"Cuartos", local:"Gan. R16_7", visitante:"Gan. R16_8", fecha:"2026-07-10", hora:"20:00" },
-  { id:"SF_1",   fase:"Semis",   local:"Gan. QF_1",   visitante:"Gan. QF_2",   fecha:"2026-07-14", hora:"21:00" },
-  { id:"SF_2",   fase:"Semis",   local:"Gan. QF_3",   visitante:"Gan. QF_4",   fecha:"2026-07-15", hora:"21:00" },
-  { id:"3RO",    fase:"Final",   local:"Perdedor SF_1", visitante:"Perdedor SF_2", fecha:"2026-07-18", hora:"17:00" },
-  { id:"FINAL",  fase:"Final",   local:"Gan. SF_1", visitante:"Gan. SF_2", fecha:"2026-07-19", hora:"17:00" },
-];
+  // ── OCTAVOS (Round of 16) ── July 4-7
+  { id:"R16_1",  fase:"Octavos", local:"Gan. R32_01", visitante:"Gan. R32_04", fecha:"2026-07-04", hora:"14:00" },
+  { id:"R16_2",  fase:"Octavos", local:"Gan. R32_03", visitante:"Gan. R32_06", fecha:"2026-07-04", hora:"18:00" },
+  { id:"R16_3",  fase:"Octavos", local:"Gan. R32_02", visitante:"Gan. R32_05", fecha:"2026-07-05", hora:"17:00" },
+  { id:"R16_4",  fase:"Octavos", local:"Gan. R32_07", visitante:"Gan. R32_08", fecha:"2026-07-05", hora:"21:00" },
+  { id:"R16_5",  fase:"Octavos", local:"Gan. R32_12", visitante:"Gan. R32_11", fecha:"2026-07-06", hora:"16:00" },
+  { id:"R16_6",  fase:"Octavos", local:"Gan. R32_10", visitante:"Gan. R32_09", fecha:"2026-07-06", hora:"21:00" },
+  { id:"R16_7",  fase:"Octavos", local:"Gan. R32_15", visitante:"Gan. R32_14", fecha:"2026-07-07", hora:"13:00" },
+  { id:"R16_8",  fase:"Octavos", local:"Gan. R32_13", visitante:"Gan. R32_16", fecha:"2026-07-07", hora:"17:00" },
 
-export const TODOS_PARTIDOS: Partido[] = [...PARTIDOS_GRUPOS, ...ELIMINATORIAS];
+  // ── CUARTOS (Quarterfinals) ── July 9-11
+  { id:"QF_1",   fase:"Cuartos", local:"Gan. R16_2",  visitante:"Gan. R16_1",  fecha:"2026-07-09", hora:"17:00" },
+  { id:"QF_2",   fase:"Cuartos", local:"Gan. R16_3",  visitante:"Gan. R16_4",  fecha:"2026-07-10", hora:"16:00" },
+  { id:"QF_3",   fase:"Cuartos", local:"Gan. R16_5",  visitante:"Gan. R16_6",  fecha:"2026-07-11", hora:"18:00" },
+  { id:"QF_4",   fase:"Cuartos", local:"Gan. R16_7",  visitante:"Gan. R16_8",  fecha:"2026-07-11", hora:"22:00" },
 
-export function calcularPuntos(pred: Resultado, res: Resultado, cfg: PuntosConfig = PUNTOS_DEFAULT): number {
-  // Resultado exacto
-  if (pred.local === res.local && pred.visitante === res.visitante) return cfg.resultado_exacto;
-  const gR = res.local > res.visitante ? "L" : res.local < res.visitante ? "V" : "E";
-  const gP = pred.local > pred.visitante ? "L" : pred.local < pred.visitante ? "V" : "E";
-  // Empate correcto (no exacto)
-  if (gR === "E" && gP === "E") return cfg.empate_correcto;
-  // Ganador correcto
-  if (gR === gP) {
-    // Diferencia de goles exacta
-    const difR = Math.abs(res.local - res.visitante);
-    const difP = Math.abs(pred.local - pred.visitante);
-    if (difR === difP) return cfg.ganador_diferencia;
-    return cfg.ganador_correcto;
-  }
-  return 0;
-}
+  // ── SEMIS ── July 14-15
+  { id:"SF_1",   fase:"Semis",   local:"Gan. QF_1",   visitante:"Gan. QF_2",   fecha:"2026-07-14", hora:"16:00" },
+  { id:"SF_2",   fase:"Semis",   local:"Gan. QF_3",   visitante:"Gan. QF_4",   fecha:"2026-07-15", hora:"16:00" },
 
-export const CIUDADES: Record<string, string> = {
-  // Grupo A
-  "G001": "Ciudad de México", "G002": "Guadalajara",
-  "G025": "Atlanta",          "G028": "Monterrey",
-  "G053": "Ciudad de México", "G054": "Monterrey",
-  // Grupo B
-  "G003": "Toronto",    "G005": "Seattle",
-  "G026": "Los Ángeles","G027": "Vancouver",
-  "G049": "Vancouver",  "G050": "Seattle",
-  // Grupo C
-  "G006": "Nueva York", "G007": "Miami",
-  "G030": "Miami",      "G031": "Miami",
-  "G051": "Atlanta",    "G052": "Miami",
-  // Grupo D
-  "G004": "Los Ángeles",  "G008": "Seattle",
-  "G029": "Seattle",      "G032": "San Francisco",
-  "G055": "Los Ángeles",  "G056": "San Francisco",
-  // Grupo E
-  "G009": "Philadelphia", "G011": "Kansas City",
-  "G034": "Toronto",      "G035": "Kansas City",
-  "G057": "Nueva York",   "G058": "Philadelphia",
-  // Grupo F
-  "G010": "Dallas",    "G012": "Houston",
-  "G033": "Houston",   "G036": "Monterrey",
-  "G059": "Dallas",    "G060": "Kansas City",
-  // Grupo G
-  "G014": "Los Ángeles","G016": "Seattle",
-  "G038": "Los Ángeles","G040": "Vancouver",
-  "G061": "Vancouver",  "G062": "Seattle",
-  // Grupo H
-  "G013": "Atlanta",    "G015": "Guadalajara",
-  "G037": "Atlanta",    "G039": "Miami",
-  "G063": "Guadalajara","G064": "Houston",
-  // Grupo I
-  "G017": "Nueva York", "G018": "Boston",
-  "G042": "Philadelphia","G043": "Nueva York",
-  "G065": "Boston",     "G066": "Toronto",
-  // Grupo J
-  "G019": "Kansas City","G020": "San Francisco",
-  "G041": "Dallas",     "G044": "Kansas City",
-  "G067": "Kansas City","G068": "Dallas",
-  // Grupo K
-  "G021": "Houston",        "G024": "Ciudad de México",
-  "G045": "Houston",        "G048": "Atlanta",
-  "G069": "Philadelphia",   "G070": "Atlanta",
-  // Grupo L
-  "G022": "Dallas",     "G023": "Toronto",
-  "G046": "Dallas",     "G047": "Miami",
-  "G071": "Philadelphia","G072": "Miami",
-  // Octavos
-  "R32_01": "Nueva York",    "R32_02": "Miami",
-  "R32_03": "Los Ángeles",   "R32_04": "Houston",
-  "R32_05": "Ciudad de México","R32_06": "Dallas",
-  "R32_07": "Atlanta",       "R32_08": "Seattle",
-  "R32_09": "Kansas City",   "R32_10": "Nueva York",
-  "R32_11": "Los Ángeles",   "R32_12": "Boston",
-  "R32_13": "Philadelphia",  "R32_14": "Vancouver",
-  "R32_15": "Dallas",        "R32_16": "Miami",
-  // Cuartos
-  "QF_1": "Los Ángeles", "QF_2": "Dallas",
-  "QF_3": "Houston",     "QF_4": "Atlanta",
-  // Semis
-  "SF_1": "Atlanta",     "SF_2": "Los Ángeles",
-  // Final
-  "3RO": "Miami", "FINAL": "Nueva York",
+  // ── FINAL ── July 18-19
+  { id:"3RO",    fase:"Final",   local:"Perdedor SF_1", visitante:"Perdedor SF_2", fecha:"2026-07-18", hora:"18:00" },
+  { id:"FINAL",  fase:"Final",   local:"Gan. SF_1",     visitante:"Gan. SF_2",     fecha:"2026-07-19", hora:"16:00" },
+
+  "R32_01": "Los Ángeles",    "R32_02": "Houston",
+  "R32_03": "Boston",         "R32_04": "Monterrey",
+  "R32_05": "Dallas",         "R32_06": "Nueva York",
+  "R32_07": "Ciudad de México","R32_08": "Atlanta",
+  "R32_09": "Seattle",        "R32_10": "San Francisco",
+  "R32_11": "Los Ángeles",    "R32_12": "Toronto",
+  "R32_13": "Vancouver",      "R32_14": "Dallas",
+  "R32_15": "Miami",          "R32_16": "Kansas City",
+  "R16_1": "Houston",         "R16_2": "Philadelphia",
+  "R16_3": "Nueva York",      "R16_4": "Ciudad de México",
+  "R16_5": "Dallas",          "R16_6": "Seattle",
+  "R16_7": "Atlanta",         "R16_8": "Vancouver",
+  "QF_1": "Boston",           "QF_2": "Seattle",
+  "QF_3": "Atlanta",          "QF_4": "Vancouver",
+  "SF_1": "Dallas",           "SF_2": "Los Ángeles",
+  "3RO": "Miami",             "FINAL": "Nueva York",
 };
