@@ -34,7 +34,7 @@ export async function enviarPushATodos(titulo: string, cuerpo: string, url = "/p
         enviados++;
       } catch (e: any) {
         errores.push(`${username}:${e.statusCode}:${e.message}`);
-        if (e.statusCode === 410 || e.statusCode === 404) {
+        if (e.statusCode === 410 || e.statusCode === 404 || e.statusCode === 403) {
           await kv.del(`push:${username}`);
           await kv.srem("push:all", username);
         }
