@@ -170,7 +170,52 @@ const ELIMINATORIAS: Partido[] = [
   // ── FINAL ── July 18-19
   { id:"3RO",    fase:"Final",   local:"Perdedor SF_1", visitante:"Perdedor SF_2", fecha:"2026-07-18", hora:"18:00" },
   { id:"FINAL",  fase:"Final",   local:"Gan. SF_1",     visitante:"Gan. SF_2",     fecha:"2026-07-19", hora:"16:00" },
+];
 
+export const TODOS_PARTIDOS: Partido[] = [...PARTIDOS_GRUPOS, ...ELIMINATORIAS];
+
+export const CIUDADES: Record<string, string> = {
+  // Grupos - Jornada 1
+  "G001": "Ciudad de México", "G002": "Monterrey",
+  "G003": "Vancouver",        "G004": "Houston",
+  "G005": "Houston",          "G006": "Nueva York",
+  "G007": "Miami",            "G008": "Vancouver",
+  "G009": "Philadelphia",     "G010": "Dallas",
+  "G011": "Kansas City",      "G012": "Houston",
+  // Grupos - Jornada 2
+  "G013": "Kansas City",      "G014": "Nueva York",
+  "G015": "Houston",          "G016": "Dallas",
+  "G017": "Seattle",          "G018": "Vancouver",
+  "G019": "San Francisco",    "G020": "Boston",
+  "G021": "Houston",          "G022": "Miami",
+  "G023": "Atlanta",          "G024": "Ciudad de México",
+  // Grupos - Jornada 3 (segunda ronda)
+  "G025": "Atlanta",          "G026": "Vancouver",
+  "G027": "Seattle",          "G028": "Monterrey",
+  "G029": "Nueva York",       "G030": "Dallas",
+  "G031": "Los Ángeles",      "G032": "Boston",
+  "G033": "Kansas City",      "G034": "San Francisco",
+  "G035": "Philadelphia",     "G036": "Miami",
+  "G037": "Los Ángeles",      "G038": "Dallas",
+  "G039": "Boston",           "G040": "Houston",
+  "G041": "Ciudad de México", "G042": "Toronto",
+  "G043": "San Francisco",    "G044": "Los Ángeles",
+  "G045": "Kansas City",      "G046": "Miami",
+  "G047": "Seattle",          "G048": "New Jersey",
+  // Grupos - Jornada 3 (tercera ronda)
+  "G049": "Vancouver",        "G050": "Seattle",
+  "G051": "Atlanta",          "G052": "Miami",
+  "G053": "Ciudad de México", "G054": "Monterrey",
+  "G055": "Los Ángeles",      "G056": "San Francisco",
+  "G057": "Nueva York",       "G058": "Philadelphia",
+  "G059": "Dallas",           "G060": "Kansas City",
+  "G061": "Boston",           "G062": "Toronto",
+  "G063": "Miami",            "G064": "Houston",
+  "G065": "Boston",           "G066": "Toronto",
+  "G067": "Dallas",           "G068": "Ciudad de México",
+  "G069": "Kansas City",      "G070": "Seattle",
+  "G071": "Atlanta",          "G072": "Los Ángeles",
+  // Dieciseisavos
   "R32_01": "Los Ángeles",    "R32_02": "Houston",
   "R32_03": "Boston",         "R32_04": "Monterrey",
   "R32_05": "Dallas",         "R32_06": "Nueva York",
@@ -179,12 +224,27 @@ const ELIMINATORIAS: Partido[] = [
   "R32_11": "Los Ángeles",    "R32_12": "Toronto",
   "R32_13": "Vancouver",      "R32_14": "Dallas",
   "R32_15": "Miami",          "R32_16": "Kansas City",
+  // Octavos
   "R16_1": "Houston",         "R16_2": "Philadelphia",
   "R16_3": "Nueva York",      "R16_4": "Ciudad de México",
   "R16_5": "Dallas",          "R16_6": "Seattle",
   "R16_7": "Atlanta",         "R16_8": "Vancouver",
+  // Cuartos
   "QF_1": "Boston",           "QF_2": "Seattle",
   "QF_3": "Atlanta",          "QF_4": "Vancouver",
+  // Semis y Final
   "SF_1": "Dallas",           "SF_2": "Los Ángeles",
   "3RO": "Miami",             "FINAL": "Nueva York",
 };
+
+export function calcularPuntos(pred: Resultado, res: Resultado, config: PuntosConfig): number {
+  if (pred.local === res.local && pred.visitante === res.visitante) return config.resultado_exacto;
+  const predGana = pred.local > pred.visitante ? "L" : pred.local < pred.visitante ? "V" : "E";
+  const resGana  = res.local  > res.visitante  ? "L" : res.local  < res.visitante  ? "V" : "E";
+  if (predGana !== resGana) return 0;
+  if (predGana === "E") return config.empate_correcto;
+  const predDif = Math.abs(pred.local - pred.visitante);
+  const resDif  = Math.abs(res.local  - res.visitante);
+  if (predDif === resDif) return config.ganador_diferencia;
+  return config.ganador_correcto;
+}
