@@ -57,21 +57,9 @@ function resolverEquipo(placeholder: string, standings: Record<string, TeamInfo[
     return null;
   }
 
-  // "Mejor 3°..." → se resuelve después cuando terminen los grupos
+  // "Mejor 3°..." → se resuelve cuando termine la fase de grupos
   if (placeholder.startsWith("Mejor 3°")) {
-    // Calcular mejores terceros
-    const allTerceros = Object.values(standings)
-      .filter(g => g.length >= 3 && g[2].pj > 0)
-      .map(g => g[2])
-      .sort((a, b) => b.pts - a.pts || b.dg - a.dg || b.gf - a.gf);
-
-    // Extraer grupos permitidos del placeholder
-    const gruposStr = placeholder.replace("Mejor 3° ", "").split("/");
-    const tercerosFiltrados = allTerceros.filter(t => {
-      return Object.entries(standings).some(([g, eq]) => gruposStr.includes(g) && eq[2]?.equipo === t.equipo);
-    });
-    if (tercerosFiltrados.length > 0) return tercerosFiltrados[0].equipo;
-    return null;
+    return null; // Por definir hasta que terminen todos los grupos
   }
 
   return null;

@@ -549,6 +549,7 @@ export default function PencaPage() {
   const [tabla, setTabla] = useState<TablaRow[]>([]);
   const [tablaGrupos, setTablaGrupos] = useState<Record<string,FilaGrupo[]>>({});
   const [goleadores, setGoleadores] = useState<any[]>([]);
+  const [bracketData, setBracketData] = useState<Record<string,{local:string|null;visitante:string|null}>>({});
   const [config, setConfig] = useState<PuntosConfig>(PUNTOS_DEFAULT);
   const [filtroFase, setFiltroFase] = useState("Grupos");
   const [filtroGrupo, setFiltroGrupo] = useState("Todos");
@@ -662,6 +663,9 @@ export default function PencaPage() {
     }).catch(()=>{});
     fetch("/api/goleadores").then(r=>r.json()).then(d=>{
       if (d.ok && d.scorers) setGoleadores(d.scorers);
+    }).catch(()=>{});
+    fetch("/api/bracket").then(r=>r.json()).then(d=>{
+      if (d.ok && d.bracket) setBracketData(d.bracket);
     }).catch(()=>{});
     setPartidosHoy(hRes.partidos??[]);
     setProximaFecha(hRes.proximaFecha??null);
@@ -1120,7 +1124,7 @@ const enviarPick = async (
                     <div key={fecha} style={{marginBottom:16}}>
                       <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>{fmtFechaLarga(fecha)}</div>
                       {ps.map(p=>(
-                        <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p,odds)} aplicarSiempre={getAplicar(p.id)} onToggleAplicar={()=>toggleAplicarSiempre(p.id)}/>
+                        <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p,odds)} aplicarSiempre={getAplicar(p.id)} onToggleAplicar={()=>toggleAplicarSiempre(p.id)} localNombre={bracketData[p.id]?.local} visitanteNombre={bracketData[p.id]?.visitante}/>
                       ))}
                     </div>
                   );
@@ -1129,7 +1133,7 @@ const enviarPick = async (
                   <div key={fecha} style={{marginBottom:16}}>
                     <div style={{fontSize:10,fontWeight:600,color:"#494d4f",background:"#f5f5f5",padding:"4px 10px",borderRadius:6,display:"inline-block",marginBottom:7}}>{fmtFechaLarga(fecha)}</div>
                     {ps.map(p=>(
-                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p, odds)} liveInfo={liveData[p.id]} aplicarSiempre={getAplicar(p.id)} onToggleAplicar={()=>toggleAplicarSiempre(p.id)}/>
+                      <PartidoCard key={p.id} partido={p} pred={predicciones[p.id]} res={resultados[p.id]} config={config} guardado={guardados[p.id]} onGuardar={guardarPick} bloqueado={esBloqueado(p.fecha,p.hora)} oddData={getOddData(p, odds)} liveInfo={liveData[p.id]} aplicarSiempre={getAplicar(p.id)} onToggleAplicar={()=>toggleAplicarSiempre(p.id)} localNombre={bracketData[p.id]?.local} visitanteNombre={bracketData[p.id]?.visitante}/>
                     ))}
                   </div>
                 );
@@ -1826,7 +1830,7 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
 }
 
 /* ── PartidoCard ── */
-function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloqueado, oddData, liveInfo, aplicarSiempre, onToggleAplicar }: {
+function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloqueado, oddData, liveInfo, aplicarSiempre, onToggleAplicar, localNombre, visitanteNombre }: {
   partido: Partido; pred?: Resultado; res?: Resultado;
   config: PuntosConfig; guardado?: boolean; bloqueado: boolean;
   onGuardar: (id: string, l: number, v: number) => void;
@@ -1834,6 +1838,8 @@ function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloquead
   liveInfo?: {estado:string;minuto:number|null;local:number;visitante:number;goles?:{minuto:string;jugador:string;esPropio:boolean;esPenal?:boolean;esAmarilla?:boolean;equipo:string}[]};
   aplicarSiempre?: boolean;
   onToggleAplicar?: () => void;
+  localNombre?: string|null;
+  visitanteNombre?: string|null;
 }) {
   const [lv,setLv]=useState<string|number>(pred?.local??"");
   const [vv,setVv]=useState<string|number>(pred?.visitante??"");
@@ -1868,12 +1874,12 @@ function PartidoCard({ partido, pred, res, config, guardado, onGuardar, bloquead
         </div>
       </div>
       <div className="equipos">
-        <div className="eq"><span className="eq-flag">{getFlag(partido.local)}</span><span className="eq-name">{partido.local}</span></div>
+        <div className="eq"><span className="eq-flag">{getFlag(localNombre??partido.local)}</span><span className="eq-name">{localNombre??partido.local}</span></div>
         {res
           ?<div className="res-box"><div className="res-score">{res.local} - {res.visitante}</div><div className="res-lbl">Final</div></div>
           :<span className="vs">VS</span>
         }
-        <div className="eq"><span className="eq-flag">{getFlag(partido.visitante)}</span><span className="eq-name">{partido.visitante}</span></div>
+        <div className="eq"><span className="eq-flag">{getFlag(visitanteNombre??partido.visitante)}</span><span className="eq-name">{visitanteNombre??partido.visitante}</span></div>
       </div>
       {!estaBlq&&onToggleAplicar&&(
         <div onClick={onToggleAplicar} style={{display:"flex",alignItems:"center",gap:8,padding:"6px 2px",cursor:"pointer",userSelect:"none"}}>
