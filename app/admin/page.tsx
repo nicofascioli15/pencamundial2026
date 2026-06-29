@@ -381,7 +381,7 @@ export default function AdminPage() {
   );
 }
 
-function AdminPartidoCard({partido,resActual,confirmado,onGuardar,onBorrar}:{
+function AdminPartidoCard({partido,resActual,confirmado,onGuardar,onBorrar,bracketData}:{
   partido:Partido;resActual?:Resultado;confirmado?:boolean;
   onGuardar:(id:string,l:number,v:number)=>void; onBorrar:(id:string)=>void;
   bracketData?:Record<string,{local:string|null;visitante:string|null}>;
