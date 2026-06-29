@@ -30,15 +30,28 @@ const TEAM_MAP: Record<string, string> = {
   "Panama": "Panamá", "Australia": "Australia", "Serbia": "Serbia",
   "Ecuador": "Ecuador", "Senegal": "Senegal", "Austria": "Austria",
   "Paraguay": "Paraguay", "Uruguay": "Uruguay", "Argentina": "Argentina",
-
 };
 
 function mapTeam(name: string): string { return TEAM_MAP[name] ?? name; }
+
 function findPartido(homeTeam: string, awayTeam: string) {
   const home = mapTeam(homeTeam);
   const away = mapTeam(awayTeam);
   return TODOS_PARTIDOS.find(p => p.local === home && p.visitante === away) ?? null;
 }
+
+async function findPartidoBracket(homeTeam: string, awayTeam: string) {
+  const home = mapTeam(homeTeam);
+  const away = mapTeam(awayTeam);
+  const kv = getClient();
+  // Buscar por reverse lookup de cualquiera de los dos equipos
+  const idPorLocal = await kv.get(`bracket:reverse:${home}`);
+  const idPorVisitante = await kv.get(`bracket:reverse:${away}`);
+  const partidoId = idPorLocal ?? idPorVisitante;
+  if (!partidoId) return null;
+  return TODOS_PARTIDOS.find(p => p.id === partidoId) ?? null;
+}
+
 function parseScore(scoreStr: string): { home: number; away: number } | null {
   if (!scoreStr?.trim()) return null;
   const parts = scoreStr.split("-").map(s => s.trim());
@@ -57,7 +70,6 @@ export async function GET() {
   }
 
   try {
-    const today = new Date().toISOString().split("T")[0];
     const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
 
@@ -72,7 +84,7 @@ export async function GET() {
 
     const nuevos: any[] = [];
 
-    // Procesar partidos finalizados del historial de hoy
+    // Procesar partidos finalizados del historial
     if (histRes.ok) {
       const histData = await histRes.json();
       const histMatches = histData.data?.match ?? [];
@@ -82,10 +94,8 @@ export async function GET() {
         if (!score) continue;
         let partido = findPartido(match.home?.name ?? "", match.away?.name ?? "");
         if (!partido) partido = findPartido(match.away?.name ?? "", match.home?.name ?? "");
-        if (!partido) {
-          console.log("NO MATCH HIST:", match.home?.name, "vs", match.away?.name);
-          continue;
-        }
+        if (!partido) partido = await findPartidoBracket(match.home?.name ?? "", match.away?.name ?? "");
+        if (!partido) { console.log("NO MATCH HIST:", match.home?.name, "vs", match.away?.name); continue; }
         const yaExistia = await getResultado(partido.id);
         if (!yaExistia) {
           await setResultado(partido.id, { local: score.home, visitante: score.away });
@@ -99,8 +109,9 @@ export async function GET() {
     const enVivo: any[] = [];
 
     for (const match of matches) {
-      const partido = findPartido(match.home?.name ?? "", match.away?.name ?? "");
-      if (!partido) continue;
+      let partido = findPartido(match.home?.name ?? "", match.away?.name ?? "");
+      if (!partido) partido = await findPartidoBracket(match.home?.name ?? "", match.away?.name ?? "");
+      if (!partido) { console.log("NO MATCH LIVE:", match.home?.name, "vs", match.away?.name); continue; }
 
       const status = match.status;
       const minuto = parseInt(match.time ?? "0") || null;
@@ -108,7 +119,6 @@ export async function GET() {
       if (status === "IN PLAY" || status === "HT" || status === "HALF TIME BREAK") {
         const score = parseScore(match.scores?.score ?? "");
 
-        // Traer eventos (goles y tarjetas)
         let goles: any[] = [];
         try {
           const evRes = await fetch(
@@ -134,7 +144,6 @@ export async function GET() {
         const liveScore = { local: score?.home ?? 0, visitante: score?.away ?? 0 };
         await setLiveScore(partido.id, liveScore);
         await getClient().set(`live:matchid:${partido.id}`, match.id?.toString() ?? "");
-        // Guardar último score visto con timestamp
         await getClient().set(`live:lastseen:${partido.id}`, JSON.stringify({
           ...liveScore, ts: Date.now()
         }));
@@ -152,12 +161,10 @@ export async function GET() {
         const score = parseScore(ftScore) ?? parseScore(match.scores?.score ?? "");
         if (!score) continue;
         const yaExistia = await getResultado(partido.id);
-        // Solo guardar si no existe ya — no pisar resultado manual
         if (!yaExistia) {
           await setResultado(partido.id, { local: score.home, visitante: score.away });
           nuevos.push({ partido, local: score.home, visitante: score.away });
 
-          // Guardar goleadores del partido
           try {
             const kv = getClient();
             const yaProc = await kv.sismember("goleadores:partidos", match.id?.toString() ?? "");
@@ -178,7 +185,6 @@ export async function GET() {
                   const existing = await kv2.get(`goleador:${playerKey}`);
                   const prev = existing ? JSON.parse(existing) : { nombre: e.player, equipo, goles: 0, asistencias: 0 };
                   prev.goles += 1;
-                  // Asistencia va al jugador en el campo "info"
                   if (e.info) {
                     const assistKey = `${e.info}:${equipo}`.replace(/[^a-zA-Z0-9:_áéíóúÁÉÍÓÚñÑüÜ]/g, "_");
                     const existingA = await kv2.get(`goleador:${assistKey}`);
@@ -214,7 +220,7 @@ export async function GET() {
       await enviarPushATodos(titulo, cuerpoFinal, "/penca?tab=tabla");
     }
 
-    // Detectar partidos que desaparecieron del live — usar eventos para score real
+    // Detectar partidos que desaparecieron del live
     for (const p of TODOS_PARTIDOS) {
       const yaResult = await getResultado(p.id);
       if (yaResult) continue;
@@ -223,7 +229,6 @@ export async function GET() {
       const lastSeen = JSON.parse(lastSeenRaw);
       const sigueEnVivo = enVivo.some(e => e.partidoId === p.id);
       if (sigueEnVivo) continue;
-      // Esperar 20 minutos para cubrir minutos de adición
       if (Date.now() - lastSeen.ts < 20 * 60 * 1000) continue;
       const matchId = await getClient().get(`live:matchid:${p.id}`);
       try {
@@ -243,7 +248,6 @@ export async function GET() {
                 if (e.home_away === "h") visitanteGoles++; else localGoles++;
               }
             }
-            // Guardar goleadores
             for (const e of events) {
               if (e.event !== "GOAL" && e.event !== "GOAL_PENALTY") continue;
               const teamName = e.home_away === "h" ? p.local : p.visitante;
@@ -264,7 +268,6 @@ export async function GET() {
           }
         }
       } catch {}
-      // Fallback: usar lastseen si no pudimos obtener eventos
       await setResultado(p.id, { local: lastSeen.local, visitante: lastSeen.visitante });
       await delLiveScore(p.id);
       await getClient().del(`live:lastseen:${p.id}`);
@@ -272,37 +275,7 @@ export async function GET() {
       nuevos.push({ partido: p, local: lastSeen.local, visitante: lastSeen.visitante });
     }
 
-    // Chequear partidos que estaban en vivo pero ya no aparecen (pueden haber terminado)
-    for (const p of TODOS_PARTIDOS) {
-      const yaResult = await getResultado(p.id);
-      if (yaResult) continue;
-      const matchId = await getClient().get(`live:matchid:${p.id}`);
-      if (!matchId) continue;
-      const sigueEnVivo = enVivo.some(e => e.partidoId === p.id);
-      if (sigueEnVivo) continue;
-      // No está en vivo ni tiene resultado — buscar directamente
-      try {
-        const mRes = await fetch(
-          `https://livescore-api.com/api-client/scores/history.json?id=${matchId}&key=${LS_KEY}&secret=${LS_SECRET}`,
-          { cache: "no-store" }
-        );
-        if (mRes.ok) {
-          const mData = await mRes.json();
-          const match = mData.data?.match;
-          if (match?.status === "FINISHED" || match?.time === "FT") {
-            const ftScore = parseScore(match.scores?.ft_score ?? match.scores?.score ?? "");
-            if (ftScore) {
-              await setResultado(p.id, { local: ftScore.home, visitante: ftScore.away });
-              await delLiveScore(p.id);
-              await getClient().del(`live:matchid:${p.id}`);
-              nuevos.push({ partido: p, local: ftScore.home, visitante: ftScore.away });
-            }
-          }
-        }
-      } catch {}
-    }
-
-    // Notificación 30 min antes del partido
+    // Notificación 30 min antes
     const ahora = Date.now();
     const kv = getClient();
     for (const p of TODOS_PARTIDOS) {
@@ -325,6 +298,11 @@ export async function GET() {
         await kv.set(`push:prepartido:${p.id}`, "1", "EX", 3600);
       }
     }
+
+    // Refrescar bracket al final
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? "https://lapencadefascioli.com"}/api/bracket`, { cache: "no-store" });
+    } catch {}
 
     return NextResponse.json(
       { ok: true, enVivo, nuevosFinalizados: nuevos.length },
