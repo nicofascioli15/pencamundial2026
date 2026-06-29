@@ -1062,7 +1062,7 @@ const enviarPick = async (
                         return (
                           <div key={p.id} style={{padding:"10px 14px",borderBottom:"1px solid #f5f5f5",display:"flex",alignItems:"center",gap:10}}>
                             <div style={{flex:1}}>
-                              <div style={{fontSize:11,fontWeight:600,color:"#1a1f24"}}>{getFlag(p.local)} {p.local} vs {p.visitante} {getFlag(p.visitante)}</div>
+                              <div style={{fontSize:11,fontWeight:600,color:"#1a1f24"}}>{getFlag(bracketData?.[p.id]?.local??p.local)} {bracketData?.[p.id]?.local??p.local} vs {bracketData?.[p.id]?.visitante??p.visitante} {getFlag(bracketData?.[p.id]?.visitante??p.visitante)}</div>
                               <div style={{fontSize:10,color:"#6b7280",marginTop:2}}>{p.fecha} · {p.hora} hs</div>
                             </div>
                             <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
