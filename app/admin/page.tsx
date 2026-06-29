@@ -79,7 +79,7 @@ const css = `
 
 interface TablaRow { username:string; nombre:string; pts:number; exactos:number; ganadores:number; jugados:number; totalPicks:number; }
 interface UserRow { username:string; nombre:string; picks:number; creadoEn?:string; }
-const FASES=["Grupos","Octavos","Cuartos","Semis","Final"];
+const FASES=["Grupos","Dieciseisavos","Octavos","Cuartos","Semis","Final"];
 const GRUPOS_KEYS=Object.keys(GRUPOS);
 
 export default function AdminPage() {
