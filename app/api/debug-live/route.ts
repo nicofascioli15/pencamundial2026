@@ -1,32 +1,15 @@
 import { NextResponse } from "next/server";
-import { TODOS_PARTIDOS } from "@/lib/mundial";
+import { getClient } from "@/lib/kv";
 export const dynamic = "force-dynamic";
 
-const TEAM_MAP: Record<string, string> = {
-  "Brazil": "Brasil", "Japan": "Japón",
-};
-function mapTeam(name: string): string { return TEAM_MAP[name] ?? name; }
-
 export async function GET() {
-  const key = process.env.LIVESCORE_KEY ?? "";
-  const secret = process.env.LIVESCORE_SECRET ?? "";
-  const res = await fetch(`https://livescore-api.com/api-client/matches/live.json?key=${key}&secret=${secret}&competition_id=362`, { cache: "no-store" });
-  const data = await res.json();
-  const match = data.data?.match?.[0];
-  if (!match) return NextResponse.json({ error: "no match" });
-
-  const home = mapTeam(match.home?.name ?? "");
-  const away = mapTeam(match.away?.name ?? "");
-  const partido = TODOS_PARTIDOS.find(p => p.local === home && p.visitante === away);
-
+  const kv = getClient();
+  const brasilKey = await kv.get("bracket:reverse:Brasil");
+  const japonKey = await kv.get("bracket:reverse:Japón");
+  const r32_02 = await kv.get("bracket:R32_02");
   return NextResponse.json({
-    rawHome: match.home?.name,
-    rawAway: match.away?.name,
-    mappedHome: home,
-    mappedAway: away,
-    status: match.status,
-    score: match.scores?.score,
-    partidoEncontrado: !!partido,
-    partidoId: partido?.id ?? null,
+    "bracket:reverse:Brasil": brasilKey,
+    "bracket:reverse:Japón": japonKey,
+    "bracket:R32_02": r32_02,
   });
 }
