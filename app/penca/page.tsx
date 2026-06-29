@@ -1000,7 +1000,7 @@ const enviarPick = async (
                   const puntos=res&&pred?calcularPuntos(pred,res,config):null;
                   return(
                     <div key={p.id} style={{marginBottom:i<partidosDia.length-1?14:0}}>
-                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)} liveInfo={liveData[p.id]} aplicarSiempre={getAplicar(p.id)} onToggleAplicar={()=>toggleAplicarSiempre(p.id)} loadingLineup={loadingLineup===p.id} onVerLineup={async()=>{setLoadingLineup(p.id);const r=await fetch(`/api/lineups?partidoId=${p.id}`).then(r=>r.json());setLoadingLineup(null);if(r.ok){setLineupDisponible(prev=>({...prev,[p.id]:true}));setLineupModal({local:r.local.jugadores,visitante:r.visitante.jugadores,equipoLocal:p.local,equipoVisitante:p.visitante});}else{setLineupDisponible(prev=>({...prev,[p.id]:false}));}}}/>
+                      <HoyCard ciudad={CIUDADES[p.id]} partido={p} estado={estado} pred={pred} res={res} bloqueado={bloq} puntos={puntos} config={config} guardado={guardados[p.id]} onGuardar={(l,v)=>guardarPick(p.id,l,v)} oddData={getOddData(p,odds)} liveInfo={liveData[p.id]} aplicarSiempre={getAplicar(p.id)} onToggleAplicar={()=>toggleAplicarSiempre(p.id)} loadingLineup={loadingLineup===p.id} localNombre={bracketData[p.id]?.local} visitanteNombre={bracketData[p.id]?.visitante} onVerLineup={async()=>{setLoadingLineup(p.id);const r=await fetch(`/api/lineups?partidoId=${p.id}`).then(r=>r.json());setLoadingLineup(null);if(r.ok){setLineupDisponible(prev=>({...prev,[p.id]:true}));setLineupModal({local:r.local.jugadores,visitante:r.visitante.jugadores,equipoLocal:p.local,equipoVisitante:p.visitante});}else{setLineupDisponible(prev=>({...prev,[p.id]:false}));}}}/>
                     </div>
                   );
                 })}
@@ -1665,18 +1665,18 @@ const enviarPick = async (
           </div>
         )}
         <button onClick={toggleNotif} style={{position:"fixed",bottom:24,right:16,background:notifActiva?"#2e9e6b":"#123952",color:"#fff",border:"none",borderRadius:50,width:48,height:48,fontSize:20,cursor:"pointer",boxShadow:"0 4px 16px rgba(0,0,0,.25)",zIndex:100}}>{notifActiva?"🔔":"🔕"}</button>
-        {perfilUsuario&&<PerfilModal perfil={perfilUsuario} resultados={resultados} liveData={liveData} config={config} onClose={()=>setPerfilUsuario(null)}/>}
+        {perfilUsuario&&<PerfilModal perfil={perfilUsuario} resultados={resultados} liveData={liveData} config={config} bracketData={bracketData} onClose={()=>setPerfilUsuario(null)}/>}
       </div>
     </>
   );
 }
 
 /* ── HoyCard ── */
-function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guardado, ciudad, onGuardar, oddData, liveInfo, aplicarSiempre, onToggleAplicar, onVerLineup, loadingLineup }: {
+function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guardado, ciudad, onGuardar, oddData, liveInfo, aplicarSiempre, onToggleAplicar, onVerLineup, loadingLineup, localNombre, visitanteNombre }: {
   partido: Partido; estado: "proximo"|"jugando"|"entretiempo"|"finalizado";
   pred?: Resultado; res?: Resultado; bloqueado: boolean;
   puntos: number|null; config: PuntosConfig;
-  guardado?: boolean; ciudad?: string; onGuardar: (l: number, v: number) => void;
+  guardado?: boolean; ciudad?: string; localNombre?: string|null; visitanteNombre?: string|null; onGuardar: (l: number, v: number) => void;
   oddData?: {home:number;draw:number;away:number};
   liveInfo?: {estado:string;minuto:number|null;local:number;visitante:number;goles?:{minuto:string;jugador:string;esPropio:boolean;esPenal?:boolean;esAmarilla?:boolean;equipo:string}[]};
   aplicarSiempre?: boolean;
@@ -1728,8 +1728,8 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
       </div>
       <div className="hoy-equipos">
         <div className="hoy-eq">
-          <span className="hoy-flag">{getFlag(partido.local)}</span>
-          <span className="hoy-name">{partido.local}</span>
+          <span className="hoy-flag">{getFlag(localNombre??partido.local)}</span>
+          <span className="hoy-name">{localNombre??partido.local}</span>
         </div>
         {res
           ? <div className="hoy-res"><div className="hoy-score">{res.local} - {res.visitante}</div><div className="hoy-res-lbl">Final</div></div>
@@ -1738,8 +1738,8 @@ function HoyCard({ partido, estado, pred, res, bloqueado, puntos, config, guarda
             : <span className="hoy-vs">VS</span>
         }
         <div className="hoy-eq">
-          <span className="hoy-flag">{getFlag(partido.visitante)}</span>
-          <span className="hoy-name">{partido.visitante}</span>
+          <span className="hoy-flag">{getFlag(visitanteNombre??partido.visitante)}</span>
+          <span className="hoy-name">{visitanteNombre??partido.visitante}</span>
         </div>
       </div>
       {oddData&&!bloqueado&&(
@@ -1953,8 +1953,9 @@ function CountdownBloqueo({ fecha, hora }: { fecha: string; hora: string }) {
   return <span className={`countdown ${urgente?"urgente":""}`}>🔒 {texto}</span>;
 }
 
-function PerfilModal({ perfil, resultados, liveData, config, onClose }: {
+function PerfilModal({ perfil, resultados, liveData, config, bracketData, onClose }: {
   perfil: {username:string;nombre:string;predicciones:Record<string,Resultado>};
+  bracketData?: Record<string,{local:string|null;visitante:string|null}>;
   resultados: Record<string,Resultado>;
   liveData: Record<string,{estado:string;minuto:number|null;local:number;visitante:number}>;
   config: PuntosConfig;
@@ -1989,7 +1990,7 @@ function PerfilModal({ perfil, resultados, liveData, config, onClose }: {
           return (
             <div key={p.id} className="modal-pick-row">
               <div style={{flex:1}}>
-                <div style={{fontSize:12,fontWeight:600,color:"#1a1f24"}}>{getFlag(p.local)} {p.local} vs {p.visitante} {getFlag(p.visitante)}</div>
+                <div style={{fontSize:12,fontWeight:600,color:"#1a1f24"}}>{getFlag(bracketData?.[p.id]?.local??p.local)} {bracketData?.[p.id]?.local??p.local} vs {bracketData?.[p.id]?.visitante??p.visitante} {getFlag(bracketData?.[p.id]?.visitante??p.visitante)}</div>
                 <div style={{fontSize:10,color:"#6b7280",marginTop:2}}>{fmtF(p.fecha)} · {p.hora} hs</div>
               </div>
               <div style={{display:"flex",alignItems:"center",gap:8,flexShrink:0}}>
