@@ -99,6 +99,7 @@ export default function AdminPage() {
   const [editando2,setEditando2]=useState(false);
   const [config,setConfig]=useState<PuntosConfig>(PUNTOS_DEFAULT);
   const [filtroFase,setFiltroFase]=useState("Grupos");
+  const [bracketData,setBracketData]=useState<Record<string,{local:string|null;visitante:string|null}>>({});
   const [filtroGrupo,setFiltroGrupo]=useState("Todos");
   const [confirmados,setConfirmados]=useState<Record<string,boolean>>({});
   const [toast,setToast]=useState<string|null>(null);
@@ -140,6 +141,7 @@ export default function AdminPage() {
     setTabla(tRes.tabla??[]);
     setUsuarios(uRes.usuarios??[]);
     setGrupos(gRes.grupos??[]);
+    fetch("/api/bracket").then(r=>r.json()).then(d=>{if(d.ok)setBracketData(d.bracket??{});}).catch(()=>{});
     const sinDuplicados = (gRes.grupos??[]).filter((g:any)=>g.id !== "fascioli");
     setGruposTabla([{id:"fascioli",nombre:"PencaFascioli"}, ...sinDuplicados]);
     setConfig(cRes.config??PUNTOS_DEFAULT);
@@ -230,9 +232,9 @@ export default function AdminPage() {
             {filtroFase==="Grupos"&&filtroGrupo==="Todos"
               ?GRUPOS_KEYS.map(g=>{
                   const ps=partidos.filter(p=>p.grupo===g);
-                  return ps.length?(<div key={g}><div className="grupo-lbl">Grupo {g}</div>{ps.map(p=><AdminPartidoCard key={p.id} partido={p} resActual={resultados[p.id]} confirmado={confirmados[p.id]} onGuardar={guardarResultado} onBorrar={async(id)=>{ if(!confirm("¿Borrar este resultado?")) return; await fetch("/api/resultados/borrar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({partidoId:id})}); refrescarTodo(); }}/>)}</div>):null;
+                  return ps.length?(<div key={g}><div className="grupo-lbl">Grupo {g}</div>{ps.map(p=><AdminPartidoCard key={p.id} partido={p} resActual={resultados[p.id]} confirmado={confirmados[p.id]} bracketData={bracketData} onGuardar={guardarResultado} onBorrar={async(id)=>{ if(!confirm("¿Borrar este resultado?")) return; await fetch("/api/resultados/borrar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({partidoId:id})}); refrescarTodo(); }}/>)}</div>):null;
                 })
-              :partidos.map(p=><AdminPartidoCard key={p.id} partido={p} resActual={resultados[p.id]} confirmado={confirmados[p.id]} onGuardar={guardarResultado} onBorrar={async(id)=>{ if(!confirm("¿Borrar este resultado?")) return; await fetch("/api/resultados/borrar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({partidoId:id})}); refrescarTodo(); }}/>)
+              :partidos.map(p=><AdminPartidoCard key={p.id} partido={p} resActual={resultados[p.id]} confirmado={confirmados[p.id]} bracketData={bracketData} onGuardar={guardarResultado} onBorrar={async(id)=>{ if(!confirm("¿Borrar este resultado?")) return; await fetch("/api/resultados/borrar",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({partidoId:id})}); refrescarTodo(); }}/>)
             }
           </>}
 
@@ -382,6 +384,7 @@ export default function AdminPage() {
 function AdminPartidoCard({partido,resActual,confirmado,onGuardar,onBorrar}:{
   partido:Partido;resActual?:Resultado;confirmado?:boolean;
   onGuardar:(id:string,l:number,v:number)=>void; onBorrar:(id:string)=>void;
+  bracketData?:Record<string,{local:string|null;visitante:string|null}>;
 }) {
   const [lv,setLv]=useState<string|number>(resActual?.local??"");
   const [vv,setVv]=useState<string|number>(resActual?.visitante??"");
@@ -398,12 +401,12 @@ function AdminPartidoCard({partido,resActual,confirmado,onGuardar,onBorrar}:{
         </div>
       </div>
       <div className="equipos">
-        <div className="eq"><span className="eq-flag">{getFlag(partido.local)}</span><span className="eq-name">{partido.local}</span></div>
+        <div className="eq"><span className="eq-flag">{getFlag(bracketData?.[partido.id]?.local??partido.local)}</span><span className="eq-name">{bracketData?.[partido.id]?.local??partido.local}</span></div>
         {resActual
           ?<div className="res-box"><div className="res-score">{resActual.local} - {resActual.visitante}</div><div className="res-lbl">Cargado ✓</div></div>
           :<span className="vs">VS</span>
         }
-        <div className="eq"><span className="eq-flag">{getFlag(partido.visitante)}</span><span className="eq-name">{partido.visitante}</span></div>
+        <div className="eq"><span className="eq-flag">{getFlag(bracketData?.[partido.id]?.visitante??partido.visitante)}</span><span className="eq-name">{bracketData?.[partido.id]?.visitante??partido.visitante}</span></div>
       </div>
       <div className="admin-inputs">
         <input className="ai" type="number" min={0} max={20} placeholder="0" value={lv} onChange={e=>setLv(e.target.value)}/>
