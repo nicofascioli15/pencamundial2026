@@ -1,6 +1,6 @@
 // app/api/tabla/route.ts
 import { NextResponse } from "next/server";
-import { getAllUsernames, getAllPrediccionesUsuario, getResultado, getPuntosConfig, getUsuario, countPrediccionesUsuario } from "@/lib/kv";
+import { getAllUsernames, getAllPrediccionesGrupoUsuario, getResultado, getPuntosConfig, getUsuario, countPrediccionesGrupoUsuario, GRUPO_GLOBAL } from "@/lib/kv";
 import { TODOS_PARTIDOS, calcularPuntos } from "@/lib/mundial";
 
 export const dynamic = "force-dynamic";
@@ -25,8 +25,8 @@ export async function GET() {
     usernames.map(async (username) => {
       const [user, predicciones, totalPicks] = await Promise.all([
         getUsuario(username),
-        getAllPrediccionesUsuario(username),
-        countPrediccionesUsuario(username),
+        getAllPrediccionesGrupoUsuario(GRUPO_GLOBAL, username),
+        countPrediccionesGrupoUsuario(GRUPO_GLOBAL, username),
       ]);
 
       let pts = 0, exactos = 0, ganadores = 0, jugados = 0;
