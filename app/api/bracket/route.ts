@@ -93,7 +93,7 @@ async function calcularStandings(resultados: Record<string, {local:number;visita
   return grupos;
 }
 
-function resolverTeam(placeholder: string, standings: Record<string, TeamInfo[]>, resultados: Record<string, {local:number;visitante:number}>, tercerosPorGrupo: Record<string, TeamInfo>, penalesCache: Record<string,string> = {}): string | null {
+function resolverTeam(placeholder: string, standings: Record<string, TeamInfo[]>, resultados: Record<string, {local:number;visitante:number}>, tercerosPorGrupo: Record<string, TeamInfo>, penalesCache: Record<string,string> = {}, asignacionesTerceros: Record<string,string> = {}): string | null {
   const pos = placeholder.match(/^([12])° Gr\. ([A-L])$/);
   if (pos) {
     const idx = parseInt(pos[1]) - 1;
@@ -109,8 +109,8 @@ function resolverTeam(placeholder: string, standings: Record<string, TeamInfo[]>
     const p = TODOS_PARTIDOS.find(x => x.id === pid);
     const res = resultados[pid];
     if (p && res) {
-      const localTeam = resolverTeam(p.local, standings, resultados, tercerosPorGrupo, penalesCache) ?? p.local;
-      const visitanteTeam = resolverTeam(p.visitante, standings, resultados, tercerosPorGrupo, penalesCache) ?? p.visitante;
+      const localTeam = resolverTeam(p.local, standings, resultados, tercerosPorGrupo, penalesCache, asignacionesTerceros) ?? p.local;
+      const visitanteTeam = resolverTeam(p.visitante, standings, resultados, tercerosPorGrupo, penalesCache, asignacionesTerceros) ?? p.visitante;
       if (res.local > res.visitante) return localTeam;
       if (res.visitante > res.local) return visitanteTeam;
       // Empate en 90' -> usar ganador por penales (resuelto async afuera via penalesCache)
@@ -121,7 +121,12 @@ function resolverTeam(placeholder: string, standings: Record<string, TeamInfo[]>
     return null;
   }
 
-  if (placeholder.startsWith("Mejor 3°")) return null; // resolto por combinacion
+  if (placeholder.startsWith("Mejor 3°")) {
+    // Buscar a qué partido R32 corresponde este placeholder exacto y usar su asignación
+    const partidoConEsteTercero = TODOS_PARTIDOS.find(x => x.local === placeholder || x.visitante === placeholder);
+    if (partidoConEsteTercero) return asignacionesTerceros[partidoConEsteTercero.id] ?? null;
+    return null;
+  }
 
   return null;
 }
@@ -171,8 +176,8 @@ export async function GET() {
     for (const p of TODOS_PARTIDOS) {
       if (p.fase === "Grupos") continue;
       
-      let local: string | null = resolverTeam(p.local, standings, resultados, tercerosPorGrupo, penalesCache);
-      let visitante: string | null = resolverTeam(p.visitante, standings, resultados, tercerosPorGrupo, penalesCache);
+      let local: string | null = resolverTeam(p.local, standings, resultados, tercerosPorGrupo, penalesCache, asignacionesTerceros);
+      let visitante: string | null = resolverTeam(p.visitante, standings, resultados, tercerosPorGrupo, penalesCache, asignacionesTerceros);
 
       // Si es un slot de Mejor 3°, usar la asignación FIFA
       if (p.local.startsWith("Mejor 3°")) local = asignacionesTerceros[p.id] ?? null;
