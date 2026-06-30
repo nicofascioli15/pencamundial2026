@@ -1011,9 +1011,15 @@ const enviarPick = async (
           {/* ── PRONÓSTICOS ── */}
           {tab==="picks"&&<>
             {(()=>{
-              const pendientes = TODOS_PARTIDOS.filter(p=>
-                !resultados[p.id] && !esBloqueado(p.fecha,p.hora) && !predicciones[p.id]
-              ).length;
+              const pendientes = TODOS_PARTIDOS.filter(p=>{
+                if (resultados[p.id] || esBloqueado(p.fecha,p.hora) || predicciones[p.id]) return false;
+                // Excluir partidos de fase knockout donde los equipos aún no se definieron
+                if (p.fase !== "Grupos") {
+                  const bk = bracketData[p.id];
+                  if (!bk || !bk.local || !bk.visitante) return false;
+                }
+                return true;
+              }).length;
               return pendientes > 0 ? (
                 <div onClick={()=>setSoloSinPick(v=>!v)} style={{display:"flex",alignItems:"center",justifyContent:"space-between",background:soloSinPick?"rgba(232,160,32,.15)":"rgba(232,160,32,.08)",border:`1px solid ${soloSinPick?"rgba(232,160,32,.5)":"rgba(232,160,32,.25)"}`,borderRadius:12,padding:"10px 14px",marginBottom:12,cursor:"pointer"}}>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
@@ -1110,7 +1116,13 @@ const enviarPick = async (
                   if (p.fase!==filtroFase) return false;
                   if (filtroFase==="Grupos"&&filtroGrupo!=="Todos"&&p.grupo!==filtroGrupo) return false;
                   if (resultados[p.id]) return false;
-                  if (soloSinPick && (predicciones[p.id] || esBloqueado(p.fecha,p.hora))) return false;
+                  if (soloSinPick) {
+                    if (predicciones[p.id] || esBloqueado(p.fecha,p.hora)) return false;
+                    if (p.fase !== "Grupos") {
+                      const bk = bracketData[p.id];
+                      if (!bk || !bk.local || !bk.visitante) return false;
+                    }
+                  }
                   return true;
                 })
                 .sort((a,b)=>new Date(`${a.fecha}T${a.hora}:00`).getTime()-new Date(`${b.fecha}T${b.hora}:00`).getTime());
