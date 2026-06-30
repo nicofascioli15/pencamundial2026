@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAllUsernames, getAllPrediccionesGrupoUsuario, getAllResultados } from "@/lib/kv";
-import { TODOS_PARTIDOS, GRUPO_GLOBAL } from "@/lib/mundial";
+import { TODOS_PARTIDOS } from "@/lib/mundial";
+import { GRUPO_GLOBAL } from "@/lib/kv";
 
 export const dynamic = "force-dynamic";
 
