@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { setResultado, getResultado, setLiveScore, delLiveScore, getClient, actualizarGoleador } from "@/lib/kv";
+import { setResultado, getResultado, setLiveScore, delLiveScore, getClient, actualizarGoleador, setGanadorPenales } from "@/lib/kv";
 import { TODOS_PARTIDOS, getFlag } from "@/lib/mundial";
 import { enviarPushATodos } from "@/lib/push";
 
@@ -101,6 +101,20 @@ export async function GET() {
           await setResultado(partido.id, { local: score.home, visitante: score.away });
           await delLiveScore(partido.id);
           nuevos.push({ partido, local: score.home, visitante: score.away });
+
+          // Si fue empate en los 90', resolver ganador por penales para el avance de fase
+          if (score.home === score.away) {
+            const psScore = match.scores?.ps_score ?? "";
+            const etScore = match.scores?.et_score ?? "";
+            const psParts = psScore.split("-").map((s:string)=>parseInt(s.trim()));
+            if (psParts.length === 2 && !isNaN(psParts[0]) && !isNaN(psParts[1]) && psParts[0] !== psParts[1]) {
+              await setGanadorPenales(partido.id, psParts[0] > psParts[1] ? "local" : "visitante");
+            } else if (match.outcomes?.penalty_shootout === "1") {
+              await setGanadorPenales(partido.id, "local");
+            } else if (match.outcomes?.penalty_shootout === "2") {
+              await setGanadorPenales(partido.id, "visitante");
+            }
+          }
         }
       }
     }

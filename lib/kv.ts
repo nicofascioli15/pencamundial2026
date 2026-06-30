@@ -88,6 +88,13 @@ export async function countPrediccionesUsuario(username: string): Promise<number
   return ids?.length ?? 0;
 }
 
+export async function setGanadorPenales(partidoId: string, ganador: "local"|"visitante"): Promise<void> {
+  await set(`penales:${partidoId}`, ganador);
+}
+export async function getGanadorPenales(partidoId: string): Promise<"local"|"visitante"|null> {
+  return get<"local"|"visitante">(`penales:${partidoId}`);
+}
+
 export async function getResultado(partidoId: string): Promise<Resultado | null> {
   return get<Resultado>(`result:${partidoId}`);
 }

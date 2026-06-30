@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAllResultados } from "@/lib/kv";
+import { getAllResultados, getGanadorPenales } from "@/lib/kv";
 import { TODOS_PARTIDOS, GRUPOS } from "@/lib/mundial";
 
 export const dynamic = "force-dynamic";
@@ -93,7 +93,7 @@ async function calcularStandings(resultados: Record<string, {local:number;visita
   return grupos;
 }
 
-function resolverTeam(placeholder: string, standings: Record<string, TeamInfo[]>, resultados: Record<string, {local:number;visitante:number}>, tercerosPorGrupo: Record<string, TeamInfo>): string | null {
+function resolverTeam(placeholder: string, standings: Record<string, TeamInfo[]>, resultados: Record<string, {local:number;visitante:number}>, tercerosPorGrupo: Record<string, TeamInfo>, penalesCache: Record<string,string> = {}): string | null {
   const pos = placeholder.match(/^([12])° Gr\. ([A-L])$/);
   if (pos) {
     const idx = parseInt(pos[1]) - 1;
@@ -109,10 +109,14 @@ function resolverTeam(placeholder: string, standings: Record<string, TeamInfo[]>
     const p = TODOS_PARTIDOS.find(x => x.id === pid);
     const res = resultados[pid];
     if (p && res) {
-      const localTeam = resolverTeam(p.local, standings, resultados, tercerosPorGrupo) ?? p.local;
-      const visitanteTeam = resolverTeam(p.visitante, standings, resultados, tercerosPorGrupo) ?? p.visitante;
+      const localTeam = resolverTeam(p.local, standings, resultados, tercerosPorGrupo, penalesCache) ?? p.local;
+      const visitanteTeam = resolverTeam(p.visitante, standings, resultados, tercerosPorGrupo, penalesCache) ?? p.visitante;
       if (res.local > res.visitante) return localTeam;
       if (res.visitante > res.local) return visitanteTeam;
+      // Empate en 90' -> usar ganador por penales (resuelto async afuera via penalesCache)
+      const penal = penalesCache[pid];
+      if (penal === "local") return localTeam;
+      if (penal === "visitante") return visitanteTeam;
     }
     return null;
   }
@@ -153,12 +157,22 @@ export async function GET() {
       });
     }
 
+    // Cargar ganadores por penales para partidos empatados en 90'
+    const penalesCache: Record<string,string> = {};
+    await Promise.all(TODOS_PARTIDOS.filter(p=>{
+      const r = resultados[p.id];
+      return r && r.local === r.visitante;
+    }).map(async (p) => {
+      const g = await getGanadorPenales(p.id);
+      if (g) penalesCache[p.id] = g;
+    }));
+
     const bracket: Record<string, {local:string|null;visitante:string|null}> = {};
     for (const p of TODOS_PARTIDOS) {
       if (p.fase === "Grupos") continue;
       
-      let local: string | null = resolverTeam(p.local, standings, resultados, tercerosPorGrupo);
-      let visitante: string | null = resolverTeam(p.visitante, standings, resultados, tercerosPorGrupo);
+      let local: string | null = resolverTeam(p.local, standings, resultados, tercerosPorGrupo, penalesCache);
+      let visitante: string | null = resolverTeam(p.visitante, standings, resultados, tercerosPorGrupo, penalesCache);
 
       // Si es un slot de Mejor 3°, usar la asignación FIFA
       if (p.local.startsWith("Mejor 3°")) local = asignacionesTerceros[p.id] ?? null;
