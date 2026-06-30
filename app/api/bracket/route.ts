@@ -186,6 +186,13 @@ export async function GET() {
       bracket[p.id] = { local, visitante };
     }
 
+    // Guardar reverse lookup en Redis para que live/route.ts encuentre partidos knockout
+    const kvClient = (await import("@/lib/kv")).getClient();
+    await Promise.all(Object.entries(bracket).map(async ([partidoId, { local, visitante }]) => {
+      if (local) await kvClient.set(`bracket:reverse:${local}`, partidoId, "EX", 172800);
+      if (visitante) await kvClient.set(`bracket:reverse:${visitante}`, partidoId, "EX", 172800);
+    }));
+
     return NextResponse.json({ ok: true, bracket, gruposTerceros, top8terceros: top8.map(t=>({equipo:t.equipo,grupo:t.grupo,pts:t.pts})) }, 
       { headers: { "Cache-Control": "no-store" } });
   } catch (e: any) {
