@@ -44,12 +44,18 @@ async function findPartidoBracket(homeTeam: string, awayTeam: string) {
   const home = mapTeam(homeTeam);
   const away = mapTeam(awayTeam);
   const kv = getClient();
-  // Buscar por reverse lookup de cualquiera de los dos equipos
   const idPorLocal = await kv.get(`bracket:reverse:${home}`);
   const idPorVisitante = await kv.get(`bracket:reverse:${away}`);
   const partidoId = idPorLocal ?? idPorVisitante;
   if (!partidoId) return null;
-  return TODOS_PARTIDOS.find(p => p.id === partidoId) ?? null;
+  const partido = TODOS_PARTIDOS.find(p => p.id === partidoId);
+  if (!partido) return null;
+  // Solo usar si el partido es dentro de 24hs futuras o 48hs pasadas
+  const now = Date.now();
+  const matchTime = new Date(`${partido.fecha}T${partido.hora}:00-03:00`).getTime();
+  const diffHoras = (matchTime - now) / 3600000;
+  if (diffHoras > 24 || diffHoras < -48) return null;
+  return partido;
 }
 
 function parseScore(scoreStr: string): { home: number; away: number } | null {
