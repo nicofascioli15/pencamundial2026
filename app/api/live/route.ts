@@ -76,6 +76,11 @@ export async function GET() {
   }
 
   try {
+    // Refrescar bracket al inicio para que el reverse lookup esté actualizado
+    try {
+      await fetch("https://lapencadefascioli.com/api/bracket", { cache: "no-store" });
+    } catch {}
+
     const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
 
