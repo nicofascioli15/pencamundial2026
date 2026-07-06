@@ -975,7 +975,7 @@ const enviarPick = async (
               .sort((a,b)=>new Date(`${a.fecha}T${a.hora}:00`).getTime()-new Date(`${b.fecha}T${b.hora}:00`).getTime());
             const fechasUnicas = Array.from(new Set(todosOrdenados.map(p=>p.fecha)));
             const fechaProxima = fechasUnicas.find(fecha=>
-              todosOrdenados.filter(p=>p.fecha===fecha).some(p=>getEstadoPartido(p.fecha,p.hora,!!resultados[p.id])!=="finalizado")
+              todosOrdenados.filter(p=>p.fecha===fecha).some(p=>getEstadoPartido(p.fecha,p.hora,!!resultados[p.id],liveData[p.id])!=="finalizado" || !!liveData[p.id])
             );
 
             if (!fechaProxima) return (
