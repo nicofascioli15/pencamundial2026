@@ -464,20 +464,18 @@ const DUR_TOTAL          = DUR_SEGUNDO_TIEMPO + T_BUFFER_FINAL;  // ~121 min
 
 function getEstadoPartido(fecha: string, hora: string, tieneResultado: boolean, liveInfo?: {estado:string;minuto:number|null;local:number;visitante:number}): "proximo"|"jugando"|"entretiempo"|"finalizado" {
   if (tieneResultado) return "finalizado";
-  // Si tenemos data de la API, usarla directamente
+  // Estado viene 100% de la API
   if (liveInfo) {
     if (liveInfo.estado === "entretiempo") return "entretiempo";
     return "jugando";
   }
+  // Sin liveInfo: solo determinar si es próximo basado en fecha/hora
   const [h, m] = hora.split(":").map(Number);
   const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime();
-  const ahora = Date.now();
-  const transcurrido = (ahora - partidoMs) / 1000 / 60;
-  if (transcurrido < 0) return "proximo";
-  if (transcurrido < DUR_PRIMER_TIEMPO) return "jugando";
-  if (transcurrido < DUR_ENTRETIEMPO) return "entretiempo";
-  if (transcurrido < DUR_TOTAL) return "jugando";
-  return "finalizado";
+  if (Date.now() < partidoMs) return "proximo";
+  // Partido empezó pero no hay liveInfo — puede estar en curso o finalizado sin resultado aún
+  // No marcamos como finalizado hasta tener resultado
+  return "proximo";
 }
 
 function getMinutoPartido(fecha: string, hora: string): { minuto: number; tiempo: string } | null {
