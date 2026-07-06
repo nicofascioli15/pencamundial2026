@@ -462,13 +462,17 @@ const DUR_ENTRETIEMPO    = DUR_PRIMER_TIEMPO + T_DESCANSO;       // ~63 min
 const DUR_SEGUNDO_TIEMPO = DUR_ENTRETIEMPO + T_SEGUNDO_TIEMPO + T_HIDRATACION_2; // ~111 min
 const DUR_TOTAL          = DUR_SEGUNDO_TIEMPO + T_BUFFER_FINAL;  // ~121 min
 
-function getEstadoPartido(fecha: string, hora: string, tieneResultado: boolean, estaEnVivo?: boolean): "proximo"|"jugando"|"entretiempo"|"finalizado" {
+function getEstadoPartido(fecha: string, hora: string, tieneResultado: boolean, liveInfo?: {estado:string;minuto:number|null;local:number;visitante:number}): "proximo"|"jugando"|"entretiempo"|"finalizado" {
   if (tieneResultado) return "finalizado";
-  if (estaEnVivo) return "jugando"; // La API dice que está en vivo → siempre jugando
+  // Si tenemos data de la API, usarla directamente
+  if (liveInfo) {
+    if (liveInfo.estado === "entretiempo") return "entretiempo";
+    return "jugando";
+  }
   const [h, m] = hora.split(":").map(Number);
   const partidoMs = new Date(`${fecha}T${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:00`).getTime();
   const ahora = Date.now();
-  const transcurrido = (ahora - partidoMs) / 1000 / 60; // minutos desde inicio
+  const transcurrido = (ahora - partidoMs) / 1000 / 60;
   if (transcurrido < 0) return "proximo";
   if (transcurrido < DUR_PRIMER_TIEMPO) return "jugando";
   if (transcurrido < DUR_ENTRETIEMPO) return "entretiempo";
@@ -992,7 +996,7 @@ const enviarPick = async (
                 </div>
 
                 {partidosDia.map((p,i)=>{
-                  const estadoCalc=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id],!!liveData[p.id]);
+                  const estadoCalc=getEstadoPartido(p.fecha,p.hora,!!resultados[p.id],liveData[p.id]);
                   const estadoLive=liveData[p.id]?.estado as "jugando"|"entretiempo"|undefined;
                   const estado = estadoLive ?? estadoCalc;
                   const pred=predicciones[p.id];
