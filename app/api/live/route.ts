@@ -110,6 +110,8 @@ export async function GET() {
         if (!partido) partido = findPartido(match.away?.name ?? "", match.home?.name ?? "");
         if (!partido) partido = await findPartidoBracket(match.home?.name ?? "", match.away?.name ?? "");
         if (!partido) { console.log("NO MATCH HIST:", match.home?.name, "vs", match.away?.name); continue; }
+        // En historial ampliado, solo guardar partidos de Grupos para evitar falsos positivos en knockout
+        if (partido.fase !== "Grupos") continue;
         const yaExistia = await getResultado(partido.id);
         if (!yaExistia) {
           await setResultado(partido.id, { local: score.home, visitante: score.away });
