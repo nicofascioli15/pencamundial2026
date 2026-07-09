@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAllResultados, getGanadorPenales } from "@/lib/kv";
+import { getAllResultados, getGanadorPenales, getClient } from "@/lib/kv";
 import { TODOS_PARTIDOS, GRUPOS } from "@/lib/mundial";
 
 export const dynamic = "force-dynamic";
@@ -187,7 +187,7 @@ export async function GET() {
     }
 
     // Guardar reverse lookup en Redis para que live/route.ts encuentre partidos knockout
-    const kvClient = (await import("@/lib/kv")).getClient();
+    const kvClient = getClient();
     await Promise.all(Object.entries(bracket).map(async ([partidoId, { local, visitante }]) => {
       if (local) await kvClient.set(`bracket:reverse:${local}`, partidoId, "EX", 172800);
       if (visitante) await kvClient.set(`bracket:reverse:${visitante}`, partidoId, "EX", 172800);
