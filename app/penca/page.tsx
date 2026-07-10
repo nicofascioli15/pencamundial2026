@@ -554,7 +554,23 @@ export default function PencaPage() {
   const [goleadores, setGoleadores] = useState<any[]>([]);
   const [bracketData, setBracketData] = useState<Record<string,{local:string|null;visitante:string|null}>>({});
   const [config, setConfig] = useState<PuntosConfig>(PUNTOS_DEFAULT);
-  const [filtroFase, setFiltroFase] = useState("Grupos");
+  const getFaseActual = () => {
+    const fases = ["Grupos","Dieciseisavos","Octavos","Cuartos","Semis","Final"];
+    // La fase actual es la primera que tenga partidos sin resultado
+    // Se inicializa después de cargar datos, por ahora usamos la fecha actual como heurística
+    const ahora = Date.now();
+    for (const fase of fases) {
+      const partidosFase = TODOS_PARTIDOS.filter(p => p.fase === fase);
+      if (partidosFase.length === 0) continue;
+      const tieneProximos = partidosFase.some(p => {
+        const t = new Date(`${p.fecha}T${p.hora}:00-03:00`).getTime();
+        return t > ahora - 7 * 24 * 3600000; // dentro de los últimos 7 días o futuro
+      });
+      if (tieneProximos) return fase;
+    }
+    return "Final";
+  };
+  const [filtroFase, setFiltroFase] = useState(getFaseActual);
   const [filtroGrupo, setFiltroGrupo] = useState("Todos");
   const [guardados, setGuardados] = useState<Record<string,boolean>>({});
   const [toast, setToast] = useState<string|null>(null);
