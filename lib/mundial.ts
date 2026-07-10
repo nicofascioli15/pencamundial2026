@@ -159,8 +159,8 @@ const ELIMINATORIAS: Partido[] = [
 
   // ── CUARTOS (Quarterfinals) ── July 9-11
   { id:"QF_1",   fase:"Cuartos", local:"Gan. R16_2",  visitante:"Gan. R16_1",  fecha:"2026-07-09", hora:"17:00" },
-  { id:"QF_2",   fase:"Cuartos", local:"Gan. R16_3",  visitante:"Gan. R16_4",  fecha:"2026-07-10", hora:"16:00" },
-  { id:"QF_3",   fase:"Cuartos", local:"Gan. R16_5",  visitante:"Gan. R16_6",  fecha:"2026-07-11", hora:"18:00" },
+  { id:"QF_2",   fase:"Cuartos", local:"Gan. R16_5",  visitante:"Gan. R16_6",  fecha:"2026-07-10", hora:"16:00" },
+  { id:"QF_3",   fase:"Cuartos", local:"Gan. R16_3",  visitante:"Gan. R16_4",  fecha:"2026-07-11", hora:"18:00" },
   { id:"QF_4",   fase:"Cuartos", local:"Gan. R16_7",  visitante:"Gan. R16_8",  fecha:"2026-07-11", hora:"22:00" },
 
   // ── SEMIS ── July 14-15
