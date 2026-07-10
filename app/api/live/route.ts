@@ -40,72 +40,41 @@ function findPartido(homeTeam: string, awayTeam: string) {
   return TODOS_PARTIDOS.find(p => p.local === home && p.visitante === away) ?? null;
 }
 
-async function findPartidoBracket(homeTeam: string, awayTeam: string) {
+async function findPartidoBracket(homeTeam: string, awayTeam: string, bracketCache?: Record<string,{local:string|null;visitante:string|null}>) {
   const home = mapTeam(homeTeam);
   const away = mapTeam(awayTeam);
 
-  // Primero intentar Redis
+  // Buscar en el cache del bracket que viene del inicio del request
+  if (bracketCache) {
+    for (const [partidoId, teams] of Object.entries(bracketCache)) {
+      if ((teams.local === home && teams.visitante === away) ||
+          (teams.local === away && teams.visitante === home)) {
+        const partido = TODOS_PARTIDOS.find(p => p.id === partidoId);
+        if (partido) {
+          const now = Date.now();
+          const matchTime = new Date(`${partido.fecha}T${partido.hora}:00-03:00`).getTime();
+          const diffHoras = (matchTime - now) / 3600000;
+          if (diffHoras <= 24 && diffHoras >= -48) return partido;
+        }
+      }
+    }
+  }
+
+  // Fallback: Redis reverse lookup
   const kv = getClient();
   const idPorLocal = await kv.get(`bracket:reverse:${home}`);
   const idPorVisitante = await kv.get(`bracket:reverse:${away}`);
   const partidoId = idPorLocal ?? idPorVisitante;
-  if (partidoId) {
-    const partido = TODOS_PARTIDOS.find(p => p.id === partidoId);
-    if (partido) {
-      const now = Date.now();
-      const matchTime = new Date(`${partido.fecha}T${partido.hora}:00-03:00`).getTime();
-      const diffHoras = (matchTime - now) / 3600000;
-      if (diffHoras <= 24 && diffHoras >= -48) return partido;
-    }
-  }
-
-  // Fallback: buscar en bracket calculado en memoria
-  try {
-    const resultados = await getAllResultados();
-    // Buscar partido knockout cuya fecha esté dentro de ±2 días
-    const now = Date.now();
-    for (const p of TODOS_PARTIDOS) {
-      if (p.fase === "Grupos") continue;
-      const matchTime = new Date(`${p.fecha}T${p.hora}:00-03:00`).getTime();
-      const diffHoras = (matchTime - now) / 3600000;
-      if (diffHoras > 24 || diffHoras < -48) continue;
-      // Verificar si este partido corresponde a estos equipos via resultados anteriores
-      const localReal = await resolverNombreEquipo(p.local, resultados, kv);
-      const visitanteReal = await resolverNombreEquipo(p.visitante, resultados, kv);
-      if ((localReal === home && visitanteReal === away) || (localReal === away && visitanteReal === home)) {
-        return p;
-      }
-    }
-  } catch {}
-  return null;
+  if (!partidoId) return null;
+  const partido = TODOS_PARTIDOS.find(p => p.id === partidoId);
+  if (!partido) return null;
+  const now = Date.now();
+  const matchTime = new Date(`${partido.fecha}T${partido.hora}:00-03:00`).getTime();
+  const diffHoras = (matchTime - now) / 3600000;
+  if (diffHoras > 24 || diffHoras < -48) return null;
+  return partido;
 }
 
-async function resolverNombreEquipo(placeholder: string, resultados: Record<string, {local:number;visitante:number}>, kv: any): Promise<string | null> {
-  // Resolver "Gan. R32_01" → nombre real del ganador
-  const ganMatch = placeholder.match(/^Gan\. (.+)$/);
-  if (ganMatch) {
-    const pid = ganMatch[1];
-    const p = TODOS_PARTIDOS.find(x => x.id === pid);
-    const res = resultados[pid];
-    if (p && res) {
-      const localNombre = await resolverNombreEquipo(p.local, resultados, kv);
-      const visitanteNombre = await resolverNombreEquipo(p.visitante, resultados, kv);
-      if (res.local > res.visitante) return localNombre;
-      if (res.visitante > res.local) return visitanteNombre;
-      // Empate: buscar ganador por penales
-      const penal = await kv.get(`penales:${pid}`);
-      if (penal === "local") return localNombre;
-      if (penal === "visitante") return visitanteNombre;
-    }
-    return null;
-  }
-  // Resolver "1° Gr. A" o "2° Gr. B" - usar Redis standings
-  const posMatch = placeholder.match(/^([12])° Gr\. ([A-L])$/);
-  if (posMatch) {
-    return await kv.get(`bracket:reverse:pos:${placeholder}`) ?? null;
-  }
-  return null;
-}
 
 function parseScore(scoreStr: string): { home: number; away: number } | null {
   if (!scoreStr?.trim()) return null;
@@ -125,9 +94,12 @@ export async function GET() {
   }
 
   try {
-    // Refrescar bracket al inicio para que el reverse lookup esté actualizado
+    // Cargar bracket al inicio para resolver equipos knockout
+    let bracketCache: Record<string,{local:string|null;visitante:string|null}> = {};
     try {
-      await fetch("https://lapencadefascioli.com/api/bracket", { cache: "no-store" });
+      const bRes = await fetch("https://lapencadefascioli.com/api/bracket", { cache: "no-store" });
+      const bData = await bRes.json();
+      if (bData.ok) bracketCache = bData.bracket ?? {};
     } catch {}
 
     const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
@@ -157,7 +129,7 @@ export async function GET() {
         if (!score) continue;
         let partido = findPartido(match.home?.name ?? "", match.away?.name ?? "");
         if (!partido) partido = findPartido(match.away?.name ?? "", match.home?.name ?? "");
-        if (!partido) partido = await findPartidoBracket(match.home?.name ?? "", match.away?.name ?? "");
+        if (!partido) partido = await findPartidoBracket(match.home?.name ?? "", match.away?.name ?? "", bracketCache);
         if (!partido) { console.log("NO MATCH HIST:", match.home?.name, "vs", match.away?.name); continue; }
         // En historial ampliado, solo guardar partidos de Grupos para evitar falsos positivos en knockout
         if (partido.fase !== "Grupos") continue;
@@ -189,7 +161,7 @@ export async function GET() {
 
     for (const match of matches) {
       let partido = findPartido(match.home?.name ?? "", match.away?.name ?? "");
-      if (!partido) partido = await findPartidoBracket(match.home?.name ?? "", match.away?.name ?? "");
+      if (!partido) partido = await findPartidoBracket(match.home?.name ?? "", match.away?.name ?? "", bracketCache);
       if (!partido) { console.log("NO MATCH LIVE:", match.home?.name, "vs", match.away?.name); continue; }
 
       const status = match.status;
