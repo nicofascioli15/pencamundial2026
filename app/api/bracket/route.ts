@@ -121,6 +121,22 @@ function resolverTeam(placeholder: string, standings: Record<string, TeamInfo[]>
     return null;
   }
 
+  // Resolver "Perdedor SF_1" o "Perdedor SF_2"
+  const perdMatch = placeholder.match(/^Perdedor (.+)$/);
+  if (perdMatch) {
+    const pid = perdMatch[1];
+    const p = TODOS_PARTIDOS.find(x => x.id === pid);
+    const res = resultados[pid];
+    if (p && res) {
+      const localTeam = resolverTeam(p.local, standings, resultados, tercerosPorGrupo, penalesCache, asignacionesTerceros) ?? p.local;
+      const visitanteTeam = resolverTeam(p.visitante, standings, resultados, tercerosPorGrupo, penalesCache, asignacionesTerceros) ?? p.visitante;
+      // El perdedor es el que NO ganó
+      if (res.local > res.visitante) return visitanteTeam;
+      if (res.visitante > res.local) return localTeam;
+    }
+    return null;
+  }
+
   if (placeholder.startsWith("Mejor 3°")) {
     // Buscar a qué partido R32 corresponde este placeholder exacto y usar su asignación
     const partidoConEsteTercero = TODOS_PARTIDOS.find(x => x.local === placeholder || x.visitante === placeholder);
